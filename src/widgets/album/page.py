@@ -17,6 +17,7 @@ class AlbumPage(Adw.NavigationPage):
     song_list_el = Gtk.Template.Child()
 
     play_el = Gtk.Template.Child()
+    play_shuffle_el = Gtk.Template.Child()
     play_next_el = Gtk.Template.Child()
     play_later_el = Gtk.Template.Child()
 
@@ -30,6 +31,7 @@ class AlbumPage(Adw.NavigationPage):
 
         self.star_el.set_action_target_value(GLib.Variant.new_string(self.id))
         self.play_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        self.play_shuffle_el.set_action_target_value(GLib.Variant.new_string(self.id))
         self.play_next_el.set_action_target_value(GLib.Variant.new_string(self.id))
         self.play_later_el.set_action_target_value(GLib.Variant.new_string(self.id))
 

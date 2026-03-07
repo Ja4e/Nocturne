@@ -22,7 +22,7 @@ from gi.repository import Gtk, Adw, GLib, Gst
 from . import widgets as Widgets
 from . import navidrome
 
-import threading, ctypes
+import threading, random
 from datetime import datetime, UTC
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/window.ui')
@@ -116,6 +116,18 @@ class NocturneWindow(Adw.ApplicationWindow):
             queue_page = self.playing_navigationview.find_page('queue')
             queue_page.play_later([s.get('id') for s in album.song])
 
+    def play_album_shuffle(self, action, model_id:GLib.Variant):
+        model_id = model_id.unpack()
+        integration = navidrome.get_current_integration()
+        album = integration.loaded_models.get(model_id)
+
+        if album:
+            integration.verifyAlbum(album.id, force_update=True, use_threading=False)
+            queue_page = self.playing_navigationview.find_page('queue')
+            song_list = [s.get('id') for s in album.song]
+            random.shuffle(song_list)
+            queue_page.replace_queue(song_list)
+
     def play_playlist(self, action, model_id:GLib.Variant):
         model_id = model_id.unpack()
         integration = navidrome.get_current_integration()
@@ -146,15 +158,27 @@ class NocturneWindow(Adw.ApplicationWindow):
             queue_page = self.playing_navigationview.find_page('queue')
             queue_page.play_later([s.get('id') for s in playlist.entry])
 
+    def play_playlist_shuffle(self, action, model_id:GLib.Variant):
+        model_id = model_id.unpack()
+        integration = navidrome.get_current_integration()
+        playlist = integration.loaded_models.get(model_id)
+
+        if playlist:
+            integration.verifyPlaylist(playlist.id, force_update=True, use_threading=False)
+            queue_page = self.playing_navigationview.find_page('queue')
+            song_list = [s.get('id') for s in playlist.entry]
+            random.shuffle(song_list)
+            queue_page.replace_queue(song_list)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         """
         Actions to implement:
 
-        play_playlist_shuffle
+        #play_playlist_shuffle
+        #play_album_suffle
         play_artist_shuffle
-        play_album_suffle
 
         play_artist_radio
 
@@ -199,6 +223,12 @@ class NocturneWindow(Adw.ApplicationWindow):
         )
 
         self.get_application().create_action(
+            name="play_album_shuffle",
+            callback=self.play_album_shuffle,
+            parameter_type=GLib.VariantType.new('s')
+        )
+
+        self.get_application().create_action(
             name="play_playlist",
             callback=self.play_playlist,
             parameter_type=GLib.VariantType.new('s')
@@ -213,6 +243,12 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.get_application().create_action(
             name="play_playlist_later",
             callback=self.play_playlist_next,
+            parameter_type=GLib.VariantType.new('s')
+        )
+
+        self.get_application().create_action(
+            name="play_playlist_shuffle",
+            callback=self.play_playlist_shuffle,
             parameter_type=GLib.VariantType.new('s')
         )
 
