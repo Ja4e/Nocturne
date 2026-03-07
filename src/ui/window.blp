@@ -4,8 +4,9 @@ using Adw 1;
 template $NocturneWindow: Adw.ApplicationWindow {
   title: "Nocturne";
 
-  content: Adw.BottomSheet {
+  content: Adw.BottomSheet main_bottom_sheet {
     full-width: false;
+    notify::open => $on_bottomsheet_open();
 
     content: Adw.NavigationView main_navigationview {
       $NocturneHomePage home_page {}

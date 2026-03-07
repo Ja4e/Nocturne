@@ -32,6 +32,12 @@ class NocturneWindow(Adw.ApplicationWindow):
     main_navigationview = Gtk.Template.Child()
     playing_navigationview = Gtk.Template.Child()
     home_page = Gtk.Template.Child()
+    main_bottom_sheet = Gtk.Template.Child()
+
+    @Gtk.Template.Callback()
+    def on_bottomsheet_open(self, bottomsheet, state):
+        if not self.main_bottom_sheet.get_open():
+            GLib.timeout_add(1000, self.playing_navigationview.replace_with_tags, ['playing'])
 
     def show_album(self, action, model_id:GLib.Variant):
         self.main_navigationview.push(Widgets.AlbumPage(model_id.unpack()))
