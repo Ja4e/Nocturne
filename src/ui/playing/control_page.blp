@@ -92,7 +92,8 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
 
         Gtk.Scale progress_el {
           orientation: horizontal;
-          hexpand: true;
+          halign: center;
+          width-request: 300;
           GestureClick {
             pressed => $seek_start();
             stopped => $seek_end();

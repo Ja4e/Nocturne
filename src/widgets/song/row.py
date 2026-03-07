@@ -103,6 +103,8 @@ class SongRow(Adw.ActionRow):
 
     def current_song_changed(self, songId:str):
         self.set_activatable(songId != self.id)
+        self.play_next_el.set_sensitive(songId != self.id)
+        self.play_later_el.set_sensitive(songId != self.id)
         if songId == self.id:
             self.icon_el.set_from_icon_name('media-playback-start-symbolic')
             self.icon_el.set_visible(True)
