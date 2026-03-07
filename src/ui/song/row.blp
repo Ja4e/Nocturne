@@ -51,11 +51,13 @@ template $NocturneSongRow: Adw.ActionRow {
         halign: start;
         line-spacing: 2;
         child-spacing: 2;
+        wrap-policy: minimum;
 
         Gtk.Label duration_el {
           styles [
             "subtitle"
           ]
+          visible: false;
           ellipsize: end;
         }
 

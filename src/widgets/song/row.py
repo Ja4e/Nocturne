@@ -31,6 +31,7 @@ class SongRow(Adw.ActionRow):
 
         integration.connect_to_model(self.id, 'title', self.update_title)
         integration.connect_to_model(self.id, 'artists', self.update_artists)
+        integration.connect_to_model(self.id, 'duration', self.update_duration)
         integration.connect_to_model(self.id, 'starred', self.update_starred)
         integration.connect_to_model('currentSong', 'songId', self.current_song_changed)
 
@@ -39,6 +40,7 @@ class SongRow(Adw.ActionRow):
 
     def update_duration(self, duration:int):
         self.duration_el.set_label(str(timedelta(seconds=duration)))
+        self.duration_el.set_visible(duration)
 
     def update_artists(self, artists:list):
         if len(artists) == 1:
