@@ -135,7 +135,10 @@ class PlayingControlPage(Adw.NavigationPage):
                 integration.loaded_models['currentSong'].songId = id_list[0]
 
             elif mode in ('consecutive', 'repeat-all'):
-                next_index = id_list.index(current_song_id) + (1 if action in ("next", "end") else -1)
+                try:
+                    next_index = id_list.index(current_song_id) + (1 if action in ("next", "end") else -1)
+                except ValueError: # index was not found
+                    next_index = 0
 
                 if mode == 'consecutive':
                     if next_index < 0:
@@ -154,6 +157,8 @@ class PlayingControlPage(Adw.NavigationPage):
 
             elif mode == 'repeat-one':
                 integration.loaded_models['currentSong'].songId = current_song_id
+        else:
+            integration.loaded_models['currentSong'].songId = None
 
     def on_player_message(self, bus, message):
         if message.type == Gst.MessageType.STATE_CHANGED:
