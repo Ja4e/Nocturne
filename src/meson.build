@@ -66,6 +66,7 @@ nocturne_sources = [
   '__init__.py',
   'main.py',
   'window.py',
+  'actions.py',
 ]
 
 install_data(nocturne_sources, install_dir: moduledir)

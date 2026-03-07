@@ -19,11 +19,7 @@
 
 from gi.repository import Gtk, Adw, GLib, Gst
 
-from . import widgets as Widgets
-from . import navidrome
-
-import threading, random
-from datetime import datetime, UTC
+from . import navidrome, actions
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/window.ui')
 class NocturneWindow(Adw.ApplicationWindow):
@@ -46,129 +42,13 @@ class NocturneWindow(Adw.ApplicationWindow):
         current_song = integration.loaded_models.get('currentSong')
         integration.savePlayQueue(id_list, current_song.songId, current_song.positionSeconds * 1000)
 
-    def show_album(self, action, model_id:GLib.Variant):
-        self.main_navigationview.push(Widgets.AlbumPage(model_id.unpack()))
+    def create_action(self, callback:callable, parameter_type:str="s"):
+        self.get_application().create_action(
+            name=callback.__name__,
+            callback=lambda at, va, cb=callback, win=self: cb(win, va.unpack()),
+            parameter_type=GLib.VariantType.new(parameter_type) if parameter_type else None
+        )
 
-    def show_artist(self, action, model_id:GLib.Variant):
-        self.main_navigationview.push(Widgets.ArtistPage(model_id.unpack()))
-
-    def show_playlist(self, action, model_id:GLib.Variant):
-        self.main_navigationview.push(Widgets.PlaylistPage(model_id.unpack()))
-
-    def toggle_star(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        integration = navidrome.get_current_integration()
-        if model_id in integration.loaded_models:
-            model = integration.loaded_models[model_id]
-            if model.starred:
-                if integration.unstar(model.id):
-                    model.starred = None
-            else:
-                if integration.star(model.id):
-                    model.starred = datetime.now(UTC).isoformat(timespec='microseconds').replace('+00:00', 'Z')
-
-    def play_song(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        queue_page = self.playing_navigationview.find_page('queue')
-        if model_id in queue_page.song_list_el.get_all_ids():
-            integration = navidrome.get_current_integration()
-            integration.loaded_models.get('currentSong').songId = model_id
-        else:
-            queue_page.replace_queue([model_id])
-
-    def play_song_next(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        queue_page = self.playing_navigationview.find_page('queue')
-        queue_page.play_next([model_id])
-
-    def play_song_later(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        queue_page = self.playing_navigationview.find_page('queue')
-        queue_page.play_later([model_id])
-
-    def play_album(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        integration = navidrome.get_current_integration()
-        album = integration.loaded_models.get(model_id)
-
-        if album:
-            integration.verifyAlbum(album.id, force_update=True, use_threading=False)
-            queue_page = self.playing_navigationview.find_page('queue')
-            queue_page.replace_queue([s.get('id') for s in album.song])
-
-    def play_album_next(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        integration = navidrome.get_current_integration()
-        album = integration.loaded_models.get(model_id)
-
-        if album:
-            integration.verifyAlbum(album.id, force_update=True, use_threading=False)
-            queue_page = self.playing_navigationview.find_page('queue')
-            queue_page.play_next([s.get('id') for s in album.song])
-
-    def play_album_later(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        integration = navidrome.get_current_integration()
-        album = integration.loaded_models.get(model_id)
-
-        if album:
-            integration.verifyAlbum(album.id, force_update=True, use_threading=False)
-            queue_page = self.playing_navigationview.find_page('queue')
-            queue_page.play_later([s.get('id') for s in album.song])
-
-    def play_album_shuffle(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        integration = navidrome.get_current_integration()
-        album = integration.loaded_models.get(model_id)
-
-        if album:
-            integration.verifyAlbum(album.id, force_update=True, use_threading=False)
-            queue_page = self.playing_navigationview.find_page('queue')
-            song_list = [s.get('id') for s in album.song]
-            random.shuffle(song_list)
-            queue_page.replace_queue(song_list)
-
-    def play_playlist(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        integration = navidrome.get_current_integration()
-        playlist = integration.loaded_models.get(model_id)
-
-        if playlist:
-            integration.verifyPlaylist(playlist.id, force_update=True, use_threading=False)
-            queue_page = self.playing_navigationview.find_page('queue')
-            queue_page.replace_queue([s.get('id') for s in playlist.entry])
-
-    def play_playlist_next(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        integration = navidrome.get_current_integration()
-        playlist = integration.loaded_models.get(model_id)
-
-        if playlist:
-            integration.verifyPlaylist(playlist.id, force_update=True, use_threading=False)
-            queue_page = self.playing_navigationview.find_page('queue')
-            queue_page.play_next([s.get('id') for s in playlist.entry])
-
-    def play_playlist_later(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        integration = navidrome.get_current_integration()
-        playlist = integration.loaded_models.get(model_id)
-
-        if playlist:
-            integration.verifyPlaylist(playlist.id, force_update=True, use_threading=False)
-            queue_page = self.playing_navigationview.find_page('queue')
-            queue_page.play_later([s.get('id') for s in playlist.entry])
-
-    def play_playlist_shuffle(self, action, model_id:GLib.Variant):
-        model_id = model_id.unpack()
-        integration = navidrome.get_current_integration()
-        playlist = integration.loaded_models.get(model_id)
-
-        if playlist:
-            integration.verifyPlaylist(playlist.id, force_update=True, use_threading=False)
-            queue_page = self.playing_navigationview.find_page('queue')
-            song_list = [s.get('id') for s in playlist.entry]
-            random.shuffle(song_list)
-            queue_page.replace_queue(song_list)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -176,105 +56,31 @@ class NocturneWindow(Adw.ApplicationWindow):
         """
         Actions to implement:
 
-        #play_playlist_shuffle
-        #play_album_suffle
-        play_artist_shuffle
-
         play_artist_radio
 
         add_song_to_playlist
         add_album_to_playlist
         """
 
-        self.get_application().create_action(
-            name="play_song",
-            callback=self.play_song,
-            parameter_type=GLib.VariantType.new('s')
-        )
+        self.create_action(actions.toggle_star)
 
-        self.get_application().create_action(
-            name="play_song_next",
-            callback=self.play_song_next,
-            parameter_type=GLib.VariantType.new('s')
-        )
+        self.create_action(actions.play_song)
+        self.create_action(actions.play_song_next)
+        self.create_action(actions.play_song_later)
 
-        self.get_application().create_action(
-            name="play_song_later",
-            callback=self.play_song_later,
-            parameter_type=GLib.VariantType.new('s')
-        )
+        self.create_action(actions.show_album)
+        self.create_action(actions.play_album)
+        self.create_action(actions.play_album_next)
+        self.create_action(actions.play_album_later)
+        self.create_action(actions.play_album_shuffle)
 
-        self.get_application().create_action(
-            name="play_album",
-            callback=self.play_album,
-            parameter_type=GLib.VariantType.new('s')
-        )
+        self.create_action(actions.show_playlist)
+        self.create_action(actions.play_playlist)
+        self.create_action(actions.play_playlist_next)
+        self.create_action(actions.play_playlist_later)
+        self.create_action(actions.play_playlist_shuffle)
 
-        self.get_application().create_action(
-            name="play_album_next",
-            callback=self.play_album_next,
-            parameter_type=GLib.VariantType.new('s')
-        )
-
-        self.get_application().create_action(
-            name="play_album_later",
-            callback=self.play_album_next,
-            parameter_type=GLib.VariantType.new('s')
-        )
-
-        self.get_application().create_action(
-            name="play_album_shuffle",
-            callback=self.play_album_shuffle,
-            parameter_type=GLib.VariantType.new('s')
-        )
-
-        self.get_application().create_action(
-            name="play_playlist",
-            callback=self.play_playlist,
-            parameter_type=GLib.VariantType.new('s')
-        )
-
-        self.get_application().create_action(
-            name="play_playlist_next",
-            callback=self.play_playlist_next,
-            parameter_type=GLib.VariantType.new('s')
-        )
-
-        self.get_application().create_action(
-            name="play_playlist_later",
-            callback=self.play_playlist_next,
-            parameter_type=GLib.VariantType.new('s')
-        )
-
-        self.get_application().create_action(
-            name="play_playlist_shuffle",
-            callback=self.play_playlist_shuffle,
-            parameter_type=GLib.VariantType.new('s')
-        )
-
-        self.get_application().create_action(
-            name="show_album",
-            callback=self.show_album,
-            parameter_type=GLib.VariantType.new('s')
-        )
-
-        self.get_application().create_action(
-            name="show_artist",
-            callback=self.show_artist,
-            parameter_type=GLib.VariantType.new('s')
-        )
-
-        self.get_application().create_action(
-            name="show_playlist",
-            callback=self.show_playlist,
-            parameter_type=GLib.VariantType.new('s')
-        )
-
-        self.get_application().create_action(
-            name="toggle_star",
-            callback=self.toggle_star,
-            parameter_type=GLib.VariantType.new('s')
-        )
+        self.create_action(actions.show_artist)
 
         integration = navidrome.get_current_integration()
         current_id, song_list = integration.getPlayQueue()
