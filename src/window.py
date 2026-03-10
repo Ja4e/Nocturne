@@ -32,6 +32,7 @@ class NocturneWindow(Adw.ApplicationWindow):
     playing_page = Gtk.Template.Child()
     queue_page = Gtk.Template.Child()
     lyrics_page = Gtk.Template.Child()
+    main_sidebar = Gtk.Template.Child()
 
     @Gtk.Template.Callback()
     def close_request(self, window):
@@ -42,6 +43,11 @@ class NocturneWindow(Adw.ApplicationWindow):
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         settings.set_int('default-width', self.get_width())
         settings.set_int('default-height', self.get_height())
+
+    @Gtk.Template.Callback()
+    def bottom_bar_toggled(self, bottom_bar, gparam):
+        self.main_navigationview.set_margin_bottom(70 if bottom_bar.get_reveal_bottom_bar() else 0)
+        self.main_sidebar.set_margin_bottom(70 if bottom_bar.get_reveal_bottom_bar() else 0)
 
     def create_action(self, callback:callable, parameter_type:str="s"):
         self.get_application().create_action(

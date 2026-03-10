@@ -14,6 +14,7 @@ template $NocturneWindow: Adw.ApplicationWindow {
       main_split_view.show-content: true;
       sheet_header.title-widget: null;
       sheet_switch_bar.reveal: true;
+      main_bottom_sheet.show-drag-handle: true;
     }
   }
 
@@ -21,9 +22,11 @@ template $NocturneWindow: Adw.ApplicationWindow {
     child: Adw.BottomSheet main_bottom_sheet {
       full-width: true;
       show-drag-handle: false;
+      notify::reveal-bottom-bar => $bottom_bar_toggled();
+
       content: Adw.NavigationSplitView main_split_view {
         show-content: true;
-        sidebar: $NocturneMainSidebar {};
+        sidebar: $NocturneMainSidebar main_sidebar {};
         content: Adw.NavigationPage {
           child: Adw.NavigationView main_navigationview {
             $NocturneHomePage home_page {}

@@ -30,6 +30,10 @@
   margin-right: 5px;
 }
 
+navigation-view-page scrolledwindow > * {
+padding-bottom: 10px;
+}
+
 .button_no_bold label {
   font-weight: normal;
 }

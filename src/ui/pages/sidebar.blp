@@ -4,11 +4,11 @@ using Adw 1;
 
 template $NocturneMainSidebar: Adw.NavigationPage {
   title: "Nocturne";
-  child: Adw.ToolbarView main_sidebar {
+  child: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {}
 
-    content: Adw.Sidebar {
+    content: Adw.Sidebar sidebar {
       Adw.SidebarSection {
         Adw.SidebarItem {
           title: _("Home");
