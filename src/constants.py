@@ -29,7 +29,7 @@ SIDEBAR_MENU = [
         ]
     },
     { # Section
-        'title': _("Album"),
+        'title': _("Albums"),
         'items': [
             { # Item
                 'title': _("All"),

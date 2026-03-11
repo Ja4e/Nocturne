@@ -275,32 +275,6 @@ class PlayingControlPage(Adw.NavigationPage):
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
 
-        return
-        accent = ColorThief(img_io).get_color(quality=10)
-        r, g, b = [x / 255.0 for x in accent]
-        h, l, s = colorsys.rgb_to_hls(r,g,b)
-
-        rgb1 = [str(int(x * 255)) for x in colorsys.hls_to_rgb((h + 0.1) % 1.0, l, s)]
-        rgb2 = [str(int(x * 255)) for x in colorsys.hls_to_rgb(h, l, s)]
-
-        css = f"""
-        .dynamic-accent-bg, .dynamic-accent-bg > .sidebar-pane {{
-            background-image: linear-gradient(
-                to bottom right,
-                rgba({','.join(rgb1)},0.25),
-                rgba({','.join(rgb2)},0.25)
-            );
-            transition: background-image 0.5s ease-in-out;
-        }}
-        """
-        provider = Gtk.CssProvider()
-        provider.load_from_data(css.encode('utf-8'))
-        Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
-
     def update_cover_art(self):
         integration = get_current_integration()
         song_id = integration.loaded_models.get('currentSong').songId
