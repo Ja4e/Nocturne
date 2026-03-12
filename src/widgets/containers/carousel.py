@@ -1,6 +1,6 @@
 # carousel.py
 
-from gi.repository import Gtk, Adw, GLib
+from gi.repository import Gtk, Adw, GLib, Gdk
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/containers/carousel.ui')
 class Carousel(Gtk.Box):
@@ -26,3 +26,17 @@ class Carousel(Gtk.Box):
             GLib.idle_add(self.remove_all)
         for page in widgets:
             GLib.idle_add(self.list_el.append, page)
+
+    @Gtk.Template.Callback()
+    def on_scroll(self, controller, dx, dy):
+        position = self.list_el.get_position()
+        if position == int(position):
+            event = controller.get_current_event()
+            state = event.get_modifier_state()
+            if (state & Gdk.ModifierType.SHIFT_MASK):
+                next_position = int(max(0, min(position + dy, self.list_el.get_n_pages())))
+                next_page = self.list_el.get_nth_page(next_position)
+                if next_page:
+                    self.list_el.scroll_to(next_page, True)
+        return Gdk.EVENT_PROPAGATE
+

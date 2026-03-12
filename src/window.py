@@ -25,7 +25,7 @@ import threading
 
 class SidebarItem(Adw.SidebarItem):
     __gtype_name__ = 'NocturneSidebarItem'
-    page_name = GObject.Property(type=str)
+    page_tag = GObject.Property(type=str)
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/window.ui')
 class NocturneWindow(Adw.ApplicationWindow):
@@ -55,9 +55,15 @@ class NocturneWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback()
     def on_sidebar_activated(self, sidebar, index):
-        page_name = sidebar.get_selected_item().page_name
-        page = self.main_navigationview.find_page(page_name)
-        threading.Thread(target=page.reload).start()
+        page_tag = sidebar.get_selected_item().page_tag
+        print(page_tag)
+        self.replace_root_page(page_tag)
+
+    def replace_root_page(self, page_tag:str):
+        page = self.main_navigationview.find_page(page_tag)
+        if page:
+            threading.Thread(target=page.reload).start()
+            self.main_navigationview.replace([page])
 
     def create_action(self, callback:callable, shortcuts:list=[], parameter_type:str="s"):
         self.get_application().create_action(
@@ -84,7 +90,7 @@ class NocturneWindow(Adw.ApplicationWindow):
                 section_el.append(SidebarItem(
                     title=item.get('title'),
                     icon_name=item.get('icon-name'),
-                    page_name=item.get('page-name')
+                    page_tag=item.get('page-name')
                 ))
 
     def __init__(self, **kwargs):

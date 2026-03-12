@@ -47,6 +47,12 @@ template $NocturneCarousel: Gtk.Box {
       allow-long-swipes: true;
       allow-mouse-drag: true;
       reveal-duration: 500;
+      allow-scroll-wheel: false;
+
+      Gtk.EventControllerScroll {
+        scroll => $on_scroll();
+        flags: both_axes;
+      }
 
       Adw.Spinner {
         height-request: 240;
