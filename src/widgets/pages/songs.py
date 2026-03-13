@@ -1,13 +1,13 @@
-# artist.py
+# songs.py
 
 from gi.repository import Gtk, Adw, GLib, GObject, Gio
 from ...navidrome import get_current_integration, models
-from ..artist import ArtistRow
+from ..song import SongRow
 import threading
 
-@Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/artists.ui')
-class ArtistsPage(Adw.NavigationPage):
-    __gtype_name__ = 'NocturneArtistsPage'
+@Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/songs.ui')
+class SongsPage(Adw.NavigationPage):
+    __gtype_name__ = 'NocturneSongsPage'
 
     search_entry = Gtk.Template.Child()
     list_el = Gtk.Template.Child()
@@ -16,7 +16,7 @@ class ArtistsPage(Adw.NavigationPage):
     searching = False
 
     def reload(self):
-        if len(list(self.list_el)) == 0:
+        if len(list(self.list_el.list_el)) == 0:
             GLib.idle_add(self.on_search_activate, self.search_entry)
 
     def search(self):
@@ -27,27 +27,27 @@ class ArtistsPage(Adw.NavigationPage):
         integration = get_current_integration()
         search_results = integration.search(
             query=query,
-            artistCount=30,
-            artistOffset=self.offset
+            songCount=30,
+            songOffset=self.offset
         )
-        for artist_id in search_results.get('artist'):
-            results = [row for row in list(self.list_el) if row.id == artist_id]
+        for song_id in search_results.get('song'):
+            results = [row for row in list(self.list_el.list_el) if row.id == song_id]
             if len(results) > 0:
                 GLib.idle_add(results[0].set_visible, True)
             else:
-                row = ArtistRow(artist_id)
-                GLib.idle_add(self.list_el.append, row)
-        self.end_stack.set_visible_child_name('end' if max(self.offset, 30) > len([row for row in list(self.list_el) if row.get_visible()]) else 'loading')
+                row = SongRow(song_id)
+                GLib.idle_add(self.list_el.list_el.append, row)
+        self.end_stack.set_visible_child_name('end' if max(self.offset, 30) > len([row for row in list(self.list_el.list_el) if row.get_visible()]) else 'loading')
         self.offset += 30
         self.searching = False
 
     @Gtk.Template.Callback()
     def on_search_activate(self, search_entry):
         self.offset = 0
-        for row in list(self.list_el):
+        for row in list(self.list_el.list_el):
             row.set_visible(False)
         threading.Thread(target=self.search).start()
-            
+
     @Gtk.Template.Callback()
     def scroll_edge_reached(self, scrolledwindow, pos):
         if pos == Gtk.PositionType.BOTTOM:

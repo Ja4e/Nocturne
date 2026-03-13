@@ -15,6 +15,10 @@ def __show_page(window, page):
 
 # -- MISC --
 
+def replace_root_page(window, page_tag:str):
+    if page_tag:
+        window.replace_root_page(page_tag)
+
 def toggle_star(window, model_id:str):
     integration = navidrome.get_current_integration()
     if model_id in integration.loaded_models:

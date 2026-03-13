@@ -2,3 +2,4 @@
 
 from .button import PlaylistButton
 from .page import PlaylistPage
+from .row import PlaylistRow

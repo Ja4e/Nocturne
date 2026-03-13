@@ -320,11 +320,38 @@ class Navidrome(GObject.Object):
         })
         return response.json()
 
+    def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
+        response = self.make_request('search3', {
+            'query': query,
+            'artistCount': artistCount,
+            'artistOffset': artistOffset,
+            'albumCount': albumCount,
+            'albumOffset': albumOffset,
+            'songCount': songCount,
+            'songOffset': songOffset
+        })
+        search_results = response.get('searchResult3')
+        for model in search_results.get('artist', []):
+            if model.get('id') not in self.loaded_models:
+                self.loaded_models[model.get('id')] = models.Artist(**model)
+        for model in search_results.get('album', []):
+            if model.get('id') not in self.loaded_models:
+                self.loaded_models[model.get('id')] = models.Album(**model)
+        for model in search_results.get('song', []):
+            if model.get('id') not in self.loaded_models:
+                self.loaded_models[model.get('id')] = models.Song(**model)
+
+        return {
+            'artist': [m.get('id') for m in search_results.get('artist', [])],
+            'album': [m.get('id') for m in search_results.get('album', [])],
+            'song': [m.get('id') for m in search_results.get('song', [])],
+        }
 
 integration = None
 
 def get_current_integration():
     global integration
+    integration.search('Ado', artistCount=3)
     return integration
 
 def set_current_integration(new_integration):

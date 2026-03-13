@@ -1,15 +1,15 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $NocturneArtistsPage: Adw.NavigationPage {
-  title: _("Artists");
-  tag: "artists";
+template $NocturneSongsPage: Adw.NavigationPage {
+  title: _("Songs");
+  tag: "songs";
   child: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
       title-widget: Gtk.SearchEntry search_entry {
         hexpand: true;
-        placeholder-text: _("Artists");
+        placeholder-text: _("Songs");
         activate => $on_search_activate();
       };
     }
@@ -26,7 +26,7 @@ template $NocturneArtistsPage: Adw.NavigationPage {
           orientation: vertical;
           spacing: 5;
 
-          Gtk.ListBox list_el {
+          $NocturneSongQueue list_el {
             styles [
               "boxed-list"
             ]
@@ -34,7 +34,6 @@ template $NocturneArtistsPage: Adw.NavigationPage {
             margin-bottom: 10;
             margin-start: 10;
             margin-end: 10;
-            selection-mode: none;
             valign: start;
           }
           Gtk.Stack end_stack {

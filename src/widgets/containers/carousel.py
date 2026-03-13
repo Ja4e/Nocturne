@@ -9,12 +9,13 @@ class Carousel(Gtk.Box):
     header_button = Gtk.Template.Child()
     list_el = Gtk.Template.Child()
 
-    def set_header(self, label:str, icon_name:str, action_name:str=None):
+    def set_header(self, label:str, icon_name:str, page_tag:str=None):
         self.header_button.set_tooltip_text(label)
         self.header_button.get_child().set_label(label)
         self.header_button.get_child().set_icon_name(icon_name)
-        self.header_button.set_action_name(action_name)
-        self.header_button.set_sensitive(bool(action_name))
+        if page_tag:
+            self.header_button.set_action_target_value(GLib.Variant.new_string(page_tag))
+            self.header_button.set_action_name('app.replace_root_page')
 
     def remove_all(self):
         for page in list(self.list_el):
@@ -39,4 +40,5 @@ class Carousel(Gtk.Box):
                 if next_page:
                     self.list_el.scroll_to(next_page, True)
         return Gdk.EVENT_PROPAGATE
+
 

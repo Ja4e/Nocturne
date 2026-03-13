@@ -50,6 +50,8 @@
     <file alias="pages/home.ui">ui/pages/home.ui</file>
     <file alias="pages/login.ui">ui/pages/login.ui</file>
     <file alias="pages/artists.ui">ui/pages/artists.ui</file>
+    <file alias="pages/playlists.ui">ui/pages/playlists.ui</file>
+    <file alias="pages/songs.ui">ui/pages/songs.ui</file>
 
     <file alias="album/button.ui">ui/album/button.ui</file>
     <file alias="album/page.ui">ui/album/page.ui</file>
@@ -60,6 +62,7 @@
 
     <file alias="playlist/button.ui">ui/playlist/button.ui</file>
     <file alias="playlist/page.ui">ui/playlist/page.ui</file>
+    <file alias="playlist/row.ui">ui/playlist/row.ui</file>
 
     <file alias="song/row.ui">ui/song/row.ui</file>
     <file alias="song/queue.ui">ui/song/queue.ui</file>

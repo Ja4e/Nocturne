@@ -12,7 +12,6 @@ class ArtistRow(Adw.ActionRow):
     play_shuffle_el = Gtk.Template.Child()
     play_radio_el = Gtk.Template.Child()
 
-    # using this instead of __init__ to accommodate listview
     def __init__(self, id:str):
         self.id = id
         integration = get_current_integration()

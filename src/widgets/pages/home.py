@@ -18,19 +18,22 @@ class HomePage(Adw.NavigationPage):
         # call in different thread
         self.album_carousel.set_header(
             label=_("Albums"),
-            icon_name="music-queue-symbolic"
+            icon_name="music-queue-symbolic",
+            page_tag="albums"
         )
         self.update_album_list()
 
         self.artist_carousel.set_header(
             label=_("Artists"),
-            icon_name="music-artist-symbolic"
+            icon_name="music-artist-symbolic",
+            page_tag="artists"
         )
         self.update_artist_list()
 
         self.playlist_carousel.set_header(
             label=_("Playlists"),
-            icon_name="playlist-symbolic"
+            icon_name="playlist-symbolic",
+            page_tag="playlists"
         )
         self.update_playlist_list()
 

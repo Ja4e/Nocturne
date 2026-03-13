@@ -5,6 +5,8 @@ widgets = [
   'home.py',
   'login.py',
   'artists.py',
+  'playlists.py',
+  'songs.py',
 ]
 
 install_data(widgets, install_dir: moduledir)

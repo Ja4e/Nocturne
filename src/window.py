@@ -109,6 +109,7 @@ class NocturneWindow(Adw.ApplicationWindow):
         add_album_to_playlist
         """
 
+        self.create_action(actions.replace_root_page)
         self.create_action(actions.toggle_star)
 
         self.create_action(actions.play_song)
