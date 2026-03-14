@@ -62,7 +62,7 @@ class SongRow(Adw.ActionRow):
         if duration == -1:
             self.duration_el.set_label(_("Radio"))
         else:
-            self.duration_el.set_label(str(timedelta(seconds=duration)))
+            self.duration_el.set_label(str(timedelta(seconds=duration)).removeprefix('0:'))
         self.duration_el.set_visible(duration != 0)
 
     def update_artists(self, artists:list):

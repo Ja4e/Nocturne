@@ -122,6 +122,27 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
         }
 
         Gtk.Box {
+          Gtk.Label positive_progress_el {
+            styles [
+              "numeric",
+              "dimmed"
+            ]
+            xalign: 0;
+            justify: left;
+            hexpand: true;
+          }
+          Gtk.Label negative_progress_el {
+            styles [
+              "numeric",
+              "dimmed"
+            ]
+            xalign: 1;
+            justify: right;
+            hexpand: true;
+          }
+        }
+
+        Gtk.Box {
           orientation: horizontal;
           spacing: 15;
           hexpand: true;

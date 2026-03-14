@@ -3,7 +3,7 @@
 from gi.repository import Gtk, Adw, Gdk, GLib, GObject, Gst, Gio
 from ...navidrome import get_current_integration
 import threading, random, io, colorsys
-from datetime import datetime
+from datetime import datetime, timedelta
 from PIL import Image
 from colorthief import ColorThief
 from urllib.parse import urlparse
@@ -20,6 +20,8 @@ class PlayingControlPage(Adw.NavigationPage):
     artist_el = Gtk.Template.Child()
     album_el = Gtk.Template.Child()
     progress_el = Gtk.Template.Child()
+    positive_progress_el = Gtk.Template.Child()
+    negative_progress_el = Gtk.Template.Child()
     star_el = Gtk.Template.Child()
     show_sidebar_el = Gtk.Template.Child()
     volume_button_el = Gtk.Template.Child()
@@ -373,7 +375,11 @@ class PlayingControlPage(Adw.NavigationPage):
         success, position = self.player.query_position(Gst.Format.TIME)
         if success:
             seconds = position / Gst.SECOND
-            integration.loaded_models.get('currentSong').positionSeconds = seconds
-
+            current_song = integration.loaded_models.get('currentSong')
+            current_song.positionSeconds = seconds
+            label_positive = str(timedelta(seconds=int(seconds))).removeprefix('0:')
+            label_negative = str(timedelta(seconds=int(integration.loaded_models.get(current_song.songId).duration - seconds))).removeprefix('0:')
+            self.positive_progress_el.set_label(label_positive)
+            self.negative_progress_el.set_label('-{}'.format(label_negative))
         return True
 

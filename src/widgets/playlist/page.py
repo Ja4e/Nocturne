@@ -73,5 +73,5 @@ class PlaylistPage(Adw.NavigationPage):
         self.song_count_el.set_visible(songCount)
 
     def update_duration(self, duration:int):
-        self.duration_el.set_label(str(timedelta(seconds=duration)))
+        self.duration_el.set_label(str(timedelta(seconds=duration)).removeprefix('0:'))
         self.duration_el.set_visible(duration)
