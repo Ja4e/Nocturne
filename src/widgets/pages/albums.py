@@ -9,10 +9,12 @@ class AlbumsPage(Adw.NavigationPage):
     __gtype_name__ = 'NocturneAlbumsPage'
 
     list_el = Gtk.Template.Child()
+    main_stack = Gtk.Template.Child()
     page_type = GObject.Property(type=str)
 
     def reload(self):
         # call in different thread
+        GLib.idle_add(self.main_stack.set_visible_child_name, 'loading')
         GLib.idle_add(self.list_el.header_button.set_visible, False)
         integration = get_current_integration()
 
@@ -21,9 +23,5 @@ class AlbumsPage(Adw.NavigationPage):
             size=20
         )
         self.list_el.set_widgets([AlbumButton(id) for id in albums])
-
-        return
-        playlists = integration.getPlaylists()
-        self.list_el.header_button.set_visible(False)
-        self.list_el.set_widgets([PlaylistButton(id) for id in playlists])
+        GLib.idle_add(self.main_stack.set_visible_child_name, 'content')
 
