@@ -26,6 +26,7 @@ class HomePage(Adw.NavigationPage):
         self.song_wrapbox.list_el.set_margin_start(10)
         self.song_wrapbox.list_el.set_margin_end(10)
         self.song_wrapbox.list_el.set_justify(Adw.JustifyMode.FILL)
+        self.song_wrapbox.list_el.set_justify_last_line(True)
         self.song_wrapbox.list_el.set_child_spacing(5)
         self.song_wrapbox.list_el.set_line_spacing(5)
         self.update_song_list()
@@ -53,17 +54,17 @@ class HomePage(Adw.NavigationPage):
 
     def update_song_list(self):
         integration = get_current_integration()
-        songs = integration.getRandomSongs(12)
+        songs = integration.getRandomSongs(size=12)
         GLib.idle_add(self.song_wrapbox.set_widgets, [SongSmallRow(id) for id in songs])
 
     def update_album_list(self):
         integration = get_current_integration()
-        albums = integration.getAlbumList()
+        albums = integration.getAlbumList(size=12)
         GLib.idle_add(self.album_carousel.set_widgets, [AlbumButton(id) for id in albums])
 
     def update_artist_list(self):
         integration = get_current_integration()
-        artists = integration.getArtists()
+        artists = integration.getArtists(size=12)
         GLib.idle_add(self.artist_carousel.set_widgets, [ArtistButton(id) for id in artists])
 
     def update_playlist_list(self):
