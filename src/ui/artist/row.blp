@@ -24,43 +24,9 @@ template $NocturneArtistRow: Adw.ActionRow {
     ]
     icon-name: "view-more-symbolic";
     valign: center;
-
+    notify::active => $on_context_button_active();
     popover: Gtk.Popover {
-      child: Gtk.Box {
-        orientation: vertical;
-
-        Gtk.Button play_shuffle_el {
-          styles [
-            "small",
-            "flat",
-            "button_no_bold"
-          ]
-
-          child: Adw.ButtonContent {
-            icon-name: "playlist-shuffle-symbolic";
-            label: _("Shuffle");
-            halign: start;
-          };
-          tooltip-text: _("Shuffle");
-          action-name: "app.play_shuffle_artist";
-        }
-
-        Gtk.Button play_radio_el {
-          styles [
-            "small",
-            "flat",
-            "button_no_bold"
-          ]
-
-          child: Adw.ButtonContent {
-            icon-name: "sound-symbolic";
-            label: _("Radio");
-            halign: start;
-          };
-          tooltip-text: _("Radio");
-          action-name: "app.play_radio_artist";
-        }
-      };
+      child: Adw.Spinner {};
     };
   }
 }

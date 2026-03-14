@@ -4,6 +4,7 @@ widgets = [
   '__init__.py',
   'carousel.py',
   'wrapbox.py',
+  'context.py',
 ]
 
 install_data(widgets, install_dir: moduledir)

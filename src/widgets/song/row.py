@@ -2,6 +2,7 @@
 
 from gi.repository import Gtk, Adw, Gdk, GLib, Pango, Gio
 from .queue import SongQueue
+from ..containers import ContextContainer
 from ...navidrome import get_current_integration, models
 import threading, uuid, cairo
 from datetime import timedelta, datetime
@@ -18,13 +19,6 @@ class SongRow(Adw.ActionRow):
     suffixes_stack_el = Gtk.Template.Child()
     star_el = Gtk.Template.Child()
     check_el = Gtk.Template.Child()
-    select_el = Gtk.Template.Child()
-    play_next_el = Gtk.Template.Child()
-    play_later_el = Gtk.Template.Child()
-    add_to_playlist_el = Gtk.Template.Child()
-    edit_el = Gtk.Template.Child()
-    remove_el = Gtk.Template.Child()
-    delete_el = Gtk.Template.Child()
 
     def __init__(self, id:str, draggable:bool=False, removable:bool=False):
         self.id = id
@@ -37,22 +31,56 @@ class SongRow(Adw.ActionRow):
         )
 
         self.star_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_next_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_later_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.edit_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.delete_el.set_action_target_value(GLib.Variant.new_string(self.id))
 
         integration.connect_to_model(self.id, 'title', self.update_title)
         integration.connect_to_model(self.id, 'artists', self.update_artists)
         integration.connect_to_model(self.id, 'duration', self.update_duration)
         integration.connect_to_model(self.id, 'starred', self.update_starred)
         integration.connect_to_model(self.id, 'homePageUrl', self.update_homepage) # for radios
-        integration.connect_to_model(self.id, 'isRadio', self.update_isRadio) # for radios
         integration.connect_to_model('currentSong', 'songId', self.current_song_changed)
 
-        self.play_next_el.set_visible(not self.draggable)
-        self.play_later_el.set_visible(not self.draggable)
-        self.remove_el.set_visible(self.removable)
+    def generate_context_menu(self) -> ContextContainer:
+        integration = get_current_integration()
+        model = integration.loaded_models.get(self.id)
+        context_dict = {
+            _("Select"): {
+                "icon-name": "object-select-symbolic",
+                "connection": self.select_clicked
+            }
+        }
+        if not self.draggable:
+            context_dict[_('Play Next')] = {
+                "icon-name": "list-high-priority-symbolic",
+                "action-name": "app.play_song_next",
+                "sensitive": integration.loaded_models.get('currentSong').songId != self.id
+            }
+            context_dict[_('Play Later')] = {
+                "icon-name": "list-low-priority-symbolic",
+                "action-name": "app.play_song_later",
+                "sensitive": integration.loaded_models.get('currentSong').songId != self.id
+            }
+        if model and model.isRadio:
+            context_dict[_('Edit')] = {
+                "icon-name": "document-edit-symbolic",
+                "action-name": "app.update_radio"
+            }
+            context_dict[_('Delete')] = {
+                "css": ["error"],
+                "icon-name": "user-trash-symbolic",
+                "action-name": "app.delete_radio"
+            }
+        if not model or not model.isRadio:
+            context_dict[_('Add To Playlist')] = {
+                "icon-name": "playlist-symbolic",
+                "action-name": "app.add_song_to_playlist"
+            }
+        if self.removable:
+            context_dict[_("Remove")] = {
+                "css": ["error"],
+                "icon-name": "user-trash-symbolic",
+                "connection": self.remove_selected
+            }
+        return ContextContainer(context_dict, self.id)
 
     def update_title(self, title:str):
         self.title_el.set_label(title)
@@ -129,18 +157,8 @@ class SongRow(Adw.ActionRow):
             )
             self.artist_container_el.set_child(button)
 
-    def update_isRadio(self, isRadio:bool):
-        self.star_el.set_visible(not isRadio)
-        self.check_el.set_visible(not isRadio)
-        self.select_el.set_visible(not isRadio)
-        self.add_to_playlist_el.set_visible(not isRadio)
-        self.edit_el.set_visible(isRadio)
-        self.delete_el.set_visible(isRadio)
-
     def current_song_changed(self, songId:str):
         self.set_activatable(songId != self.id)
-        self.play_next_el.set_sensitive(songId != self.id)
-        self.play_later_el.set_sensitive(songId != self.id)
         if songId == self.id:
             self.icon_el.set_from_icon_name('media-playback-start-symbolic')
             self.icon_el.set_visible(True)
@@ -175,28 +193,14 @@ class SongRow(Adw.ActionRow):
         if self.draggable:
             return Gdk.ContentProvider.new_for_value(self)
 
-    @Gtk.Template.Callback()
-    def select_clicked(self, button):
+    def select_clicked(self):
         queue = self.get_ancestor(SongQueue)
         queue.set_selected_mode(
             select=True,
             selected_row=self
         )
 
-    @Gtk.Template.Callback()
-    def check_toggled(self, checkbutton):
-        if not checkbutton.get_active():
-            queue = self.get_ancestor(SongQueue)
-            if len(queue.get_selected_rows()) == 0:
-                queue.set_selected_mode()
-
-    @Gtk.Template.Callback()
-    def option_selected(self, button):
-        button.get_ancestor(Gtk.MenuButton).popdown()
-
-    @Gtk.Template.Callback()
-    def remove_selected(self, button):
-        self.option_selected(button)
+    def remove_selected(self):
         queue = self.get_ancestor(SongQueue)
         if queue.playlist_id: #is playlist
             target_value = GLib.Variant('s', '{}|{}'.format(queue.playlist_id, str(list(queue.list_el).index(self))))
@@ -214,3 +218,13 @@ class SongRow(Adw.ActionRow):
                 integration.loaded_models['currentSong'].songId = None
             queue.list_el.remove(self)
 
+    @Gtk.Template.Callback()
+    def check_toggled(self, checkbutton):
+        if not checkbutton.get_active():
+            queue = self.get_ancestor(SongQueue)
+            if len(queue.get_selected_rows()) == 0:
+                queue.set_selected_mode()
+
+    @Gtk.Template.Callback()
+    def on_context_button_active(self, button, gparam):
+        button.get_popover().set_child(self.generate_context_menu())

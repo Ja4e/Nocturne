@@ -2,6 +2,7 @@
 
 from gi.repository import Gtk, Adw, GLib, Gdk
 from ...navidrome import get_current_integration
+from ..containers import ContextContainer
 import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/artist/row.ui')
@@ -9,8 +10,6 @@ class ArtistRow(Adw.ActionRow):
     __gtype_name__ = 'NocturneArtistRow'
 
     avatar_el = Gtk.Template.Child()
-    play_shuffle_el = Gtk.Template.Child()
-    play_radio_el = Gtk.Template.Child()
 
     def __init__(self, id:str):
         self.id = id
@@ -18,12 +17,23 @@ class ArtistRow(Adw.ActionRow):
         integration.verifyArtist(self.id)
         super().__init__()
         self.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_shuffle_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_radio_el.set_action_target_value(GLib.Variant.new_string(self.id))
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'coverArt', self.update_cover)
         integration.connect_to_model(self.id, 'albumCount', self.update_album_count)
+
+    def generate_context_menu(self) -> ContextContainer:
+        context_dict = {
+            _("Shuffle"): {
+                "icon-name": "playlist-shuffle-symbolic",
+                "action-name": "app.play_shuffle_artist"
+            },
+            _("Radio"): {
+                "icon-name": "sound-symbolic",
+                "action-name": "app.play_radio_artist"
+            }
+        }
+        return ContextContainer(context_dict, self.id)
 
     def update_cover(self, coverArt:str=None):
         def update():
@@ -44,4 +54,8 @@ class ArtistRow(Adw.ActionRow):
             self.set_subtitle(_("1 Album"))
         else:
             self.set_subtitle(_("{} Albums").format(albumCount))
+
+    @Gtk.Template.Callback()
+    def on_context_button_active(self, button, gparam):
+        button.get_popover().set_child(self.generate_context_menu())
 

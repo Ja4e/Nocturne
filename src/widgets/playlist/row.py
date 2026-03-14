@@ -2,6 +2,7 @@
 
 from gi.repository import Gtk, Adw, GLib, Gdk
 from ...navidrome import get_current_integration
+from ..containers import ContextContainer
 import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/playlist/row.ui')
@@ -9,12 +10,6 @@ class PlaylistRow(Adw.ActionRow):
     __gtype_name__ = 'NocturnePlaylistRow'
 
     cover_el = Gtk.Template.Child()
-    play_el = Gtk.Template.Child()
-    play_shuffle_el = Gtk.Template.Child()
-    play_next_el = Gtk.Template.Child()
-    play_later_el = Gtk.Template.Child()
-    edit_el = Gtk.Template.Child()
-    delete_el = Gtk.Template.Child()
 
     def __init__(self, id:str):
         self.id = id
@@ -22,16 +17,40 @@ class PlaylistRow(Adw.ActionRow):
         integration.verifyPlaylist(self.id)
         super().__init__()
         self.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_shuffle_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_next_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_later_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.edit_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.delete_el.set_action_target_value(GLib.Variant.new_string(self.id))
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'songCount', self.update_song_count)
         integration.connect_to_model(self.id, 'coverArt', self.update_cover)
+
+    def generate_context_menu(self) -> ContextContainer:
+        context_dict = {
+            _("Play"): {
+                "icon-name": "media-playback-start-symbolic",
+                "action-name": "app.play_playlist"
+            },
+            _("Shuffle"): {
+                "icon-name": "media-playlist-shuffle-symbolic",
+                "action-name": "app.play_playlist_shuffle"
+            },
+            _("Play Next"): {
+                "icon-name": "list-high-priority-symbolic",
+                "action-name": "app.play_playlist_next"
+            },
+            _("Play Later"): {
+                "icon-name": "list-low-priority-symbolic",
+                "action-name": "app.play_playlist_later"
+            },
+            _("Edit"): {
+                "icon-name": "document-edit-symbolic",
+                "action-name": "app.update_playlist"
+            },
+            _("Delete"): {
+                "css": ["error"],
+                "icon-name": "user-trash-symbolic",
+                "action-name": "app.delete_playlist"
+            }
+        }
+        return ContextContainer(context_dict, self.id)
 
     def update_cover(self, coverArt:str=None):
         def update():
@@ -54,6 +73,5 @@ class PlaylistRow(Adw.ActionRow):
             self.set_subtitle(_("{} Songs").format(songCount))
 
     @Gtk.Template.Callback()
-    def option_selected(self, button):
-        button.get_ancestor(Gtk.MenuButton).popdown()
-
+    def on_context_button_active(self, button, gparam):
+        button.get_popover().set_child(self.generate_context_menu())
