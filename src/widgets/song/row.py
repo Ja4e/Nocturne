@@ -194,3 +194,23 @@ class SongRow(Adw.ActionRow):
     def option_selected(self, button):
         button.get_ancestor(Gtk.MenuButton).popdown()
 
+    @Gtk.Template.Callback()
+    def remove_selected(self, button):
+        self.option_selected(button)
+        queue = self.get_ancestor(SongQueue)
+        if queue.playlist_id: #is playlist
+            target_value = GLib.Variant('s', '{}|{}'.format(queue.playlist_id, str(list(queue.list_el).index(self))))
+            self.get_root().activate_action("app.remove_songs_from_playlist", target_value)
+            queue.list_el.remove(self)
+        else:
+            integration = get_current_integration()
+            all_ids = queue.get_all_ids()
+            if len(all_ids) > 1:
+                next_index = all_ids.index(self.id) + 1
+                if len(all_ids) <= next_index:
+                    next_index = 0
+                integration.loaded_models['currentSong'].songId = all_ids[next_index]
+            else:
+                integration.loaded_models['currentSong'].songId = None
+            queue.list_el.remove(self)
+

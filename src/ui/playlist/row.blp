@@ -104,6 +104,41 @@ template $NocturnePlaylistRow: Adw.ActionRow {
           clicked => $option_selected();
         }
 
+        Gtk.Button edit_el {
+          styles [
+            "small",
+            "flat",
+            "button_no_bold"
+          ]
+
+          child: Adw.ButtonContent {
+            icon-name: "document-edit-symbolic";
+            label: _("Edit");
+            halign: start;
+          };
+          tooltip-text: _("Edit");
+          action-name: "app.update_playlist";
+          clicked => $option_selected();
+        }
+
+        Gtk.Button delete_el {
+          styles [
+            "small",
+            "flat",
+            "button_no_bold",
+            "error"
+          ]
+
+          child: Adw.ButtonContent {
+            icon-name: "user-trash-symbolic";
+            label: _("Delete");
+            halign: start;
+          };
+          tooltip-text: _("Delete");
+          action-name: "app.delete_playlist";
+          clicked => $option_selected();
+        }
+
       };
     };
   }

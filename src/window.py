@@ -107,7 +107,6 @@ class NocturneWindow(Adw.ApplicationWindow):
         Actions to implement:
 
         play_artist_radio
-
         add_song_to_playlist
         add_album_to_playlist
         """
@@ -136,6 +135,9 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.play_playlist_next)
         self.create_action(actions.play_playlist_later)
         self.create_action(actions.play_playlist_shuffle)
+        self.create_action(actions.update_playlist)
+        self.create_action(actions.create_playlist, parameter_type=None)
+        self.create_action(actions.remove_songs_from_playlist)
 
         self.create_action(actions.show_artist)
 

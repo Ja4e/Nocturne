@@ -31,21 +31,16 @@ template $NocturneRadiosPage: Adw.NavigationPage {
       child: Adw.Clamp {
         maximum-size: 2000;
         tightening-threshold: 800;
-        Gtk.Box {
-          orientation: vertical;
-          spacing: 5;
-
-          Gtk.ListBox list_el {
-            styles [
-              "boxed-list"
-            ]
-            margin-top: 10;
-            margin-bottom: 10;
-            margin-start: 10;
-            margin-end: 10;
-            selection-mode: none;
-            valign: start;
-          }
+        Gtk.ListBox list_el {
+          styles [
+            "boxed-list"
+          ]
+          margin-top: 10;
+          margin-bottom: 10;
+          margin-start: 10;
+          margin-end: 10;
+          selection-mode: none;
+          valign: start;
         }
       };
     };

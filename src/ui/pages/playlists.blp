@@ -13,8 +13,8 @@ template $NocturnePlaylistsPage: Adw.NavigationPage {
           "flat"
         ]
         icon-name: "list-add-symbolic";
-        tooltip-text: _("New Playlist");
-        action-name: "app.new_playlist";
+        tooltip-text: _("Create Playlist");
+        action-name: "app.create_playlist";
       }
 
       title-widget: Gtk.SearchEntry {
@@ -35,11 +35,15 @@ template $NocturnePlaylistsPage: Adw.NavigationPage {
           orientation: vertical;
           spacing: 5;
 
-          $NocturneWrapbox list_el {
+          Gtk.ListBox list_el {
+            styles [
+              "boxed-list"
+            ]
             margin-top: 10;
             margin-bottom: 10;
             margin-start: 10;
             margin-end: 10;
+            selection-mode: none;
             valign: start;
           }
         }

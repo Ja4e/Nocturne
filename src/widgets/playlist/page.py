@@ -40,6 +40,8 @@ class PlaylistPage(Adw.NavigationPage):
         integration.connect_to_model(self.id, 'entry', self.update_song_list)
         integration.connect_to_model(self.id, 'coverArt', self.update_cover)
 
+        self.song_list_el.playlist_id = self.id
+
     def update_cover(self, coverArt:str=None):
         def update():
             integration = get_current_integration()

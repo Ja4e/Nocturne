@@ -15,9 +15,7 @@ class SongQueue(Gtk.Box):
     play_el = Gtk.Template.Child()
     play_next_el = Gtk.Template.Child()
     play_later_el = Gtk.Template.Child()
-
-    def __init__(self):
-        super().__init__()
+    playlist_id:str = ""
 
     def set_selected_mode(self, select:bool=False, selected_row:Gtk.Widget=None):
         integration = get_current_integration()
@@ -37,16 +35,40 @@ class SongQueue(Gtk.Box):
     def get_selected_rows(self) -> list:
         return [row for row in list(self.list_el) if row.check_el.get_active()]
 
+    def get_selected_indexes(self) -> list:
+        return [i for i, row in enumerate(list(self.list_el)) if row.check_el.get_active()]
+
     def get_all_ids(self) -> list:
         return [row.id for row in list(self.list_el)]
 
     @Gtk.Template.Callback()
-    def close_selector(self, button):
+    def close_selector(self, button=None):
         self.set_selected_mode()
 
     @Gtk.Template.Callback()
     def remove_selected(self, button):
-        ''
+        if self.playlist_id: # is playlist
+            indexes = self.get_selected_indexes()
+            target_value = GLib.Variant('s', '|'.join([self.playlist_id] + [str(i) for i in indexes]))
+            self.get_root().activate_action("app.remove_songs_from_playlist", target_value)
+            for index in indexes:
+                GLib.idle_add(self.list_el.remove, list(self.list_el)[index])
+        else:
+            integration = get_current_integration()
+            all_ids = self.get_all_ids()
+            selected_rows = self.get_selected_rows()
+            selected_ids = [r.id for r in selected_rows]
+            current_id = integration.loaded_models.get('currentSong').songId
+
+            if current_id in selected_ids: # handle changing song
+                if len(selected_rows) == len(all_ids):
+                    new_id = None
+                else:
+                    new_id = [s for s in all_ids if s not in selected_ids][0]
+                integration.loaded_models['currentSong'].songId = new_id
+            for row in selected_rows:
+                GLib.idle_add(self.list_el.remove, row)
+        self.close_selector()
 
     @Gtk.Template.Callback()
     def play_selected(self, button):

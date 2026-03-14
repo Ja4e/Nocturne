@@ -289,6 +289,66 @@ def play_playlist_shuffle(window, model_id:str):
         random.shuffle(song_list)
         window.queue_page.replace_queue(song_list)
 
+def update_playlist(window, model_id:str=None):
+    integration = navidrome.get_current_integration()
+    model = integration.loaded_models[model_id] if model_id else None
+
+    def response(dialog, task, name_el, id:str):
+        if dialog.choose_finish(task) == 'create':
+            name = name_el.get_text()
+            if name:
+                result = integration.createPlaylist(
+                    name,
+                    playlistId=id
+                )
+                if result:
+                    toast = Adw.Toast(
+                        title=_("Playlist updated successfully") if id else _("Playlist created successfully"),
+                        timeout=2
+                    )
+                    window.toast_overlay.add_toast(toast)
+                    if id:
+                        model.set_property('name', name)
+                    else:
+                        threading.Thread(target=window.main_navigationview.get_visible_page().reload).start()
+                    return
+            toast = Adw.Toast(
+                title=_("Error updating playlist") if id else _("Error creating playlist"),
+                timeout=2
+            )
+            window.toast_overlay.add_toast(toast)
+
+    list_box = Gtk.ListBox(
+        selection_mode=Gtk.SelectionMode.NONE,
+        css_classes=['boxed-list']
+    )
+    name_el = Adw.EntryRow(title=_("Name"))
+    if model:
+        name_el.set_text(model.name)
+    list_box.append(name_el)
+    dialog = Adw.AlertDialog(
+        heading=_("Update Playlist") if model_id else _("Create Playlist"),
+        extra_child=list_box
+    )
+    dialog.add_response("cancel", _("Cancel"))
+    dialog.add_response("create", _("Update") if model_id else _("Create"))
+    dialog.set_response_appearance("create", Adw.ResponseAppearance.SUGGESTED)
+    dialog.choose(window, None, response, name_el, model_id)
+
+def create_playlist(window):
+    update_playlist(window)
+
+def remove_songs_from_playlist(window, song_list:list):
+    song_list = song_list.split('|')
+    playlist_id = song_list[0]
+    song_list = song_list[1:]
+
+    integration = navidrome.get_current_integration()
+    result = integration.updatePlaylist(
+        playlist_id,
+        songIndexToRemove=song_list
+    )
+
 # -- ARTIST --
 
 def show_artist(window, model_id:str):

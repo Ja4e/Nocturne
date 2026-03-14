@@ -239,6 +239,10 @@ class PlayingControlPage(Adw.NavigationPage):
 
     def song_changed(self, song_id:str):
         integration = get_current_integration()
+        if not song_id:
+            self.player.set_state(Gst.State.NULL)
+        GLib.idle_add(self.change_bottom_sheet_state, bool(song_id))
+
         model = integration.loaded_models.get(song_id)
         if model:
             # Title
@@ -277,7 +281,6 @@ class PlayingControlPage(Adw.NavigationPage):
             threading.Thread(target=self.update_cover_art).start()
 
             self.start_current_song()
-        GLib.idle_add(self.change_bottom_sheet_state, bool(song_id))
 
         if self.last_song_id and self.starred_connection:
             integration.loaded_models.get(self.last_song_id).disconnect(self.starred_connection)

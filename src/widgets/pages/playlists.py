@@ -2,7 +2,7 @@
 
 from gi.repository import Gtk, Adw, GLib, GObject, Gio
 from ...navidrome import get_current_integration, models
-from ..playlist import PlaylistButton
+from ..playlist import PlaylistRow
 import re
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/playlists.ui')
@@ -15,8 +15,10 @@ class PlaylistsPage(Adw.NavigationPage):
         # call in different thread
         integration = get_current_integration()
         playlists = integration.getPlaylists()
-        self.list_el.header_button.set_visible(False)
-        self.list_el.set_widgets([PlaylistButton(id) for id in playlists])
+        for row in list(self.list_el):
+            GLib.idle_add(self.list_el.remove, row)
+        for id in playlists:
+            GLib.idle_add(self.list_el.append, PlaylistRow(id))
 
     @Gtk.Template.Callback()
     def on_search(self, search_entry):
