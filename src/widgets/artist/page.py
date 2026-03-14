@@ -2,6 +2,8 @@
 
 from gi.repository import Gtk, Adw, Gdk, GLib, Pango
 from ...navidrome import get_current_integration
+from ...constants import CONTEXT_ARTIST
+from ..containers import get_context_buttons_list
 from ..album import AlbumButton
 from .button import ArtistButton
 import threading, uuid
@@ -17,8 +19,7 @@ class ArtistPage(Adw.NavigationPage):
     star_el = Gtk.Template.Child()
     album_wrapbox = Gtk.Template.Child()
     artist_carousel = Gtk.Template.Child()
-    play_shuffle_el = Gtk.Template.Child()
-    play_radio_el = Gtk.Template.Child()
+    context_wrap_el = Gtk.Template.Child()
 
     def __init__(self, id:str):
         self.id = id
@@ -29,8 +30,9 @@ class ArtistPage(Adw.NavigationPage):
         )
 
         self.star_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_shuffle_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_radio_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        context_buttons = get_context_buttons_list(CONTEXT_ARTIST, self.id)
+        for btn in context_buttons:
+            self.context_wrap_el.append(btn)
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'biography', self.update_biography)

@@ -2,6 +2,7 @@
 
 from gi.repository import Gtk, Adw, GLib, Gdk
 from ...navidrome import get_current_integration
+from ...constants import CONTEXT_ALBUM
 from ..containers import ContextContainer
 import threading
 
@@ -22,31 +23,6 @@ class AlbumRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'artist', self.update_artist)
         integration.connect_to_model(self.id, 'coverArt', self.update_cover)
 
-    def generate_context_menu(self) -> ContextContainer:
-        context_dict = {
-            _("Play"): {
-                "icon-name": "media-playback-start-symbolic",
-                "action-name": "app.play_album"
-            },
-            _("Shuffle"): {
-                "icon-name": "playlist-shuffle-symbolic",
-                "action-name": "app.play_album_shuffle"
-            },
-            _("Play Next"): {
-                "icon-name": "list-high-priority-symbolic",
-                "action-name": "app.play_album_next"
-            },
-            _("Play Later"): {
-                "icon-name": "list-low-priority-symbolic",
-                "action-name": "app.play_album_later"
-            },
-            _("Add To Playlist"): {
-                "icon-name": "playlist-symbolic",
-                "action-name": "app.add_album_to_playlist"
-            }
-        }
-        return ContextContainer(context_dict, self.id)
-
     def update_cover(self, coverArt:str=None):
         def update():
             integration = get_current_integration()
@@ -66,5 +42,22 @@ class AlbumRow(Adw.ActionRow):
 
     @Gtk.Template.Callback()
     def on_context_button_active(self, button, gparam):
-        button.get_popover().set_child(self.generate_context_menu())
+        button.get_popover().set_child(ContextContainer(CONTEXT_ALBUM, self.id))
+
+    @Gtk.Template.Callback()
+    def show_popover(self, *args):
+        rect = Gdk.Rectangle()
+        if len(args) == 4:
+            rect.x, rect.y = args[2], args[3]
+        else:
+            rect.x, rect.y = args[1], args[2]
+
+        popover = Gtk.Popover(
+            child=ContextContainer(CONTEXT_ALBUM, self.id),
+            pointing_to=rect,
+            has_arrow=False
+        )
+        popover.set_parent(self)
+        popover.popup()
+
 

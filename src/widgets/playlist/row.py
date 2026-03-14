@@ -2,6 +2,7 @@
 
 from gi.repository import Gtk, Adw, GLib, Gdk
 from ...navidrome import get_current_integration
+from ...constants import CONTEXT_PLAYLIST
 from ..containers import ContextContainer
 import threading
 
@@ -21,36 +22,6 @@ class PlaylistRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'songCount', self.update_song_count)
         integration.connect_to_model(self.id, 'coverArt', self.update_cover)
-
-    def generate_context_menu(self) -> ContextContainer:
-        context_dict = {
-            _("Play"): {
-                "icon-name": "media-playback-start-symbolic",
-                "action-name": "app.play_playlist"
-            },
-            _("Shuffle"): {
-                "icon-name": "media-playlist-shuffle-symbolic",
-                "action-name": "app.play_playlist_shuffle"
-            },
-            _("Play Next"): {
-                "icon-name": "list-high-priority-symbolic",
-                "action-name": "app.play_playlist_next"
-            },
-            _("Play Later"): {
-                "icon-name": "list-low-priority-symbolic",
-                "action-name": "app.play_playlist_later"
-            },
-            _("Edit"): {
-                "icon-name": "document-edit-symbolic",
-                "action-name": "app.update_playlist"
-            },
-            _("Delete"): {
-                "css": ["error"],
-                "icon-name": "user-trash-symbolic",
-                "action-name": "app.delete_playlist"
-            }
-        }
-        return ContextContainer(context_dict, self.id)
 
     def update_cover(self, coverArt:str=None):
         def update():
@@ -74,4 +45,22 @@ class PlaylistRow(Adw.ActionRow):
 
     @Gtk.Template.Callback()
     def on_context_button_active(self, button, gparam):
-        button.get_popover().set_child(self.generate_context_menu())
+        button.get_popover().set_child(ContextContainer(CONTEXT_PLAYLIST, self.id))
+
+    @Gtk.Template.Callback()
+    def show_popover(self, *args):
+        rect = Gdk.Rectangle()
+        if len(args) == 4:
+            rect.x, rect.y = args[2], args[3]
+        else:
+            rect.x, rect.y = args[1], args[2]
+
+        popover = Gtk.Popover(
+            child=ContextContainer(CONTEXT_PLAYLIST, self.id),
+            pointing_to=rect,
+            has_arrow=False
+        )
+        popover.set_parent(self)
+        popover.popup()
+
+

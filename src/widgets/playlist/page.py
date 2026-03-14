@@ -2,6 +2,8 @@
 
 from gi.repository import Gtk, Adw, Gdk, GLib, Pango
 from ...navidrome import get_current_integration
+from ...constants import CONTEXT_PLAYLIST
+from ..containers import get_context_buttons_list
 from ..song import SongRow
 import threading, uuid
 from datetime import timedelta
@@ -16,10 +18,7 @@ class PlaylistPage(Adw.NavigationPage):
     duration_el = Gtk.Template.Child()
     song_list_el = Gtk.Template.Child()
 
-    play_el = Gtk.Template.Child()
-    play_shuffle_el = Gtk.Template.Child()
-    play_next_el = Gtk.Template.Child()
-    play_later_el = Gtk.Template.Child()
+    context_wrap_el = Gtk.Template.Child()
 
     def __init__(self, id:str):
         self.id = id
@@ -30,10 +29,12 @@ class PlaylistPage(Adw.NavigationPage):
         )
         self.song_list_el.set_header(_("Songs"), "music-note-symbolic")
 
-        self.play_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_shuffle_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_next_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_later_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        context_dict = CONTEXT_PLAYLIST.copy()
+        del context_dict[_('Edit')]
+        del context_dict[_('Delete')]
+        context_buttons = get_context_buttons_list(context_dict, self.id)
+        for btn in context_buttons:
+            self.context_wrap_el.append(btn)
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'songCount', self.update_song_count)

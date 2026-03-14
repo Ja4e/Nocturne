@@ -3,6 +3,8 @@
 from gi.repository import Gtk, Adw, Gdk, GLib, Pango
 from ..song import SongRow
 from ...navidrome import get_current_integration, models
+from ...constants import CONTEXT_ALBUM
+from ..containers import get_context_buttons_list
 import threading, uuid
 from datetime import datetime, UTC
 
@@ -16,10 +18,7 @@ class AlbumPage(Adw.NavigationPage):
     star_el = Gtk.Template.Child()
     song_list_el = Gtk.Template.Child()
 
-    play_el = Gtk.Template.Child()
-    play_shuffle_el = Gtk.Template.Child()
-    play_next_el = Gtk.Template.Child()
-    play_later_el = Gtk.Template.Child()
+    context_wrap_el = Gtk.Template.Child()
 
     def __init__(self, id:str):
         self.id = id
@@ -31,10 +30,9 @@ class AlbumPage(Adw.NavigationPage):
         self.song_list_el.set_header(_("Songs"), "music-note-symbolic")
 
         self.star_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_shuffle_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_next_el.set_action_target_value(GLib.Variant.new_string(self.id))
-        self.play_later_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        context_buttons = get_context_buttons_list(CONTEXT_ALBUM, self.id)
+        for btn in context_buttons:
+            self.context_wrap_el.append(btn)
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'artist', self.update_artist)

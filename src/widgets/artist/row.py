@@ -2,6 +2,7 @@
 
 from gi.repository import Gtk, Adw, GLib, Gdk
 from ...navidrome import get_current_integration
+from ...constants import CONTEXT_ARTIST
 from ..containers import ContextContainer
 import threading
 
@@ -21,19 +22,6 @@ class ArtistRow(Adw.ActionRow):
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'coverArt', self.update_cover)
         integration.connect_to_model(self.id, 'albumCount', self.update_album_count)
-
-    def generate_context_menu(self) -> ContextContainer:
-        context_dict = {
-            _("Shuffle"): {
-                "icon-name": "playlist-shuffle-symbolic",
-                "action-name": "app.play_shuffle_artist"
-            },
-            _("Radio"): {
-                "icon-name": "sound-symbolic",
-                "action-name": "app.play_radio_artist"
-            }
-        }
-        return ContextContainer(context_dict, self.id)
 
     def update_cover(self, coverArt:str=None):
         def update():
@@ -57,5 +45,22 @@ class ArtistRow(Adw.ActionRow):
 
     @Gtk.Template.Callback()
     def on_context_button_active(self, button, gparam):
-        button.get_popover().set_child(self.generate_context_menu())
+        button.get_popover().set_child(ContextContainer(CONTEXT_ARTIST, self.id))
+
+    @Gtk.Template.Callback()
+    def show_popover(self, *args):
+        rect = Gdk.Rectangle()
+        if len(args) == 4:
+            rect.x, rect.y = args[2], args[3]
+        else:
+            rect.x, rect.y = args[1], args[2]
+
+        popover = Gtk.Popover(
+            child=ContextContainer(CONTEXT_ARTIST, self.id),
+            pointing_to=rect,
+            has_arrow=False
+        )
+        popover.set_parent(self)
+        popover.popup()
+
 

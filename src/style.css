@@ -38,7 +38,7 @@ navigation-view-page > toolbarview > scrolledwindow > viewport > * {
   padding-bottom: 80px;
 }
 
-.button_no_bold label {
+popover button label {
   font-weight: normal;
 }
 

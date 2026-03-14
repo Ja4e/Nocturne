@@ -75,7 +75,7 @@ template $NocturneArtistPage: Adw.NavigationPage {
                 }
               }
 
-              Adw.WrapBox {
+              Adw.WrapBox context_wrap_el {
                 orientation: horizontal;
                 line-spacing: 10;
                 child-spacing: 10;
@@ -86,24 +86,6 @@ template $NocturneArtistPage: Adw.NavigationPage {
                   ]
                   child: Adw.Spinner {};
                   action-name: "app.toggle_star";
-                }
-
-                Gtk.Button play_shuffle_el {
-                  child: Adw.ButtonContent {
-                    icon-name: "playlist-shuffle-symbolic";
-                    label: _("Shuffle");
-                  };
-                  tooltip-text: _("Shuffle");
-                  action-name: "app.play_shuffle_artist";
-                }
-
-                Gtk.Button play_radio_el {
-                  child: Adw.ButtonContent {
-                    icon-name: "sound-symbolic";
-                    label: _("Radio");
-                  };
-                  tooltip-text: _("Radio");
-                  action-name: "app.play_radio_artist";
                 }
               }
             }

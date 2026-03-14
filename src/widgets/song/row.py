@@ -228,3 +228,21 @@ class SongRow(Adw.ActionRow):
     @Gtk.Template.Callback()
     def on_context_button_active(self, button, gparam):
         button.get_popover().set_child(self.generate_context_menu())
+
+    @Gtk.Template.Callback()
+    def show_popover(self, *args):
+        rect = Gdk.Rectangle()
+        if len(args) == 4:
+            rect.x, rect.y = args[2], args[3]
+        else:
+            rect.x, rect.y = args[1], args[2]
+
+        popover = Gtk.Popover(
+            child=self.generate_context_menu(),
+            pointing_to=rect,
+            has_arrow=False
+        )
+        popover.set_parent(self)
+        popover.popup()
+
+

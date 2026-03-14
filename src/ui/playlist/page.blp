@@ -83,47 +83,10 @@ template $NocturnePlaylistPage: Adw.NavigationPage {
               }
 
 
-              Adw.WrapBox {
+              Adw.WrapBox context_wrap_el {
                 orientation: horizontal;
                 line-spacing: 10;
                 child-spacing: 10;
-
-                Gtk.Button play_el {
-                  child: Adw.ButtonContent {
-                    icon-name: "media-playback-start-symbolic";
-                    label: _("Play");
-                  };
-                  tooltip-text: _("Play");
-                  action-name: "app.play_playlist";
-                }
-
-                Gtk.Button play_shuffle_el {
-                  child: Adw.ButtonContent {
-                    icon-name: "playlist-shuffle-symbolic";
-                    label: _("Shuffle");
-                  };
-                  tooltip-text: _("Shuffle");
-                  action-name: "app.play_playlist_shuffle";
-                }
-
-                Gtk.Button play_next_el {
-                  child: Adw.ButtonContent {
-                    icon-name: "list-high-priority-symbolic";
-                    label: _("Play Next");
-                  };
-                  tooltip-text: _("Play Next");
-                  action-name: "app.play_playlist_next";
-                }
-
-                Gtk.Button play_later_el {
-                  child: Adw.ButtonContent {
-                    icon-name: "list-low-priority-symbolic";
-                    label: _("Play Later");
-                  };
-                  tooltip-text: _("Play Later");
-                  action-name: "app.play_playlist_later";
-                }
-
               }
             }
           }
