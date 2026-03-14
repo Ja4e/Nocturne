@@ -15,7 +15,6 @@ class AlbumsPage(Adw.NavigationPage):
     def reload(self):
         # call in different thread
         GLib.idle_add(self.main_stack.set_visible_child_name, 'loading')
-        GLib.idle_add(self.list_el.header_button.set_visible, False)
         integration = get_current_integration()
 
         albums = integration.getAlbumList(

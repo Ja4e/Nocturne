@@ -13,6 +13,7 @@ class Wrapbox(Gtk.Box):
         self.header_button.set_tooltip_text(label)
         self.header_button.get_child().set_label(label)
         self.header_button.get_child().set_icon_name(icon_name)
+        self.header_button.set_visible(True)
         if page_tag:
             self.header_button.set_action_target_value(GLib.Variant.new_string(page_tag))
             self.header_button.set_action_name('app.replace_root_page')
