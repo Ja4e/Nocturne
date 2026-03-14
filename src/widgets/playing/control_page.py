@@ -376,8 +376,4 @@ class PlayingControlPage(Adw.NavigationPage):
             integration.loaded_models.get('currentSong').positionSeconds = seconds
 
         return True
-        
-
-
-
 

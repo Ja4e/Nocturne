@@ -72,15 +72,27 @@ class SongQueue(Gtk.Box):
 
     @Gtk.Template.Callback()
     def play_selected(self, button):
-        ''
+        selected_rows = self.get_selected_rows()
+        selected_ids = [r.id for r in selected_rows]
+        target_value = GLib.Variant('s', '|'.join(selected_ids))
+        self.get_root().activate_action("app.play_songs", target_value)
+        self.close_selector()
 
     @Gtk.Template.Callback()
     def play_next_selected(self, button):
-        ''
+        selected_rows = self.get_selected_rows()
+        selected_ids = [r.id for r in selected_rows]
+        target_value = GLib.Variant('s', '|'.join(selected_ids))
+        self.get_root().activate_action("app.play_songs_next", target_value)
+        self.close_selector()
 
     @Gtk.Template.Callback()
     def play_later_selected(self, button):
-        ''
+        selected_rows = self.get_selected_rows()
+        selected_ids = [r.id for r in selected_rows]
+        target_value = GLib.Variant('s', '|'.join(selected_ids))
+        self.get_root().activate_action("app.play_songs_later", target_value)
+        self.close_selector()
 
     @Gtk.Template.Callback()
     def add_to_playlist_selected(self, button):

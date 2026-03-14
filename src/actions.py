@@ -195,6 +195,26 @@ def play_song_later(window, model_id:str):
         args=(window, model_id, 'title', _("Playing Later"))
     ).start()
 
+def play_songs(window, song_list:str):
+    song_list = song_list.split('|')
+    window.queue_page.replace_queue(song_list)
+
+def play_songs_next(window, song_list:str):
+    song_list = song_list.split('|')
+    window.queue_page.play_next(song_list)
+    threading.Thread(
+        target=__show_custom_toast,
+        args=(window, song_list[0], 'title', _("Playing {} Songs Next").format(len(song_list)))
+    ).start()
+
+def play_songs_later(window, song_list:str):
+    song_list = song_list.split('|')
+    window.queue_page.play_later(song_list)
+    threading.Thread(
+        target=__show_custom_toast,
+        args=(window, song_list[0], 'title', _("Playing {} Songs Later").format(len(song_list)))
+    ).start()
+
 # -- ALBUM --
 
 def show_album(window, model_id:str):
@@ -338,7 +358,7 @@ def update_playlist(window, model_id:str=None):
 def create_playlist(window):
     update_playlist(window)
 
-def remove_songs_from_playlist(window, song_list:list):
+def remove_songs_from_playlist(window, song_list:str):
     song_list = song_list.split('|')
     playlist_id = song_list[0]
     song_list = song_list[1:]

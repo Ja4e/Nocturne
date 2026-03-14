@@ -123,6 +123,9 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.play_song)
         self.create_action(actions.play_song_next)
         self.create_action(actions.play_song_later)
+        self.create_action(actions.play_songs)
+        self.create_action(actions.play_songs_next)
+        self.create_action(actions.play_songs_later)
 
         self.create_action(actions.show_album)
         self.create_action(actions.play_album)
