@@ -55,14 +55,14 @@ class SongRow(Adw.ActionRow):
         context_dict = CONTEXT_SONG.copy()
         context_dict["select"]["connection"] = self.select_clicked
         if not self.draggable:
-            context_dict["play-next"]["sensitive"] = integration.loaded_models.get('currentSong').songId != self.id
-            context_dict["play-later"]["sensitive"] = integration.loaded_models.get('currentSong').songId != self.id
+            context_dict["play-next"]["sensitive"] = integration.loaded_models.get('currentSong').get_property('songId') != self.id
+            context_dict["play-later"]["sensitive"] = integration.loaded_models.get('currentSong').get_property('songId') != self.id
 
-        if not model or not (model.isRadio and not self.draggable):
+        if not model or not (model.get_property('isRadio') and not self.draggable):
             del context_dict["edit"]
             del context_dict["delete"]
 
-        if not model or model.isRadio:
+        if not model or model.get_property('isRadio'):
             del context_dict["add-to-playlist"]
         if self.removable:
             context_dict["remove"]["connection"] = self.remove_selected
@@ -204,9 +204,9 @@ class SongRow(Adw.ActionRow):
                 next_index = all_ids.index(self.id) + 1
                 if len(all_ids) <= next_index:
                     next_index = 0
-                integration.loaded_models['currentSong'].songId = all_ids[next_index]
+                integration.loaded_models.get('currentSong').set_property('songId', all_ids[next_index])
             else:
-                integration.loaded_models['currentSong'].songId = None
+                integration.loaded_models.get('currentSong').set_property('songId', None)
             queue.list_el.remove(self)
 
     @Gtk.Template.Callback()

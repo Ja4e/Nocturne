@@ -35,11 +35,11 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
                         removable=True
                     )
                 )
-        integration.loaded_models['currentSong'].songId = current_id
+        integration.loaded_models.get('currentSong').set_property('songId', current_id)
 
     def play_next(self, songs:list):
         integration = get_current_integration()
-        current_song_id = integration.loaded_models.get('currentSong').songId
+        current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
         if len(list(self.song_list_el.list_el)) == 0 or not current_song_id:
             self.replace_queue(songs)
         else:
@@ -64,7 +64,7 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
 
     def play_later(self, songs:list):
         integration = get_current_integration()
-        current_song_id = integration.loaded_models.get('currentSong').songId
+        current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
         if len(list(self.song_list_el.list_el)) == 0:
             self.replace_queue(songs)
         else:

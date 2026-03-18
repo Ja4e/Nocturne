@@ -107,16 +107,16 @@ class Navidrome(GObject.Object):
         return None, None
 
     def getRadioCoverArt(self, id:str=None) -> Gdk.Paintable:
-        # Returns a paintable at the specified size, should be used directly in GTK without modifications
+        # Returns a paintable should be used directly in GTK without modifications
         # It also returns a pretty icon as a fallback if it fails for some reason
-        return self.getRadioCoverArtWithBytes(id, size)[1]
+        return self.getRadioCoverArtWithBytes(id)[1]
 
     def getCoverArtWithBytes(self, id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
         if id:
             model = self.loaded_models[id]
             if isinstance(model, models.Song) and model.isRadio:
-                return self.getRadioCoverArtWithBytes(id, size)
+                return self.getRadioCoverArtWithBytes(id)
             coverArtId = ""
             if model:
                 if model.gdkPaintable:

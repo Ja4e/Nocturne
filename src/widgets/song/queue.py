@@ -33,7 +33,7 @@ class SongQueue(Gtk.Box):
         for row in list(self.list_el):
             row.suffixes_stack_el.set_visible_child_name('select' if select else 'normal')
             row.check_el.set_active(row == selected_row)
-            row.set_activatable(not select and row.id != integration.loaded_models.get('currentSong').songId)
+            row.set_activatable(not select and row.id != integration.loaded_models.get('currentSong').get_property('songId'))
 
         if select:
             self.remove_el.set_visible(selected_row.removable)
@@ -74,14 +74,14 @@ class SongQueue(Gtk.Box):
             all_ids = self.get_all_ids()
             selected_rows = self.get_selected_rows()
             selected_ids = [r.id for r in selected_rows]
-            current_id = integration.loaded_models.get('currentSong').songId
+            current_id = integration.loaded_models.get('currentSong').get_property('songId')
 
             if current_id in selected_ids: # handle changing song
                 if len(selected_rows) == len(all_ids):
                     new_id = None
                 else:
                     new_id = [s for s in all_ids if s not in selected_ids][0]
-                integration.loaded_models['currentSong'].songId = new_id
+                integration.loaded_models.get('currentSong').set_property('songId', new_id)
             for row in selected_rows:
                 GLib.idle_add(self.list_el.remove, row)
         self.close_selector()

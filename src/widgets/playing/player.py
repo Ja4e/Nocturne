@@ -37,7 +37,7 @@ class PlayerAdapter(MprisAdapter):
     def quit(self):
         integration = get_current_integration()
         if integration:
-            integration.loaded_models['currentSong'].songId = None
+            integration.loaded_models.get('currentSong').set_property('songId', None)
 
     def set_fullscreen(self, value:bool):
         # def can_fullscreen returns false
@@ -54,28 +54,28 @@ class PlayerAdapter(MprisAdapter):
         if not integration:
             return MetadataObj()
         current_song_model = integration.loaded_models.get('currentSong')
-        song = integration.loaded_models.get(current_song_model.songId)
+        song = integration.loaded_models.get(current_song_model.get_property('songId'))
         if not song:
             return MetadataObj()
 
         cover_params = {
-            'id': song.id,
+            'id': song.get_property('id'),
             'size': 480,
             **integration.get_base_params()
         }
         cover_url = '{}?{}'.format(integration.get_url('getCoverArt'), "&".join([f"{k}={v}" for k, v in cover_params.items()]) )
         return MetadataObj(
-            album=song.album,
-            album_artists=[a.get('name') for a in song.albumArtists],
+            album=song.get_property('album'),
+            album_artists=[a.get('name') for a in song.get_property('albumArtists')],
             art_url=cover_url,
-            artists=[a.get('name') for a in song.artists],
-            as_text=[song.title],
-            audio_bpm=song.bpm,
-            composer=song.displayComposer,
-            genre=song.genres[0] if len(song.genres) > 0 else "",
-            length=song.duration*1000000,
-            title=song.title,
-            track_id='/com/jeffser/Nocturne/track/{}'.format(song.id),
+            artists=[a.get('name') for a in song.get_property('artists')],
+            as_text=[song.get_property('title')],
+            audio_bpm=song.get_property('bpm'),
+            composer=song.get_property('displayComposer'),
+            genre=song.get_property('genres')[0] if len(song.get_property('genres')) > 0 else "",
+            length=song.get_property('duration')*1000000,
+            title=self.player.control_page.title_el.get_label() if song.get_property('isRadio') else song.get_property('title'), # So it uses dynamic radio titles
+            track_id='/com/jeffser/Nocturne/track/{}'.format(song.get_property('id')),
             track_number=0
         )
 
@@ -140,8 +140,7 @@ class PlayerAdapter(MprisAdapter):
     def is_repeating(self) -> bool:
         integration = get_current_integration()
         if integration:
-            pbm = integration.loaded_models.get('currentSong').playbackMode
-            return pbm == "repeat-one"
+            return integration.loaded_models.get('currentSong').get_property('playbackMode') == 'repeat-one'
         return False
 
     def next(self):
@@ -190,7 +189,7 @@ class PlayerAdapter(MprisAdapter):
     def set_repeating(self, value:bool):
         integration = get_current_integration()
         if integration:
-            integration.loaded_models.get('currentSong').playbackMode = "repeat-one" if value else "consecutive"
+            integration.loaded_models.get('currentSong').set_property('playbackMode', "repeat-one" if value else "consecutive")
 
     def set_shuffle(self, value:bool):
         # TODO not sure how I could implement this
@@ -269,13 +268,15 @@ class Player(EventAdapter):
         if title == self.control_page.title_el.get_label():
             return
         integration = get_current_integration()
-        model = integration.loaded_models.get(integration.loaded_models.get('currentSong'))
-        if model and model.isRadio:
-            self.control_page.title_el.set_label(title or model.title)
-            self.control_page.title_el.set_tooltip_text(title or model.title)
+        current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
+        model = integration.loaded_models.get(current_song_id)
+        if model and model.get_property('isRadio'):
+            self.control_page.title_el.set_label(title or model.get_property('title'))
+            self.control_page.title_el.set_tooltip_text(title or model.get_property('title'))
             root = self.control_page.get_root()
             if root:
-                root.footer.title_el.set_label(title or model.title)
+                root.footer.title_el.set_label(title or model.get_property('title'))
+            self.emit_changes(self.mpris.player, changes=['Metadata'])
 
     def handle_song_change_request(self, action:str):
         # action can be next, previous or end (song ended)
@@ -283,20 +284,20 @@ class Player(EventAdapter):
         integration = get_current_integration()
         current_song_id = integration.loaded_models.get('currentSong').songId
 
-        mode = integration.loaded_models['currentSong'].playbackMode
+        mode = integration.loaded_models.get('currentSong').get_property('playbackMode')
 
         if action != "end" and mode == "repeat-one":
             mode = "consecutive"
 
-        if action == "previous" and integration.loaded_models.get('currentSong').positionSeconds > 5:
-            integration.loaded_models['currentSong'].songId = current_song_id
+        if action == "previous" and integration.loaded_models.get('currentSong').get_property('positionSeconds') > 5:
+            integration.loaded_models.get('currentSong').set_property('songId', current_song_id)
             return
 
         id_list = self.control_page.get_root().queue_page.song_list_el.get_all_ids()
 
         if len(id_list) > 0:
             if not current_song_id: # fallback in case nothing was playing
-                integration.loaded_models['currentSong'].songId = id_list[0]
+                integration.loaded_models.get('currentSong').set_property(songId, id_list[0])
 
             elif mode in ('consecutive', 'repeat-all'):
                 try:
@@ -306,30 +307,30 @@ class Player(EventAdapter):
 
                 if mode == 'consecutive':
                     if next_index < 0:
-                        integration.loaded_models['currentSong'].songId = id_list[0]
+                        integration.loaded_models.get('currentSong').set_property('songId', id_list[0])
                     elif next_index < len(id_list):
-                        integration.loaded_models['currentSong'].songId = id_list[next_index]
+                        integration.loaded_models.get('currentSong').set_property('songId', id_list[next_index])
                     elif Gio.Settings(schema_id="com.jeffser.Nocturne").get_value('auto-play').unpack():
                         threading.Thread(target=self.auto_play).start()
                 elif mode == 'repeat-all':
                     if next_index < len(id_list) and next_index >= 0:
-                        integration.loaded_models['currentSong'].songId = id_list[next_index]
+                        integration.loaded_models.get('currentSong').set_property('songId', id_list[next_index])
                     else:
-                        integration.loaded_models['currentSong'].songId = id_list[0]
+                        integration.loaded_models.get('currentSong').set_property('songId', id_list[0])
 
             elif mode == 'repeat-one':
-                integration.loaded_models['currentSong'].songId = current_song_id
+                integration.loaded_models.get('currentSong').set_property('songId', current_song_id)
         else:
-            integration.loaded_models['currentSong'].songId = None
+            integration.loaded_models.get('currentSong').set_property('songId', None)
 
     def auto_play(self):
         root = self.control_page.get_root()
         GLib.idle_add(root.queue_page.autoplay_spinner_el.set_visible, True)
         integration = get_current_integration()
-        current_song_id = integration.loaded_models.get('currentSong').songId
+        current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
         current_song = integration.loaded_models.get(current_song_id)
         if current_song:
-            similar_songs = integration.getSimilarSongs(current_song.artists[0].get('id'))
+            similar_songs = integration.getSimilarSongs(current_song.get_property('artists')[0].get('id'))
             if len(similar_songs) > 1 and False:
                 GLib.idle_add(root.queue_page.replace_queue, similar_songs)
             else:
@@ -338,8 +339,6 @@ class Player(EventAdapter):
         GLib.idle_add(root.queue_page.autoplay_spinner_el.set_visible, False)
 
     def on_message(self, bus, message):
-        if not message.src == self.gst:
-            return
         if message.type == Gst.MessageType.STATE_CHANGED:
             old_state, new_state, pending_state = message.parse_state_changed()
             self.handle_new_state(new_state)
@@ -364,6 +363,6 @@ class Player(EventAdapter):
         current_song = integration.loaded_models.get('currentSong')
         if success:
             seconds = position / Gst.SECOND
-            current_song.positionSeconds = seconds
+            current_song.set_property('positionSeconds', seconds)
         return True
 

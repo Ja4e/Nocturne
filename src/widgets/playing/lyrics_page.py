@@ -55,17 +55,17 @@ class PlayingLyricsPage(Gtk.Stack):
         if not model:
             return {'type': 'not-found', 'content': None}
 
-        if model.isRadio:
+        if model.get_property('isRadio'):
             return {'type': 'radio', 'content': None}
 
         lyrics_dir = os.path.join(DATA_DIR, 'lyrics')
         os.makedirs(lyrics_dir, exist_ok=True)
 
         file_name_without_ext = '{}|{}|{}|{}'.format(
-            model.title,
-            model.artist,
-            model.album or model.title,
-            model.duration
+            model.get_property('title'),
+            model.get_property('artist'),
+            model.get_property('album') or model.get_property('title'),
+            model.get_property('duration')
         )
         lrc_path = os.path.join(lyrics_dir, file_name_without_ext+'.lrc')
         plain_lyrics_path = os.path.join(lyrics_dir, file_name_without_ext+'.txt')
@@ -86,10 +86,10 @@ class PlayingLyricsPage(Gtk.Stack):
             return {'type': 'not-found-locally', 'content': None}
 
         lyrics = integration.getLyrics(
-            track_name=model.title,
-            artist_name=model.artist,
-            album_name=model.album or model.title,
-            duration=model.duration
+            track_name=model.get_property('title'),
+            artist_name=model.get_property('artist'),
+            album_name=model.get_property('album') or model.get_property('title'),
+            duration=model.get_property('duration')
         )
 
         if lyrics.get('statusCode') == '404':
@@ -186,4 +186,4 @@ class PlayingLyricsPage(Gtk.Stack):
     @Gtk.Template.Callback()
     def lyric_download_requested(self, button):
         integration = get_current_integration()
-        self.song_changed(integration.loaded_models.get('currentSong').songId, True)
+        self.song_changed(integration.loaded_models.get('currentSong').get_property('songId'), True)

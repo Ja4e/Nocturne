@@ -90,7 +90,7 @@ class AlbumButton(Gtk.Box):
     @Gtk.Template.Callback()
     def show_popover_artist(self, *args):
         integration = get_current_integration()
-        artist_id = integration.loaded_models.get(self.id).artistId
+        artist_id = integration.loaded_models.get(self.id).get_property('artistId')
         if artist_id:
             rect = Gdk.Rectangle()
             if len(args) == 4:

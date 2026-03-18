@@ -46,10 +46,10 @@ class PlayingControlPage(Adw.NavigationPage):
         integration = get_current_integration()
         current_song = integration.loaded_models.get('currentSong')
         if current_song:
-            song = integration.loaded_models.get(current_song.songId)
+            song = integration.loaded_models.get(current_song.get_property('songId'))
             if song:
                 label_positive = str(timedelta(seconds=int(positionSeconds))).removeprefix('0:')
-                label_negative = str(timedelta(seconds=int(song.duration - positionSeconds))).removeprefix('0:')
+                label_negative = str(timedelta(seconds=int(song.get_property('duration') - positionSeconds))).removeprefix('0:')
                 self.positive_progress_el.set_label(label_positive)
                 self.negative_progress_el.set_label('-{}'.format(label_negative))
                 self.progress_el.get_adjustment().set_value(positionSeconds)
@@ -114,7 +114,7 @@ class PlayingControlPage(Adw.NavigationPage):
         self.mode_button_el.set_icon_name(button.get_icon_name())
         self.mode_button_el.set_tooltip_text(button.get_tooltip_text())
         self.mode_button_el.get_popover().popdown()
-        integration.loaded_models['currentSong'].playbackMode = button.get_name()
+        integration.loaded_models.get('currentSong').set_property('playbackMode', button.get_name())
 
     @Gtk.Template.Callback()
     def show_content_clicked(self, button):
@@ -139,40 +139,40 @@ class PlayingControlPage(Adw.NavigationPage):
         model = integration.loaded_models.get(song_id)
         if model:
             # Title
-            self.title_el.set_label(model.title)
-            self.title_el.set_tooltip_text(model.title)
+            self.title_el.set_label(model.get_property('title'))
+            self.title_el.set_tooltip_text(model.get_property('title'))
 
             # HomePage (radio)
-            if model.isRadio:
-                self.radio_homepage_el.get_child().set_label(urlparse(model.homePageUrl).netloc.capitalize())
-                self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(model.homePageUrl))
-                self.radio_homepage_el.set_tooltip_text(model.homePageUrl)
-            self.radio_homepage_el.set_visible(model.isRadio and model.homePageUrl)
+            if model.get_property('isRadio'):
+                self.radio_homepage_el.get_child().set_label(urlparse(model.get_property('homePageUrl')).netloc.capitalize())
+                self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(model.get_property('homePageUrl')))
+                self.radio_homepage_el.set_tooltip_text(model.get_property('homePageUrl'))
+            self.radio_homepage_el.set_visible(model.get_property('isRadio') and model.get_property('homePageUrl'))
 
             # Timestamp (radio)
-            self.positive_progress_el.set_visible(not model.isRadio)
-            self.negative_progress_el.set_visible(not model.isRadio)
+            self.positive_progress_el.set_visible(not model.get_property('isRadio'))
+            self.negative_progress_el.set_visible(not model.get_property('isRadio'))
 
             # Artist
-            if len(model.artists) > 0:
-                self.artist_el.get_child().set_label(model.artists[0].get('name'))
-                self.artist_el.set_action_target_value(GLib.Variant.new_string(model.artists[0].get('id')))
-                self.artist_el.set_tooltip_text(model.artists[0].get('name'))
-            self.artist_el.set_visible(model.artists)
+            if len(model.get_property('artists')) > 0:
+                self.artist_el.get_child().set_label(model.get_property('artists')[0].get('name'))
+                self.artist_el.set_action_target_value(GLib.Variant.new_string(model.get_property('artists')[0].get('id')))
+                self.artist_el.set_tooltip_text(model.get_property('artists')[0].get('name'))
+            self.artist_el.set_visible(model.get_property('artists'))
 
             # Album
-            self.album_el.get_child().set_label(model.album)
-            self.album_el.set_action_target_value(GLib.Variant.new_string(model.albumId))
-            self.album_el.set_tooltip_text(model.album)
-            self.album_el.set_visible(model.album)
+            self.album_el.get_child().set_label(model.get_property('album'))
+            self.album_el.set_action_target_value(GLib.Variant.new_string(model.get_property('albumId')))
+            self.album_el.set_tooltip_text(model.get_property('album'))
+            self.album_el.set_visible(model.get_property('album'))
 
             # Progressbar
-            self.progress_el.get_adjustment().set_upper(model.duration)
-            self.progress_el.set_visible(not model.isRadio)
-            integration.loaded_models.get('currentSong').positionSeconds = 0
+            self.progress_el.get_adjustment().set_upper(model.get_property('duration'))
+            self.progress_el.set_visible(not model.get_property('isRadio'))
+            integration.loaded_models.get('currentSong').set_property('positionSeconds', 0)
 
             # Star
-            self.star_el.set_visible(not model.isRadio)
+            self.star_el.set_visible(not model.get_property('isRadio'))
 
             # Cover
             threading.Thread(target=self.update_cover_art).start()
@@ -232,7 +232,7 @@ class PlayingControlPage(Adw.NavigationPage):
 
     def update_cover_art(self):
         integration = get_current_integration()
-        song_id = integration.loaded_models.get('currentSong').songId
+        song_id = integration.loaded_models.get('currentSong').get_property('songId')
         if song_id:
             raw_bytes, paintable = integration.getCoverArtWithBytes(song_id)
             if raw_bytes:
@@ -258,7 +258,7 @@ class PlayingControlPage(Adw.NavigationPage):
     def start_current_song(self):
         integration = get_current_integration()
         self.player.gst.set_state(Gst.State.READY)
-        songId = integration.loaded_models.get('currentSong').songId
+        songId = integration.loaded_models.get('currentSong').get_property('songId')
         if songId:
             stream_url = integration.get_stream_url(songId)
             self.player.gst.set_property('uri', stream_url)

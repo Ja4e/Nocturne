@@ -31,7 +31,7 @@ class PlaylistDialog(Adw.Dialog):
             self.preferences_group_el.set_description(_("{} Songs").format(len(self.song_list)))
         else:
             integration.verifySong(self.song_list[0], force_update=True, use_threading=False)
-            self.preferences_group_el.set_description(integration.loaded_models.get(self.song_list[0]).title)
+            self.preferences_group_el.set_description(integration.loaded_models.get(self.song_list[0]).get_property('title'))
         self.search_changed(self.search_entry_el)
 
     @Gtk.Template.Callback()

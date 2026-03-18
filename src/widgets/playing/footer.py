@@ -25,23 +25,23 @@ class PlayingFooter(Gtk.Overlay):
         integration = get_current_integration()
         song = integration.loaded_models.get(song_id)
         if song:
-            self.title_el.set_label(song.title)
-            if len(song.artists) > 0:
-                self.artist_el.set_label(song.artists[0].get('name'))
-            elif song.isRadio:
-                self.artist_el.set_label(urlparse(song.homePageUrl).netloc.capitalize())
+            self.title_el.set_label(song.get_property('title'))
+            if len(song.get_property('artists')) > 0:
+                self.artist_el.set_label(song.get_property('artists')[0].get('name'))
+            elif song.get_property('isRadio'):
+                self.artist_el.set_label(urlparse(song.get_property('homePageUrl')).netloc.capitalize())
             threading.Thread(target=self.update_cover_art).start()
 
     def position_changed(self, positionSeconds:float):
         integration = get_current_integration()
-        song_id = integration.loaded_models.get('currentSong').songId
+        song_id = integration.loaded_models.get('currentSong').get_property('songId')
         song = integration.loaded_models.get(song_id)
         if song:
-            self.progress_el.set_fraction(positionSeconds / song.duration)
+            self.progress_el.set_fraction(positionSeconds / song.get_property('duration'))
 
     def update_cover_art(self):
         integration = get_current_integration()
-        song_id = integration.loaded_models.get('currentSong').songId
+        song_id = integration.loaded_models.get('currentSong').get_property('songId')
         if song_id:
             paintable = integration.getCoverArt(song_id)
             if paintable:
