@@ -358,10 +358,12 @@ class Player(EventAdapter):
         if self.control_page.is_seeking:
             return True # don't update if seeking but keep the loop alive
         integration = get_current_integration()
-        success, position = self.gst.query_position(Gst.Format.TIME)
-        current_song = integration.loaded_models.get('currentSong')
-        if success:
-            seconds = position / Gst.SECOND
-            current_song.set_property('positionSeconds', seconds)
+        if integration:
+            success, position = self.gst.query_position(Gst.Format.TIME)
+            current_song = integration.loaded_models.get('currentSong')
+            if success:
+                seconds = position / Gst.SECOND
+                current_song.set_property('positionSeconds', seconds)
         return True
+
 
