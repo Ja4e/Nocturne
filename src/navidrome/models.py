@@ -122,6 +122,7 @@ class Song(GObject.Object):
     id = GObject.Property(type=str)
     gdkPaintable = GObject.Property(type=GObject.TYPE_PYOBJECT) #Gdk.Paintable
     gdkPaintableBytes = GObject.Property(type=GObject.TYPE_PYOBJECT) #Bytes
+    coverArtUrl = GObject.Property(type=str) # For use exclusively with mpris
     parent = GObject.Property(type=str)
     title = GObject.Property(type=str)
     album = GObject.Property(type=str)

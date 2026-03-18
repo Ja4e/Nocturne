@@ -98,18 +98,14 @@ class Navidrome(GObject.Object):
                                 img.save(png_buffer, format="PNG")
                                 png_bytes = png_buffer.getvalue()
                             texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(png_bytes))
-                            model.gdkPaintableBytes = png_bytes
-                            model.gdkPaintable = texture
+                            model.set_property('coverArtUrl', icons[0].url)
+                            model.set_property('gdkPaintableBytes', png_bytes)
+                            model.set_property('gdkPaintable', texture)
                             return model.gdkPaintableBytes, model.gdkPaintable
                         except Exception as e:
                             pass
 
         return None, None
-
-    def getRadioCoverArt(self, id:str=None) -> Gdk.Paintable:
-        # Returns a paintable should be used directly in GTK without modifications
-        # It also returns a pretty icon as a fallback if it fails for some reason
-        return self.getRadioCoverArtWithBytes(id)[1]
 
     def getCoverArtWithBytes(self, id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
@@ -134,8 +130,9 @@ class Navidrome(GObject.Object):
             if response_bytes and len(response_bytes) > 0:
                 try:
                     texture = Gdk.Texture.new_from_bytes(GLib.Bytes.new(response_bytes))
-                    model.gdkPaintableBytes = response_bytes
-                    model.gdkPaintable = texture
+                    model.set_property('coverArtUrl', '{}?{}'.format(integration.get_url('getCoverArt'), "&".join([f"{k}={v}" for k, v in params.items()])))
+                    model.set_property('gdkPaintableBytes', response_bytes)
+                    model.set_property('gdkPaintable', texture)
                     return model.gdkPaintableBytes, model.gdkPaintable
                 except Exception as e:
                     pass

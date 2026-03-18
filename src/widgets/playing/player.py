@@ -9,6 +9,7 @@ from mpris_server import Metadata, ValidMetadata, Track, Position, Volume, Rate,
 
 from ...navidrome import get_current_integration
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 import threading
 
 Gst.init(None)
@@ -58,17 +59,11 @@ class PlayerAdapter(MprisAdapter):
         if not song:
             return MetadataObj()
 
-        cover_params = {
-            'id': song.get_property('id'),
-            'size': 480,
-            **integration.get_base_params()
-        }
-        cover_url = '{}?{}'.format(integration.get_url('getCoverArt'), "&".join([f"{k}={v}" for k, v in cover_params.items()]) )
         return MetadataObj(
             album=song.get_property('album'),
             album_artists=[a.get('name') for a in song.get_property('albumArtists')],
-            art_url=cover_url,
-            artists=[a.get('name') for a in song.get_property('artists')],
+            art_url=song.get_property('coverArtUrl'),
+            artists=[urlparse(song.get_property('homePageUrl')).netloc.capitalize()] if song.get_property('isRadio') else [a.get('name') for a in song.get_property('artists')],
             as_text=[song.get_property('title')],
             audio_bpm=song.get_property('bpm'),
             composer=song.get_property('displayComposer'),
@@ -330,7 +325,11 @@ class Player(EventAdapter):
         current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
         current_song = integration.loaded_models.get(current_song_id)
         if current_song:
-            similar_songs = integration.getSimilarSongs(current_song.get_property('artists')[0].get('id'))
+            artists = current_song.get_property('artists')
+            if len(artists) > 0:
+                similar_songs = integration.getSimilarSongs(artists[0].get('id'))
+            else:
+                similar_songs = []
             if len(similar_songs) > 1 and False:
                 GLib.idle_add(root.queue_page.replace_queue, similar_songs)
             else:
