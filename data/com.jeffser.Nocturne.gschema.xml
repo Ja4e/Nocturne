@@ -20,7 +20,7 @@
 	    <default>''</default>
 	  </key>
 	  <key name="auto-play" type="b">
-	    <default>false</default>
+	    <default>true</default>
 	  </key>
 	  <key name="show-context-button" type="b">
 	    <default>true</default>
