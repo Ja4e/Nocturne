@@ -36,6 +36,7 @@ class NocturneWindow(Adw.ApplicationWindow):
     main_navigationview = Gtk.Template.Child()
     main_bottom_sheet = Gtk.Template.Child()
     main_split_view = Gtk.Template.Child()
+    sheet_split_view = Gtk.Template.Child()
     playing_page = Gtk.Template.Child()
     queue_page = Gtk.Template.Child()
     lyrics_page = Gtk.Template.Child()

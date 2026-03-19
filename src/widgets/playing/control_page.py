@@ -55,12 +55,17 @@ class PlayingControlPage(Adw.NavigationPage):
                 self.negative_progress_el.set_label('-{}'.format(label_negative))
                 self.progress_el.get_adjustment().set_value(positionSeconds)
 
+    def breakpoint_toggled(self, active:bool):
+        self.show_sidebar_el.set_visible(active)
+        if isinstance(self.get_parent(), Adw.NavigationView) and not self.get_parent().get_vhomogeneous():
+            self.get_parent().set_vhomogeneous(True)
+
     def setup_sidebar_button_connection(self):
-        self.get_root().breakpoint_el.connect('apply', lambda *_: self.show_sidebar_el.set_visible(True))
-        self.get_root().breakpoint_el.connect('unapply', lambda *_: self.show_sidebar_el.set_visible(False))
+        self.get_root().breakpoint_el.connect('apply', lambda *_: self.breakpoint_toggled(True))
+        self.get_root().breakpoint_el.connect('unapply', lambda *_: self.breakpoint_toggled(False))
         condition = self.get_root().breakpoint_el.get_condition().to_string()
         is_small = self.get_root().get_width() < int(condition.split(': ')[1].strip('sp'))
-        self.show_sidebar_el.set_visible(is_small)
+        self.breakpoint_toggled(is_small)
 
     @Gtk.Template.Callback()
     def seek_start(self, gesture, n_press, x, y):
