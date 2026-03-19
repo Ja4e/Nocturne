@@ -97,9 +97,9 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
             main_artist = max(set(artists), key=artists.count)
             self.generated_queue = integration.getSimilarSongs(main_artist)
 
-        # if generated_queue is empty or more than a third of the songs are repeated just get random songs
-        repeated_songs = len([s.id for s in list(self.song_list_el.list_el) if s.id in self.generated_queue])
-        if len(self.generated_queue) == 0 or repeated_songs > len(self.generated_queue) / 3:
+        # Remove repeated songs, if it ends up being less than 5 then just generate a random queue
+        self.generated_queue = [s for s in self.generated_queue if s not in self.song_list_el.get_all_ids()]
+        if len(self.generated_queue) < 5:
             self.generated_queue = integration.getRandomSongs()
 
         GLib.idle_add(self.autoplay_spinner_el.set_visible, False)
