@@ -42,6 +42,9 @@ template $NocturneAlbumPage: Adw.NavigationPage {
               paintable: Adw.SpinnerPaintable {
                 widget: cover_el;
               };
+              accessibility {
+                label: _("Album cover art");
+              }
             }
 
             Gtk.Box {
@@ -73,6 +76,9 @@ template $NocturneAlbumPage: Adw.NavigationPage {
                 valign: center;
                 visible: false;
                 action-name: "app.show_artist";
+                accessibility {
+                  label: _("Enter artist page");
+                }
               }
 
               Adw.WrapBox context_wrap_el {
@@ -86,6 +92,9 @@ template $NocturneAlbumPage: Adw.NavigationPage {
                   ]
                   child: Adw.Spinner {};
                   action-name: "app.toggle_star";
+                  accessibility {
+                    label: _("Toggle star");
+                  }
                 }
               }
             }

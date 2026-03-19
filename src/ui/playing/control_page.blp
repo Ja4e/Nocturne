@@ -69,6 +69,9 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
               "dimmed",
               "p0"
             ]
+            accessibility {
+              label: _("Visit current radio homepage");
+            }
           }
 
           Gtk.Button artist_el {
@@ -119,6 +122,9 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
           styles [
             "p0"
           ]
+          accessibility {
+            label: _("Current song progress bar");
+          }
         }
 
         Gtk.Box {

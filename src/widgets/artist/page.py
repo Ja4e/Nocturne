@@ -63,6 +63,7 @@ class ArtistPage(Adw.NavigationPage):
             threading.Thread(target=update).start()
 
     def update_name(self, name:str):
+        self.avatar_el.set_tooltip_text(name)
         self.name_el.set_label(name)
         self.name_el.set_visible(name)
         self.set_title(name or _('Author'))

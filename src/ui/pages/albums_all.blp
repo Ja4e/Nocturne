@@ -11,6 +11,9 @@ template $NocturneAlbumsAllPage: Adw.NavigationPage {
         hexpand: true;
         placeholder-text: _("Albums");
         search-changed => $on_search();
+        accessibility {
+          label: _("Search albums");
+        }
       };
     }
 

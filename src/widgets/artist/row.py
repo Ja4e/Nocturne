@@ -44,8 +44,9 @@ class ArtistRow(Adw.ActionRow):
             threading.Thread(target=update).start()
 
     def update_name(self, name:str):
-        self.set_title(GLib.markup_escape_text(name))
-        self.set_name(GLib.markup_escape_text(name))
+        self.avatar_el.set_tooltip_text(name)
+        self.set_title(name)
+        self.set_name(name)
 
     def update_album_count(self, albumCount:int):
         if albumCount == 1:

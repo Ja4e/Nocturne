@@ -27,6 +27,9 @@ template $NocturneAlbumRow: Adw.ActionRow {
     paintable: Adw.SpinnerPaintable {
       widget: cover_el;
     };
+    accessibility {
+      label: _("Album cover art");
+    }
   }
 
   [suffix]
@@ -41,5 +44,6 @@ template $NocturneAlbumRow: Adw.ActionRow {
     popover: Gtk.Popover {
       child: Adw.Spinner {};
     };
+    tooltip-text: _("Options");
   }
 }

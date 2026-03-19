@@ -37,6 +37,7 @@ template $NocturneArtistPage: Adw.NavigationPage {
                 widget: avatar_el;
               };
               icon-name: "music-artist-symbolic";
+              //TODO figure out accessibility warning
             }
 
             Gtk.Box {
@@ -73,7 +74,7 @@ template $NocturneArtistPage: Adw.NavigationPage {
 
                 Gtk.GestureClick {
                   pressed => $on_biography_pressed();
-                }
+                }//TODO change for a button
               }
 
               Adw.WrapBox context_wrap_el {
@@ -87,6 +88,9 @@ template $NocturneArtistPage: Adw.NavigationPage {
                   ]
                   child: Adw.Spinner {};
                   action-name: "app.toggle_star";
+                  accessibility {
+                    label: _("Toggle star");
+                  }
                 }
               }
             }

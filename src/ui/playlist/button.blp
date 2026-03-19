@@ -21,6 +21,8 @@ template $NocturnePlaylistButton: Gtk.Box {
     halign: center;
     action-name: "app.play_playlist";
     overflow: hidden;
+    tooltip-text: _("Play");
+
     child: Gtk.Overlay {
       [overlay]
       Gtk.Image {
@@ -30,6 +32,9 @@ template $NocturnePlaylistButton: Gtk.Box {
           "album-play-overlay",
           "osd",
         ]
+        accessibility {
+          label: _("Play icon");
+        }
       }
 
       child: Gtk.Image cover_el {
@@ -44,6 +49,9 @@ template $NocturnePlaylistButton: Gtk.Box {
         paintable: Adw.SpinnerPaintable {
           widget: cover_el;
         };
+        accessibility {
+          label: _("Playlist cover art");
+        }
       };
     };
   }
@@ -53,6 +61,9 @@ template $NocturnePlaylistButton: Gtk.Box {
       "flat",
       "p0"
     ]
+    accessibility {
+      label: _("Enter playlist page");
+    }
 
     child: Gtk.Box {
       orientation: vertical;

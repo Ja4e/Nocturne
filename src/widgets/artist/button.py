@@ -38,6 +38,7 @@ class ArtistButton(Gtk.Button):
             threading.Thread(target=update).start()
 
     def update_name(self, name:str):
+        self.avatar_el.set_tooltip_text(name)
         self.set_tooltip_text(name)
         self.name_el.set_label(name)
 

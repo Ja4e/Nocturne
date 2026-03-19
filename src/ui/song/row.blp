@@ -36,6 +36,9 @@ template $NocturneSongRow: Adw.ActionRow {
         prepare => $on_drag_prepare();
         actions: move;
       }
+      accessibility {
+        label: _("Drag icon");
+      }
     }
 
     Gtk.Box {
@@ -89,9 +92,11 @@ template $NocturneSongRow: Adw.ActionRow {
             ]
 
             child: Adw.Spinner {};
-
             action-name: "app.toggle_star";
             valign: center;
+            accessibility {
+              label: _("Toggle star");
+            }
           }
 
           Gtk.MenuButton menu_button_el {
@@ -105,6 +110,7 @@ template $NocturneSongRow: Adw.ActionRow {
             popover: Gtk.Popover {
               child: Adw.Spinner {};
             };
+            tooltip-text: _("Options");
           }
         };
       }
@@ -115,6 +121,9 @@ template $NocturneSongRow: Adw.ActionRow {
         child: Gtk.CheckButton check_el {
           halign: center;
           toggled => $check_toggled();
+          accessibility {
+            label: _("Selection box");
+          }
         };
       }
     }
