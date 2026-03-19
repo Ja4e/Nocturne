@@ -451,6 +451,12 @@ class Integration(GObject.Object):
         })
         return response.get('status') == 'ok'
 
+    def scrobble(self, id:str):
+        # Registers the song as played, useful for keeping track of "most played" albums and the sorts
+        self.make_request('scrobble', {
+            'id': id
+        })
+
 integration = None
 
 def ping_without_login(url:str) -> bool:
