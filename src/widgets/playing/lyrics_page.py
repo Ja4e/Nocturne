@@ -138,7 +138,7 @@ class PlayingLyricsPage(Gtk.Stack):
 
     def position_changed(self, position_seconds:float):
         if self.get_visible_child_name() == 'lrc':
-            ms = int(position_seconds * 1000)
+            ms = int(position_seconds * 1000)+100
             best_match = 0
             for i in range(self.lrc_model_parent.get_n_items()):
                 item = self.lrc_model_parent.get_item(i)
