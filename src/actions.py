@@ -70,9 +70,9 @@ def logout(window):
         window.login_page.navidrome_proc = None
     settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
     settings.set_string('integration-user', '')
+    settings.set_int('auto-login', 0)
     GLib.idle_add(window.queue_page.replace_queue, [])
-    GLib.idle_add(window.main_stack.set_visible_child_name, 'login')
-    GLib.idle_add(window.login_page.load_defaults)
+    GLib.idle_add(window.main_stack.set_visible_child_name, 'welcome')
     dialogs = window.get_dialogs()
     if len(dialogs) > 0:
         dialogs[0].close()

@@ -17,11 +17,12 @@ def get_xdg_home(env, default):
 DATA_DIR = get_xdg_home("XDG_DATA_HOME", "~/.local/share")
 CONFIG_DIR = get_xdg_home("XDG_CONFIG_HOME", "~/.config")
 CACHE_DIR = get_xdg_home("XDG_CACHE_HOME", "~/.cache")
+MUSIC_DIR = subprocess.check_output(["xdg-user-dir", "MUSIC"], text=True).strip() or os.path.expanduser("~/Music")
 
 BASE_NAVIDROME_DIR = os.path.join(DATA_DIR, "navidrome")
 os.makedirs(BASE_NAVIDROME_DIR, exist_ok=True)
 NAVIDROME_ENV = {
-    "ND_MUSICFOLDER": subprocess.check_output(["xdg-user-dir", "MUSIC"], text=True).strip() or os.path.expanduser("~/Music"),
+    "ND_MUSICFOLDER": MUSIC_DIR,
     "ND_DATAFOLDER": BASE_NAVIDROME_DIR,
     "ND_PORT": "4534",
     "ND_LOGLEVEL": "ERROR",

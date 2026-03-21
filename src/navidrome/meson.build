@@ -4,6 +4,8 @@ widgets = [
   '__init__.py',
   'secret.py',
   'models.py',
+  'local.py',
+  'navidrome.py',
 ]
 
 install_data(widgets, install_dir: moduledir)

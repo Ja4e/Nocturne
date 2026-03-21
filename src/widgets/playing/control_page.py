@@ -272,3 +272,4 @@ class PlayingControlPage(Adw.NavigationPage):
             self.player.gst.set_state(Gst.State.PLAYING)
 
 
+

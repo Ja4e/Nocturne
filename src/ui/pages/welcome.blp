@@ -15,21 +15,44 @@ template $NocturneWelcomePage: Adw.NavigationPage {
       icon-name: "com.jeffser.Nocturne";
       title: _("Welcome to Nocturne");
       description: _("Nocturne is powered by a Subsonic compatible instance, if you do not have one Nocturne can automatically set up a Navidrome instance for you!");
-      child: Adw.WrapBox {
-        child-spacing: 10;
-        line-spacing: 10;
-        justify: fill;
-        justify-last-line: true;
+      child: Gtk.ListBox {
+        styles [
+          "boxed-list-separate"
+        ]
         halign: center;
-        Gtk.Button {
-          label: _("Use Existing Instance");
-          tooltip-text: _("Use Existing Instance");
-          clicked => $existing_clicked();
+        selection-mode: none;
+        Adw.ActionRow {
+          title: _("Connect to Server");
+          subtitle: _("Use existing instance");
+          activated => $existing_clicked();
+          activatable: true;
+          [suffix]
+          Gtk.Image {
+            icon-name: "go-next-symbolic";
+            valign: center;
+          }
         }
-        Gtk.Button {
-          label: _("Setup Navidrome");
-          tooltip-text: _("Setup Navidrome");
-          clicked => $setup_clicked();
+        Adw.ActionRow {
+          title: _("Use Navidrome");
+          subtitle: _("Integrated instance");
+          activated => $setup_clicked();
+          activatable: true;
+          [suffix]
+          Gtk.Image {
+            icon-name: "go-next-symbolic";
+            valign: center;
+          }
+        }
+        Adw.ActionRow {
+          title: _("Only Use Local Files");
+          subtitle: _("Limited functionallity");
+          activated => $local_clicked();
+          activatable: true;
+          [suffix]
+          Gtk.Image {
+            icon-name: "go-next-symbolic";
+            valign: center;
+          }
         }
       };
     };

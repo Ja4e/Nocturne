@@ -18,6 +18,7 @@ class Album(GObject.Object):
     artists = GObject.Property(type=GObject.TYPE_PYOBJECT) #list
     song = GObject.Property(type=GObject.TYPE_PYOBJECT) #list
     starred = GObject.Property(type=str)
+    path = GObject.Property(type=str) # For use in Local
     #playCount = GObject.Property(type=int)
     #created = GObject.Property(type=str)
     #played = GObject.Property(type=str)
@@ -65,6 +66,7 @@ class Artist(GObject.Object):
     biography = GObject.Property(type=str)
     lastFmUrl = GObject.Property(type=str)
     similarArtist = GObject.Property(type=GObject.TYPE_PYOBJECT) #list
+    path = GObject.Property(type=str) # For use in Local
     #artistImageUrl = GObject.Property(type=str)
     #musicBrainzId = GObject.Property(type=str)
     #sortName = GObject.Property(type=str)
@@ -126,17 +128,13 @@ class Song(GObject.Object):
     gdkPaintable = GObject.Property(type=GObject.TYPE_PYOBJECT) #Gdk.Paintable
     gdkPaintableBytes = GObject.Property(type=GObject.TYPE_PYOBJECT) #Bytes
     coverArtUrl = GObject.Property(type=str) # For use exclusively with mpris
-    parent = GObject.Property(type=str)
     title = GObject.Property(type=str)
     album = GObject.Property(type=str)
     artist = GObject.Property(type=str)
     coverArt = GObject.Property(type=str)
-    size = GObject.Property(type=int)
-    contentType = GObject.Property(type=str)
     duration = GObject.Property(type=int)
     albumId = GObject.Property(type=str)
     artistId = GObject.Property(type=str)
-    explicitStatus = GObject.Property(type=str)
     artists = GObject.Property(type=GObject.TYPE_PYOBJECT) # list
     starred = GObject.Property(type=str)
 
@@ -146,11 +144,15 @@ class Song(GObject.Object):
     homePageUrl = GObject.Property(type=str)
     # ---------
 
+    #explicitStatus = GObject.Property(type=str)
+    #size = GObject.Property(type=int)
+    #contentType = GObject.Property(type=str)
+    #parent = GObject.Property(type=str)
     #musicBrainzId = GObject.Property(type=str)
     #isDir = GObject.Property(type=bool, default=False)
     #suffix = GObject.Property(type=str)
     #bitRate = GObject.Property(type=int)
-    #path = GObject.Property(type=str)
+    path = GObject.Property(type=str) # For use in Local
     #created = GObject.Property(type=str)
     #type = GObject.Property(type=str)
     bpm = GObject.Property(type=int)
@@ -191,3 +193,4 @@ class CurrentSong(GObject.Object):
     songId = GObject.Property(type=str)
     positionSeconds = GObject.Property(type=float, default=0.0)
     playbackMode = GObject.Property(type=str, default="consecutive") # consecutive, # repeat-one # repeat-all
+

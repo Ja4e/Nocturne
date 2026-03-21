@@ -30,6 +30,7 @@ class PlayingFooter(Gtk.Overlay):
                 self.artist_el.set_label(song.get_property('artists')[0].get('name'))
             elif song.get_property('isRadio'):
                 self.artist_el.set_label(urlparse(song.get_property('homePageUrl')).netloc.capitalize())
+            self.artist_el.set_visible(len(song.get_property('artists')) > 0)
             threading.Thread(target=self.update_cover_art).start()
 
     def position_changed(self, positionSeconds:float):

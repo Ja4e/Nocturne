@@ -7,11 +7,11 @@
 	  <key name="default-height" type="i">
 	    <default>600</default>
 	  </key>
-	  <key name="welcome-viewed" type="b">
-	    <default>false</default>
-	  </key>
 	  <key name="hide-on-close" type="b">
 	    <default>false</default>
+	  </key>
+	  <key name="auto-login" type="i">
+	    <default>0</default> <!--0=dont 1=external 2=integrated 3=local-->
 	  </key>
 	  <key name="use-integrated-server" type="b">
 	    <default>false</default>

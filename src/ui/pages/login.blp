@@ -8,6 +8,13 @@ template $NocturneLoginPage: Adw.NavigationPage {
 
     [top]
     Adw.HeaderBar {
+      [start]
+      Gtk.Button {
+        icon-name: "go-previous-symbolic";
+        tooltip-text: _("Go to Welcome Page");
+        clicked => $go_back_clicked();
+      }
+
       show-title: false;
     }
 
@@ -21,14 +28,8 @@ template $NocturneLoginPage: Adw.NavigationPage {
         halign: center;
         selection-mode: none;
 
-        Adw.SwitchRow use_integrated_el { // Only show if navidrome in path
-          title: _("Use Integrated Instance");
-          subtitle: _("Navidrome Server");
-        }
-
         Adw.EntryRow url_el {
           title: _("Url");
-          visible: bind use_integrated_el.active inverted;
         }
 
         Adw.EntryRow user_el {

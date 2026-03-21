@@ -82,4 +82,4 @@ class SetupPage(Adw.NavigationPage):
     @Gtk.Template.Callback()
     def continue_clicked(self, button):
         self.get_root().main_stack.set_visible_child_name('login')
-        self.get_root().login_page.load_defaults()
+        self.get_root().login_page.load_defaults(True)
