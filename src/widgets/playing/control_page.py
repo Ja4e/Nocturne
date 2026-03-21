@@ -227,11 +227,11 @@ class PlayingControlPage(Adw.NavigationPage):
         }}
         """
 
-        self.get_ancestor(Gtk.Stack).get_parent().set_overflow(Gtk.Overflow.HIDDEN)
-        self.get_root().add_css_class('dynamic-accent-bg')
+        GLib.idle_add(self.get_ancestor(Gtk.Stack).get_parent().set_overflow, Gtk.Overflow.HIDDEN)
+        GLib.idle_add(self.get_root().add_css_class, 'dynamic-accent-bg')
         provider = Gtk.CssProvider()
         provider.load_from_string(css)
-        Gtk.StyleContext.add_provider_for_display(
+        GLib.idle_add(Gtk.StyleContext.add_provider_for_display,
             Gdk.Display.get_default(),
             provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION

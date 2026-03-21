@@ -70,7 +70,7 @@ class ArtistPage(Adw.NavigationPage):
 
     def update_biography(self, biography:str):
         self.biography_el.set_label(biography)
-        self.biography_el.set_visible(biography)
+        self.biography_el.get_parent().set_visible(biography)
 
     def update_starred(self, starred:str):
         if starred:
