@@ -340,7 +340,7 @@ class Local(GObject.Object):
         except Exception:
             queue_dict = {}
 
-        return queue_dict.get('current', ""), queue_dict.get('id', [])
+        return queue_dict.get('current', ""), [id for id in queue_dict.get('id', []) if id in self.loaded_models]
 
     def savePlayQueue(self, id_list:list, current:str, position:int) -> bool:
         QUEUEFILE = os.path.join(LOCAL_DATA_DIR, 'queue.json')
