@@ -326,7 +326,7 @@ class Player(EventAdapter):
         root = self.control_page.get_root()
         if len(root.queue_page.generated_queue) == 0:
             root.queue_page.generate_auto_play_queue()
-        GLib.idle_add(root.queue_page.replace_queue, root.queue_page.generated_queue)
+        root.queue_page.replace_queue(root.queue_page.generated_queue)
 
     def on_message(self, bus, message):
         if message.type == Gst.MessageType.STATE_CHANGED:

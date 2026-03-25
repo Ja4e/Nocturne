@@ -23,14 +23,14 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
     def replace_queue(self, songs:list, current_id:str=None):
         integration = get_current_integration()
         for row in list(self.song_list_el.list_el):
-            self.song_list_el.list_el.remove(row)
+            GLib.idle_add(self.song_list_el.list_el.remove, row)
         if len(songs) > 0:
             if current_id is None:
                 current_id = songs[0]
 
             for song_id in songs:
                 integration.verifySong(song_id, use_threading=False)
-                self.song_list_el.list_el.append(
+                GLib.idle_add(self.song_list_el.list_el.append,
                     SongRow(
                         song_id,
                         draggable=True,
@@ -49,7 +49,7 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
         else:
             for row in list(self.song_list_el.list_el):
                 if row.id in songs and row.id != current_song_id:
-                    self.song_list_el.list_el.remove(row)
+                    GLib.idle_add(self.song_list_el.list_el.remove, row)
             current_song_index = -1
             for i, row in enumerate(list(self.song_list_el.list_el)):
                 if row.id == current_song_id:
@@ -57,7 +57,7 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
             songs.reverse()
             for song_id in [s for s in songs if s != current_song_id]:
                 integration.verifySong(song_id, use_threading=False)
-                self.song_list_el.list_el.insert(
+                GLib.idle_add(self.song_list_el.list_el.insert,
                     SongRow(
                         song_id,
                         draggable=True,
@@ -74,10 +74,10 @@ class PlayingQueuePage(Gtk.ScrolledWindow):
         else:
             for row in list(self.song_list_el.list_el):
                 if row.id in songs and row.id != current_song_id:
-                    self.song_list_el.list_el.remove(row)
+                    GLib.idle_add(self.song_list_el.list_el.remove, row)
             for song_id in [s for s in songs if s != current_song_id]:
                 integration.verifySong(song_id, use_threading=False)
-                self.song_list_el.list_el.append(
+                GLib.idle_add(self.song_list_el.list_el.append,
                     SongRow(
                         song_id,
                         draggable=True,

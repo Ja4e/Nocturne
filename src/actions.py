@@ -77,7 +77,7 @@ def logout(window):
     settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
     settings.set_string('integration-user', '')
     settings.set_int('auto-login', 0)
-    GLib.idle_add(window.queue_page.replace_queue, [])
+    window.queue_page.replace_queue([])
     GLib.idle_add(window.main_stack.set_visible_child_name, 'welcome')
     GLib.idle_add(window.replace_root_page, 'home')
     dialogs = window.get_dialogs()

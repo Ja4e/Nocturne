@@ -6,6 +6,7 @@ from ..album import AlbumButton
 from ..artist import ArtistButton
 from ..playlist import PlaylistButton
 from ..song import SongSmallRow
+import threading
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/pages/home.ui')
 class HomePage(Adw.NavigationPage):
@@ -39,7 +40,10 @@ class HomePage(Adw.NavigationPage):
         self.song_wrapbox.list_el.set_child_spacing(5)
         self.song_wrapbox.list_el.set_line_spacing(5)
         songs = integration.getRandomSongs(size=max_songs) if max_songs > 0 else []
-        GLib.idle_add(self.song_wrapbox.set_widgets, [SongSmallRow(id) for id in songs])
+        threading.Thread(
+            target=self.song_wrapbox.set_widgets,
+            args=([SongSmallRow(id) for id in songs],)
+        ).start()
 
         # -- Albums --
         self.album_carousel.set_header(
@@ -48,7 +52,10 @@ class HomePage(Adw.NavigationPage):
             page_tag="albums-all"
         )
         albums = integration.getAlbumList(size=max_albums) if max_albums > 0 else []
-        GLib.idle_add(self.album_carousel.set_widgets, [AlbumButton(id) for id in albums])
+        threading.Thread(
+            target=self.album_carousel.set_widgets,
+            args=([AlbumButton(id) for id in albums],)
+        ).start()
 
         # -- Artists --
         self.artist_carousel.set_header(
@@ -57,7 +64,10 @@ class HomePage(Adw.NavigationPage):
             page_tag="artists"
         )
         artists = integration.getArtists(size=max_artists) if max_artists > 0 else []
-        GLib.idle_add(self.artist_carousel.set_widgets, [ArtistButton(id) for id in artists])
+        threading.Thread(
+            target=self.artist_carousel.set_widgets,
+            args=([ArtistButton(id) for id in artists],)
+        ).start()
 
         # -- Playlists --
         self.playlist_carousel.set_header(
@@ -66,7 +76,10 @@ class HomePage(Adw.NavigationPage):
             page_tag="playlists"
         )
         playlists = integration.getPlaylists()[:max_playlists]
-        GLib.idle_add(self.playlist_carousel.set_widgets, [PlaylistButton(id) for id in playlists])
+        threading.Thread(
+            target=self.playlist_carousel.set_widgets,
+            args=([PlaylistButton(id) for id in playlists],)
+        ).start()
 
         n_elements = sum([len(s) for s in (songs, albums, artists, playlists)])
         self.main_stack.set_visible_child_name('content' if n_elements > 0 else 'no-content')
