@@ -162,9 +162,13 @@ class PlayingControlPage(Adw.NavigationPage):
             self.negative_progress_el.set_visible(not model.get_property('isRadio'))
 
             # Artist
-            self.artist_el.get_child().set_label(model.get_property("artist"))
-            self.artist_el.set_tooltip_text(model.get_property("artist"))
-            self.artist_el.set_action_target_value(GLib.Variant.new_string(model.get_property("artistId")))
+            artists = model.get_property('artists')
+            if len(artists) > 0:
+                self.artist_el.get_child().set_label(artists[0].get('name'))
+                self.artist_el.set_tooltip_text(artists[0].get('name'))
+                self.artist_el.set_action_target_value(GLib.Variant.new_string(artists[0].get('id')))
+            else:
+                self.artist_el.get_child().set_label("")
             self.artist_el.set_visible(self.artist_el.get_child().get_label())
 
             # Album
@@ -276,6 +280,7 @@ class PlayingControlPage(Adw.NavigationPage):
             stream_url = integration.get_stream_url(songId)
             self.player.gst.set_property('uri', stream_url)
             self.player.gst.set_state(Gst.State.PLAYING)
+
 
 
 

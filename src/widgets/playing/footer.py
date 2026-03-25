@@ -26,7 +26,11 @@ class PlayingFooter(Gtk.Overlay):
         song = integration.loaded_models.get(song_id)
         if song:
             self.title_el.set_label(song.get_property('title'))
-            self.artist_el.set_label(song.get_property('artist'))
+            artists = song.get_property('artists')
+            if len(artists) > 0:
+                self.artist_el.set_label(artists[0].get('name'))
+            else:
+                self.artist_el.set_label('')
             if song.get_property('isRadio'):
                 if song.get_property('homePageUrl'):
                     self.artist_el.set_label(urlparse(song.get_property('homePageUrl')).netloc.capitalize())
