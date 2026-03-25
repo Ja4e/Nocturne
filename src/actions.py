@@ -48,8 +48,13 @@ def __show_custom_toast(window, model_id:str, title_property:str, subtitle:str, 
 # -- MISC --
 
 def replace_root_page(window, page_tag:str):
-    if page_tag:
+    try:
+        tags = [item.page_tag for item in list(window.main_sidebar.get_items())]
+        index = tags.index(page_tag)
+        window.main_sidebar.set_selected(index)
         window.replace_root_page(page_tag)
+    except Exception:
+        pass
 
 def visit_url(window, url:str):
     Gio.AppInfo.launch_default_for_uri(url, None)
@@ -74,6 +79,7 @@ def logout(window):
     settings.set_int('auto-login', 0)
     GLib.idle_add(window.queue_page.replace_queue, [])
     GLib.idle_add(window.main_stack.set_visible_child_name, 'welcome')
+    GLib.idle_add(window.replace_root_page, 'home')
     dialogs = window.get_dialogs()
     if len(dialogs) > 0:
         dialogs[0].close()
