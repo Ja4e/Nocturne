@@ -82,6 +82,30 @@
   </screenshots>
 
   <releases>
+    <release version="0.2.0" date="2026-03-24">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.2.0</url>
+      <description>
+        <p>New</p>
+        <ul>
+          <li>Added screen to indicate when no lyrics are found inside editor</li>
+          <li>Added transitions when logging in</li>
+          <li>Added option to update / delete Navidrome server</li>
+          <li>Added newest, recent and frequent album filtering for local instance</li>
+          <li>Better shadows for album buttons</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Remove dynamic background if song does not have a cover art</li>
+          <li>Only change song if current row is deleted</li>
+          <li>Fixed lyric editor margins</li>
+          <li>Items in sidebar are selected when changing pages</li>
+          <li>Fixed show sidebar button being shown in wide mode</li>
+          <li>Save lyrics as lrc from editor even when not fully synced</li>
+          <li>Fixed external files being saved in restore queue</li>
+          <li>Fixed wrong cover art being used when loading external music into Navidrome instance</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-03-24">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.1.0</url>
       <description>
