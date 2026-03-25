@@ -120,4 +120,5 @@ modules:
     buildsystem: meson
     sources:
       - type: git
-        url: 'file:///home/tentri/Projects'
+        url: https://github.com/Jeffser/Nocturne.git
+        branch: main
