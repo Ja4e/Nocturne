@@ -20,6 +20,7 @@ template $NocturneSongsPage: Adw.NavigationPage {
           tooltip: _("Grid");
           name: "grid";
         }
+        notify::active-name => $toggle_view_changed();
       }
 
       title-widget: Gtk.SearchEntry search_entry {
@@ -40,7 +41,7 @@ template $NocturneSongsPage: Adw.NavigationPage {
       }
       Gtk.StackPage {
         name: "content";
-        child: Gtk.ScrolledWindow {
+        child: Gtk.ScrolledWindow scrolledwindow {
           propagate-natural-width: true;
           propagate-natural-height: true;
           edge-reached => $scroll_edge_reached();
