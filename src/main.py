@@ -99,4 +99,5 @@ class NocturneApplication(Adw.Application):
 
 def main(version):
     """The application's entry point."""
+    print("Nocturne version:", version)
     return NocturneApplication(version).run(sys.argv)
