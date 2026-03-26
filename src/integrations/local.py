@@ -7,16 +7,17 @@ from datetime import datetime, timezone
 import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid
 from PIL import Image
 from mutagen import File
-from ..constants import MUSIC_DIR, LOCAL_DATA_DIR, get_song_info_from_file
+from ..constants import DEFAULT_MUSIC_DIR, LOCAL_DATA_DIR, get_song_info_from_file
 
 class Local(Base):
     __gtype_name__ = 'NocturneIntegrationLocal'
 
-    music_dir = GObject.Property(type=str, default=MUSIC_DIR)
     supported_extensions = ('.mp3', '.flac', '.m4a', '.ogg', '.wav')
 
-    def __init__(self):
+    def __init__(self, music_dir:str):
         super().__init__()
+        self.music_dir = music_dir
+        Gio.File.new_for_path(self.music_dir).query_exists() # Gives flatpak portal access to dir
         self.update_loaded_models()
 
     def update_loaded_models(self):

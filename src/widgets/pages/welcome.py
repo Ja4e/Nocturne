@@ -1,7 +1,7 @@
 # welcome.py
 
 from gi.repository import Gtk, Adw, Gio, GLib
-from ...constants import get_navidrome_path
+from ...constants import get_navidrome_path, DEFAULT_MUSIC_DIR
 from ...integrations import set_current_integration, Local
 import threading
 
@@ -9,8 +9,16 @@ import threading
 class WelcomePage(Adw.NavigationPage):
     __gtype_name__ = 'NocturneWelcomePage'
 
+    local_btn_el = Gtk.Template.Child()
+
     def __init__(self):
         super().__init__()
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        selected_local_folder = settings.get_value("local-dir").unpack()
+        if not selected_local_folder:
+            settings.set_string("local-dir", DEFAULT_MUSIC_DIR)
+        self.local_btn_el.set_subtitle(settings.get_value("local-dir").unpack())
+
         GLib.idle_add(self.check_auto_login)
 
     def check_auto_login(self):
@@ -44,7 +52,23 @@ class WelcomePage(Adw.NavigationPage):
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         settings.set_int("auto-login", 3)
         def run():
-            integration = Local()
+            integration = Local(settings.get_value("local-dir").unpack())
             set_current_integration(integration)
             GLib.idle_add(self.get_root().login_page.login_success)
         threading.Thread(target=run).start()
+
+    @Gtk.Template.Callback()
+    def local_change_dir_clicked(self, button):
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+
+        def response(dialog, result):
+            if folder := dialog.select_folder_finish(result):
+                settings.set_string('local-dir', folder.get_path())
+                self.local_btn_el.set_subtitle(folder.get_path())
+
+        initial_folder = Gio.File.new_for_path(settings.get_value("local-dir").unpack() or DEFAULT_MUSIC_DIR)
+        dialog = Gtk.FileDialog(
+            title=_("Local Music Library"),
+            initial_folder=initial_folder
+        )
+        dialog.select_folder(self.get_root(), None, response)
