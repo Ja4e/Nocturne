@@ -42,7 +42,7 @@ class PlayingControlPage(Adw.NavigationPage):
     def setup(self):
         integration = get_current_integration()
         integration.connect_to_model('currentSong', 'positionSeconds', self.update_position)
-        integration.connect_to_model('currentSong', 'songId', self.song_changed)
+        integration.connect_to_model('currentSong', 'songId', lambda id: threading.Thread(target=self.song_changed, args=(id,)).start())
 
     def update_position(self, positionSeconds:int):
         integration = get_current_integration()
@@ -137,75 +137,73 @@ class PlayingControlPage(Adw.NavigationPage):
                 bottom_sheet.set_open(False)
             bottom_sheet.set_reveal_bottom_bar(playing)
 
+    def update_interface(self, model):
+        # to be called from song_changed as idle_add
+        if not model:
+            return
+
+        integration = get_current_integration()
+
+        # Title
+        self.title_el.set_label(model.get_property('title'))
+        self.title_el.set_tooltip_text(model.get_property('title'))
+
+        # HomePage (radio)
+        if model.get_property('isRadio') and model.get_property('homePageUrl'):
+            self.radio_homepage_el.get_child().set_label(urlparse(model.get_property('homePageUrl')).netloc.capitalize())
+            self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(model.get_property('homePageUrl')))
+            self.radio_homepage_el.set_tooltip_text(model.get_property('homePageUrl'))
+        self.radio_homepage_el.set_visible(model.get_property('isRadio') and model.get_property('homePageUrl'))
+
+        # Timestamp (radio)
+        self.positive_progress_el.set_visible(not model.get_property('isRadio'))
+        self.negative_progress_el.set_visible(not model.get_property('isRadio'))
+
+        # Artist
+        artists = model.get_property('artists')
+        if len(artists) > 0:
+            self.artist_el.get_child().set_label(artists[0].get('name'))
+            self.artist_el.set_tooltip_text(artists[0].get('name'))
+            self.artist_el.set_action_target_value(GLib.Variant.new_string(artists[0].get('id')))
+        else:
+            self.artist_el.get_child().set_label("")
+        self.artist_el.set_visible(self.artist_el.get_child().get_label())
+
+        # Album
+        self.album_el.get_child().set_label(model.get_property('album'))
+        self.album_el.set_tooltip_text(model.get_property('album'))
+        self.album_el.set_action_target_value(GLib.Variant.new_string(model.get_property('albumId')))
+        self.album_el.set_visible(self.album_el.get_child().get_label())
+
+        # External File
+        self.album_el.get_ancestor(Adw.WrapBox).set_sensitive(not model.get_property('isExternalFile'))
+
+        # Progressbar
+        self.progress_el.get_adjustment().set_upper(model.get_property('duration'))
+        self.progress_el.set_visible(not model.get_property('isRadio'))
+
+        # Star
+        self.star_el.set_visible(not model.get_property('isRadio'))
+
+        # Star Connection
+        if self.last_song_id and self.starred_connection:
+            integration.loaded_models.get(self.last_song_id).disconnect(self.starred_connection)
+
+        self.star_el.set_action_target_value(GLib.Variant.new_string(model.id))
+        self.starred_connection = integration.connect_to_model(model.id, 'starred', self.update_starred)
+        self.last_song_id = model.id
+
     def song_changed(self, song_id:str):
         integration = get_current_integration()
         if not song_id:
             self.player.gst.set_state(Gst.State.NULL)
         threading.Thread(target=integration.scrobble, args=(song_id,)).start()
-        GLib.idle_add(self.change_bottom_sheet_state, bool(song_id))
-
         model = integration.loaded_models.get(song_id)
-        if model:
-            # Title
-            self.title_el.set_label(model.get_property('title'))
-            self.title_el.set_tooltip_text(model.get_property('title'))
-
-            # HomePage (radio)
-            if model.get_property('isRadio') and model.get_property('homePageUrl'):
-                self.radio_homepage_el.get_child().set_label(urlparse(model.get_property('homePageUrl')).netloc.capitalize())
-                self.radio_homepage_el.set_action_target_value(GLib.Variant.new_string(model.get_property('homePageUrl')))
-                self.radio_homepage_el.set_tooltip_text(model.get_property('homePageUrl'))
-            self.radio_homepage_el.set_visible(model.get_property('isRadio') and model.get_property('homePageUrl'))
-
-            # Timestamp (radio)
-            self.positive_progress_el.set_visible(not model.get_property('isRadio'))
-            self.negative_progress_el.set_visible(not model.get_property('isRadio'))
-
-            # Artist
-            artists = model.get_property('artists')
-            if len(artists) > 0:
-                self.artist_el.get_child().set_label(artists[0].get('name'))
-                self.artist_el.set_tooltip_text(artists[0].get('name'))
-                self.artist_el.set_action_target_value(GLib.Variant.new_string(artists[0].get('id')))
-            else:
-                self.artist_el.get_child().set_label("")
-            self.artist_el.set_visible(self.artist_el.get_child().get_label())
-
-            # Album
-            self.album_el.get_child().set_label(model.get_property('album'))
-            self.album_el.set_tooltip_text(model.get_property('album'))
-            self.album_el.set_action_target_value(GLib.Variant.new_string(model.get_property('albumId')))
-            self.album_el.set_visible(self.album_el.get_child().get_label())
-
-            # External File
-            self.album_el.get_ancestor(Adw.WrapBox).set_sensitive(not model.get_property('isExternalFile'))
-
-            # Progressbar
-            self.progress_el.get_adjustment().set_upper(model.get_property('duration'))
-            self.progress_el.set_visible(not model.get_property('isRadio'))
-            integration.loaded_models.get('currentSong').set_property('positionSeconds', 0)
-
-            # Star
-            self.star_el.set_visible(not model.get_property('isRadio'))
-
-            # Cover
-            threading.Thread(target=self.update_cover_art).start()
-
-            self.start_current_song()
-
-        if self.last_song_id and self.starred_connection:
-            integration.loaded_models.get(self.last_song_id).disconnect(self.starred_connection)
-
-        if model:
-            self.star_el.set_action_name('app.toggle_star')
-            self.star_el.set_action_target_value(GLib.Variant.new_string(song_id))
-            self.starred_connection = integration.connect_to_model(song_id, 'starred', self.update_starred)
-            self.last_song_id = song_id
-        else:
-            self.star_el.set_action_name('')
-            self.star_el.set_action_target_value(GLib.Variant.new_string(""))
-            self.starred_connection = None
-            self.last_song_id = None
+        GLib.idle_add(self.change_bottom_sheet_state, bool(model))
+        GLib.idle_add(self.update_interface, model)
+        threading.Thread(target=self.update_cover_art).start()
+        integration.loaded_models.get('currentSong').set_property('positionSeconds', 0)
+        self.start_current_song()
 
     def update_palette(self, raw_bytes:bytes):
         img_io = io.BytesIO(raw_bytes)
@@ -281,11 +279,9 @@ class PlayingControlPage(Adw.NavigationPage):
         if songId:
             stream_url = integration.get_stream_url(songId)
             self.player.gst.set_property('uri', stream_url)
-            self.player.gst.set_state(Gst.State.PLAYING)
-
-
-
-
-
-
+            if self.pause_next_change:
+                self.player.gst.set_state(Gst.State.PAUSED)
+                self.pause_next_change = False
+            else:
+                self.player.gst.set_state(Gst.State.PLAYING)
 

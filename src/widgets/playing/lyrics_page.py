@@ -25,8 +25,8 @@ class PlayingLyricsPage(Gtk.Stack):
     def setup(self):
         # Called after login
         integration = get_current_integration()
-        integration.connect_to_model('currentSong', 'songId', self.song_changed, use_gtk_thread=False)
-        integration.connect_to_model('currentSong', 'positionSeconds', self.position_changed, use_gtk_thread=False)
+        integration.connect_to_model('currentSong', 'songId', self.song_changed)
+        integration.connect_to_model('currentSong', 'positionSeconds', self.position_changed)
 
     def song_changed(self, song_id:str, download:bool=False):
         GLib.idle_add(self.set_visible_child_name, 'loading')

@@ -369,8 +369,8 @@ class Player(EventAdapter):
         else:
             current_id, song_list = integration.getPlayQueue()
         if len(song_list) > 0:
-            self.control_page.get_root().queue_page.replace_queue(song_list, current_id)
             if len(self.control_page.get_root().get_application().external_songs) == 0:
-                GLib.idle_add(lambda: self.gst.set_state(Gst.State.PAUSED) and False)
+               self.control_page.pause_next_change = True
+            self.control_page.get_root().queue_page.replace_queue(song_list, current_id)
         self.control_page.get_root().get_application().external_songs = []
 

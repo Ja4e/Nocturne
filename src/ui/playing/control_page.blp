@@ -295,6 +295,8 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
           Gtk.Button star_el {
             icon-name: "non-starred-symbolic";
             tooltip-text: _("Star");
+            action-name: "app.toggle_star";
+            action-target: "''";
           }
 
           Gtk.Button show_sidebar_el {
