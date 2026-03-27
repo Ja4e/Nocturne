@@ -24,7 +24,6 @@ class ArtistPage(Adw.NavigationPage):
     def __init__(self, id:str):
         self.id = id
         integration = get_current_integration()
-        #print(integration.loaded_models.get(id).get_property("gdkPaintable"))
         integration.verifyArtist(self.id, True)
         super().__init__(
             tag=str(uuid.uuid4()),

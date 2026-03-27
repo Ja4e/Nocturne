@@ -94,7 +94,6 @@ class Jellyfin(Base):
     def get_stream_url(self, song_id:str) -> str:
         base_url = self.get_url('Audio/{}/stream'.format(song_id))
         url = '{}?static=true&api_key={}'.format(base_url, self.get_property('accessToken'))
-        print(url)
         return url
 
     def getCoverArt(self, id:str=None) -> tuple:
@@ -105,8 +104,6 @@ class Jellyfin(Base):
                 if isinstance(model, models.Song) and model.isExternalFile:
                     return local.Local.getCoverArt(self, id)
                 if model.get_property('gdkPaintable') is not None:
-                    if isinstance(model, models.Artist):
-                        print('has paintable')
                     return model.get_property('gdkPaintableBytes'), model.get_property('gdkPaintable')
 
                 params = {
