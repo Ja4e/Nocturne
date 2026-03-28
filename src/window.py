@@ -54,7 +54,8 @@ class NocturneWindow(Adw.ApplicationWindow):
             if integration:
                 id_list = self.queue_page.song_list_el.get_all_ids()
                 current_song = integration.loaded_models.get('currentSong')
-                integration.savePlayQueue(id_list, current_song.get_property('songId'), current_song.get_property('positionSeconds') * 1000)
+                if 'no-restore-queue' not in integration.limitations:
+                    integration.savePlayQueue(id_list, current_song.get_property('songId'), current_song.get_property('positionSeconds') * 1000)
                 integration.terminate_instance()
             settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
             settings.set_int('default-width', self.get_width())

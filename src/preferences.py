@@ -84,6 +84,8 @@ class NocturnePreferences(Adw.PreferencesDialog):
         )
 
         if integration := get_current_integration():
+            self.restore_el.set_visible('no-restore-queue' not in integration.limitations)
+
             if integration.__gtype_name__.startswith('NocturneIntegrationNavidrome'):
                 self.instance_el.set_visible(True)
                 response = integration.make_request('ping')

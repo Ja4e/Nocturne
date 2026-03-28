@@ -363,7 +363,10 @@ class Player(EventAdapter):
             song_list = [s.id for s in songs]
             current_id = song_list[0]
         else:
-            current_id, song_list = integration.getPlayQueue()
+            if 'no-restore-queue' not in integration.limitations:
+                current_id, song_list = integration.getPlayQueue()
+            else:
+                current_id, song_list = "", []
         if len(song_list) > 0:
             if len(self.control_page.get_root().get_application().external_songs) == 0:
                self.control_page.pause_next_change = True

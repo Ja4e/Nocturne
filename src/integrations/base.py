@@ -191,7 +191,7 @@ class Base(GObject.Object):
         return False
 
     def createPlaylist(self, name:str=None, playlistId:str=None, songId:list=[]) -> str:
-        # returns True if created successfully
+        # returns id if created successfully
         print('WARNING', 'createPlaylist', 'not implemented')
         return ""
 

@@ -79,7 +79,7 @@ class Jellyfin(Base):
                     json=json,
                     headers=headers
                 )
-            if response.status_code == 200:
+            if response.status_code in (200, 201):
                 return response.json()
             elif response.status_code == 204:
                 return {'state': 'ok'}
@@ -618,3 +618,75 @@ class Jellyfin(Base):
             self.cache_actions['deleted-radios'].append(id)
             return True
         return False
+
+    def createPlaylist(self, name:str=None, playlistId:str=None, songId:list=[]) -> str:
+        if playlistId:
+            return self.updatePlaylist(
+                playlistId=playlistId,
+                songIdToAdd=songId
+            )
+
+        response = self.make_request(
+            action='Playlists',
+            mode="POST",
+            params={
+                "UserId": self.get_property("userId"),
+                "MediaType": "Audio"
+            },
+            json={
+                "Name": name,
+                "Ids": ",".join(songId)
+            }
+        )
+        return response.get("Id")
+
+    def updatePlaylist(self, playlistId:str, songIdToAdd:list=[], songIndexToRemove:list=[]) -> bool:
+        if songIndexToRemove:
+            current_items = self.make_request(
+                action='Playlists/{id}/Items',
+                action_keys={"id": playlistId},
+                mode="GET",
+                params={
+                    "UserId": self.get_property("userId")
+                }
+            ).get("Items", [])
+
+            entry_ids_to_remove = []
+            for index in songIndexToRemove:
+                if 0 <= index < len(current_items):
+                    entry_ids_to_remove.append(current_items[index].get("PlaylistItemId"))
+
+            if entry_ids_to_remove:
+                self.make_request(
+                    action='Playlists/{id}/Items',
+                    action_keys={"id": playlistId},
+                    mode="DELETE",
+                    params={
+                        "EntryIds": ",".join(entry_ids_to_remove)
+                    }
+                )
+
+        if songIdToAdd:
+            self.make_request(
+                action="Playlists/{id}/Items",
+                action_keys={"id": playlistId},
+                mode="POST",
+                params={
+                    "Ids": ",".join(songIdToAdd),
+                    "UserId": self.get_property("userId")
+                }
+            )
+
+        return True
+
+    def deletePlaylist(self, id:str) -> bool:
+        response = self.make_request(
+            action='Items/{id}',
+            action_keys={'id': id},
+            mode="DELETE"
+        )
+        return response.get("state") == "ok"
+
+    def scrobble(self, id:str):
+        # not needed in jellyfin
+        pass
