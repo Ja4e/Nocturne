@@ -18,7 +18,11 @@ class Jellyfin(Base):
         'title': "Jellyfin",
         'subtitle': _("Use an existing Jellyfin instance")
     }
-    limitations = ('no-edit-radio',)
+    limitations = ('no-edit-radio','no-restore-queue')
+    cache_actions = {
+        'deleted-radios': [],
+        'deleted-playlists': []
+    }
     url = GObject.Property(type=str)
     user = GObject.Property(type=str)
 
@@ -77,21 +81,11 @@ class Jellyfin(Base):
                 )
             if response.status_code == 200:
                 return response.json()
-            else:
-                print(self.get_url(action, **action_keys), response.status_code)
-            #elif response.status_code == 204:
-                #return {'updated': 'ok'}
+            elif response.status_code == 204:
+                return {'state': 'ok'}
         except Exception as e:
-            print('error', e)
             pass
         return {}
-
-    def refresh_library(self):
-        return
-        self.make_request(
-            action='ScheduledTasks/Running/6739958999814421481e05001648981b',
-            mode="POST"
-        )
 
     # ----------- #
 
@@ -459,12 +453,114 @@ class Jellyfin(Base):
         )
         return not response.get('IsFavorite', False)
 
+    def getPlayQueue(self) -> tuple:
+        return "", []
+
+    def savePlayQueue(self, id_list:list, current:str, position:int) -> bool:
+        return True
+
+    def getSimilarSongs(self, id:str, count:int=20) -> list:
+        artist_songs = self.make_request(
+            action='Users/{userId}/Items',
+            mode="GET",
+            params={
+                "ArtistIds": id,
+                "IncludeItemTypes": "Audio",
+                "Recursive": "true",
+                "Limit": 1,
+            }
+        ).get('Items', [])
+
+        if len(artist_songs) == 0:
+            return []
+
+        songs = self.make_request(
+            action='Items/{id}/Similar',
+            action_keys={"id": artist_songs[0].get("Id")},
+            mode='GET',
+            params={
+                "UserId": self.get_property("userId"),
+                "Limit": count,
+                "IncludeItemTypes": "Audio",
+                "Fields": "ArtistItems,RunTimeTicks,UserData"
+            }
+        ).get("Items", [])
+
+        id_list = []
+        for song in songs:
+            duration = int(song.get("RunTimeTicks", 0) / 10000000)
+            properties = {
+                "id": song.get("Id"),
+                "title": song.get("Name"),
+                "album": song.get("Album"),
+                "albumId": song.get("AlbumId"),
+                "artist": song.get("AlbumArtist"),
+                "artistId": song.get("ArtistItems", [{}])[0].get("Id"),
+                "duration": duration,
+                "artists": [{"id": art.get("Id"), "name": art.get("Name")} for art in song.get("ArtistItems", [])],
+                "starred": song.get("UserData", {}).get("IsFavorite", False)
+            }
+            if song.get("Id") in self.loaded_models:
+                self.loaded_models.get(id).update_data(**properties)
+            else:
+                self.loaded_models[id] = models.Song(**properties)
+            id_list.append(song.get("Id"))
+        return id_list
+
+    def getRandomSongs(self, size:int=20) -> list:
+        songs = self.make_request(
+            action='Users/{userId}/Items',
+            mode="GET",
+            params={
+                "IncludeItemTypes": "Audio",
+                "Recursive": "true",
+                "Fields": "RunTimeTicks,UserData,ArtistItems",
+                "Limit": size,
+                "SortBy": "Random",
+                "MediaTypes": "Audio"
+            }
+        ).get('Items', [])
+
+        id_list = []
+        for song in songs:
+            duration = int(song.get("RunTimeTicks", 0) / 10000000)
+            properties = {
+                "id": song.get("Id"),
+                "title": song.get("Name"),
+                "album": song.get("Album"),
+                "albumId": song.get("AlbumId"),
+                "artist": song.get("AlbumArtist"),
+                "artistId": song.get("ArtistItems", [{}])[0].get("Id"),
+                "duration": duration,
+                "artists": [{"id": art.get("Id"), "name": art.get("Name")} for art in song.get("ArtistItems", [])],
+                "starred": song.get("UserData", {}).get("IsFavorite", False)
+            }
+            if song.get("Id") in self.loaded_models:
+                self.loaded_models.get(id).update_data(**properties)
+            else:
+                self.loaded_models[id] = models.Song(**properties)
+            id_list.append(song.get("Id"))
+        return id_list
+
     def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
-        #TODO
+        def fetch_type(item_type:str, limit:int, offset:int, fields:str=""):
+            return self.make_request(
+                action='Users/{userId}/Items',
+                mode="GET",
+                params={
+                    "SearchTerm": query,
+                    "IncludeItemTypes": item_type,
+                    "Recursive": "true",
+                    "Limit": limit,
+                    "StartIndex": offset,
+                    "Fields": fields
+                }
+            ).get('Items', [])
+
         return {
-            'artist': [],
-            'album': [],
-            'song': self.getInternetRadioStations()
+            'artist': [item.get("Id") for item in fetch_type("MusicArtist", artistCount, artistOffset)],
+            'album': [item.get("Id") for item in fetch_type("MusicAlbum", albumCount, albumOffset)],
+            'song': [item.get("Id") for item in fetch_type("Audio", songCount, songOffset)]
         }
 
     def getInternetRadioStations(self) -> list:
@@ -479,15 +575,15 @@ class Jellyfin(Base):
 
         id_list = []
         for radio in radios:
-            radio_model = models.Song(
-                id=radio.get("Id"),
-                title=radio.get("Name"),
-                duration=-1,
-                isRadio=True
-            )
-            self.loaded_models[radio.get("Id")] = radio_model
-            id_list.append(radio.get("Id"))
-
+            if radio.get("Id") not in self.cache_actions.get('deleted-radios'):
+                radio_model = models.Song(
+                    id=radio.get("Id"),
+                    title=radio.get("Name"),
+                    duration=-1,
+                    isRadio=True
+                )
+                self.loaded_models[radio.get("Id")] = radio_model
+                id_list.append(radio.get("Id"))
         return id_list
 
     def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
@@ -507,7 +603,18 @@ class Jellyfin(Base):
                 duration=-1,
                 isRadio=True
             )
-            self.refresh_library()
             return True
         return False
 
+    def deleteInternetRadioStation(self, id:str) -> bool:
+        response = self.make_request(
+            action='LiveTv/TunerHosts',
+            mode='DELETE',
+            params={
+                "id": id
+            }
+        )
+        if response.get('state') == 'ok':
+            self.cache_actions['deleted-radios'].append(id)
+            return True
+        return False

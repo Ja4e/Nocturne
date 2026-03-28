@@ -209,6 +209,7 @@ def delete_radio(window, model_id:str):
                     timeout=2
                 )
                 window.toast_overlay.add_toast(toast)
+                del integration.loaded_models[id]
                 threading.Thread(target=window.main_navigationview.get_visible_page().reload).start()
             else:
                 toast = Adw.Toast(

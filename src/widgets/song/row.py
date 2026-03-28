@@ -132,6 +132,7 @@ class SongRow(Adw.ActionRow):
             )
             self.artist_container_el.set_sensitive(True)
             self.artist_container_el.set_child(button)
+        self.artist_container_el.set_visible(True)
 
     def update_starred(self, starred:bool):
         if starred:
@@ -144,6 +145,8 @@ class SongRow(Adw.ActionRow):
             self.star_el.set_tooltip_text(_('Star'))
 
     def update_streamUrl(self, streamUrl:str):
+        if not streamUrl:
+            return
         if streamUrl := urlparse(streamUrl):
             homepage_url = '{}://{}'.format(streamUrl.scheme, streamUrl.netloc)
             button = Gtk.Button(

@@ -77,15 +77,16 @@ class ArtistPage(Adw.NavigationPage):
             self.star_el.set_tooltip_text(_('Star'))
 
     def update_album_list(self, album_list:list):
-        albums = [a.get('id') for a in album_list]
-        album_buttons = []
-        for album in albums:
-            button = AlbumButton(album)
-            button.artist_el.set_visible(False)
-            button.set_halign(Gtk.Align.CENTER)
-            button.name_el.remove_css_class('title-3')
-            album_buttons.append(button)
-        self.album_wrapbox.set_widgets(album_buttons)
+        if album_list:
+            albums = [a.get('id') for a in album_list]
+            album_buttons = []
+            for album in albums:
+                button = AlbumButton(album)
+                button.artist_el.set_visible(False)
+                button.set_halign(Gtk.Align.CENTER)
+                button.name_el.remove_css_class('title-3')
+                album_buttons.append(button)
+            self.album_wrapbox.set_widgets(album_buttons)
 
     def update_artist_list(self, artist_list:list):
         artists = [a.get('id') for a in artist_list]

@@ -491,9 +491,6 @@ class Local(Base):
         except Exception:
             playlist_dict = {}
 
-        if id in playlist_dict:
-            del playlist_dict[id]
-
         with open(PLAYLISTFILE, 'w') as f:
             json.dump(playlist_dict, f, ensure_ascii=False)
 
