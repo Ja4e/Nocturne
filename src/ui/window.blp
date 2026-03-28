@@ -106,6 +106,8 @@ template $NocturneWindow: Adw.ApplicationWindow {
               child: Adw.ToolbarView {
                 [top]
                 Adw.HeaderBar sheet_header {
+                  show-end-title-buttons: false;
+                  show-start-title-buttons: false;
                   title-widget: Adw.ViewSwitcher {
                     stack: sheet_stack;
                     policy: wide;
