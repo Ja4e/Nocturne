@@ -39,10 +39,10 @@ class Jellyfin(Base):
 
     def get_base_header(self) -> dict:
         headers = {
-            "X-Emby-Authorization": self.AUTH_HEADER
+            "Authorization": self.AUTH_HEADER
         }
         if token := self.get_property('accessToken'):
-            headers["X-Emby-Authorization"] += ', Token="{}"'.format(token)
+            headers["Authorization"] += ', Token="{}"'.format(token)
         return headers
 
     def get_url(self, action:str, **keys) -> str:
