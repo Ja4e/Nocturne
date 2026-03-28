@@ -4,7 +4,7 @@ from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models, local
 from ..constants import get_pc_name, JELLYFIN_DATA_DIR
 from .base import Base
-import requests, subprocess, random, threading, base64
+import requests, subprocess, random, threading, base64, os, json
 
 class Jellyfin(Base):
     __gtype_name__ = 'NocturneIntegrationJellyfin'
@@ -465,7 +465,7 @@ class Jellyfin(Base):
         except Exception:
             queue_dict = {}
 
-        song_list = [id for id in queue_dict.get('id', []) if id in self.loaded_models]
+        song_list = [id for id in queue_dict.get('id', [])]
         current = queue_dict.get('current', "")
         if current not in song_list:
             if len(song_list) > 0:
