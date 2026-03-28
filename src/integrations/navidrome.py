@@ -308,6 +308,22 @@ class Navidrome(Base):
 
         return [s.get('id') for s in songs if s.get('id')]
 
+    def getLyrics(self, songId:str) -> dict:
+        lyrics = self.make_request('getLyricsBySongId', {'id': songId}).get('lyricsList', {}).get('structuredLyrics', [{}])[0]
+
+        if lyrics.get('synced', False):
+            lrc_lines = []
+            for line in lyrics.get('line', []):
+                lrc_lines.append({
+                    'ms': line.get('start'),
+                    'content': line.get('value')
+                })
+            return {
+                'type': 'lrc',
+                'content': lrc_lines
+            }
+        return {'type': 'not-found'}
+
     def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
         response = self.make_request('search3', {
             'query': query,

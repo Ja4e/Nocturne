@@ -1,9 +1,10 @@
 # dialog.py
 
 from gi.repository import Gtk, Adw, GLib, Gdk, Gio, Gst
-from ...integrations import get_current_integration, get_lyrics
+from ...integrations import get_current_integration
 from ...constants import DATA_DIR, get_display_time
 from ..playing.lyrics_page import LyricData
+from .helpers import get_lyrics
 import threading, os
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/lyrics/edit_row.ui')

@@ -582,6 +582,33 @@ class Jellyfin(Base):
             id_list.append(song.get("Id"))
         return id_list
 
+    def getLyrics(self, songId:str) -> dict:
+        result = self.make_request(
+            action='Audio/{id}/Lyrics',
+            action_keys={'id': songId},
+            mode='GET'
+        )
+        isSynced = bool(result.get('Lyrics', [{}])[0].get('Start'))
+        if isSynced:
+            lines = []
+            for line in result.get('Lyrics', []):
+                lines.append({
+                    'content': line.get('Text'),
+                    'ms': line.get('Start') / 10000
+                })
+            return {
+                'type': 'lrc',
+                'content': lines
+            }
+        else:
+            text = '\n'.join([line.get('Text') for line in result.get('Lyrics', [])])
+            if text:
+                return {
+                    'type': 'plain',
+                    'content': text
+                }
+        return {'type': 'not-found'}
+
     def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
         def fetch_type(item_type:str, limit:int, offset:int, fields:str=""):
             return self.make_request(

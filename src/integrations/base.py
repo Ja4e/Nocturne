@@ -155,16 +155,9 @@ class Base(GObject.Object):
         print('WARNING', 'getRandomSongs', 'not implemented')
         return []
 
-    def getLyrics(self, track_name:str, artist_name:str, album_name:str, duration:int) -> dict:
-        # This uses the LRCLIB public API
-        # Duration is in seconds
-        response = requests.get('https://lrclib.net/api/get', params={
-            'track_name': track_name,
-            'artist_name': artist_name,
-            'album_name': album_name,
-            'duration': duration
-        })
-        return response.json()
+    def getLyrics(self, songId:str) -> dict:
+        # returns same dicts as lyrics -> helpers -> get_lyrics
+        return {'type': 'not-found'}
 
     def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
         # returns a dict with results trucated with the count and offset, the dict has keys for album, artist and song, the values are lists of IDs

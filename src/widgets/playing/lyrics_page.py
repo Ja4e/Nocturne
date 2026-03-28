@@ -2,7 +2,8 @@
 
 from gi.repository import Gtk, Adw, GObject, GLib, Gio, Pango, Gst
 from ..song import SongRow
-from ...integrations import models, get_current_integration, get_lyrics
+from ...integrations import models, get_current_integration
+from ..lyrics.helpers import get_lyrics
 from ...constants import DATA_DIR
 import threading, os
 
@@ -28,10 +29,10 @@ class PlayingLyricsPage(Gtk.Stack):
         integration.connect_to_model('currentSong', 'songId', self.song_changed)
         integration.connect_to_model('currentSong', 'positionSeconds', self.position_changed)
 
-    def song_changed(self, song_id:str, download:bool=False):
+    def song_changed(self, song_id:str, lrclib_download:bool=False):
         GLib.idle_add(self.set_visible_child_name, 'loading')
         def update_lyrics():
-            lyrics = get_lyrics(song_id, download)
+            lyrics = get_lyrics(song_id, lrclib_download)
             GLib.idle_add(self.set_visible_child_name, lyrics.get('type'))
 
             if lyrics.get('type') == 'plain':
