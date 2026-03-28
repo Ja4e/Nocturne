@@ -6,7 +6,7 @@ template $NocturneAlbumButton: Gtk.Box {
   spacing: 5;
   width-request: 240;
 
-  Gtk.Button play_el {
+  Gtk.Overlay {
     Gtk.GestureClick {
       button: 3;
       released => $show_popover_image();
@@ -15,28 +15,46 @@ template $NocturneAlbumButton: Gtk.Box {
       pressed => $show_popover_image();
     }
     styles [
-      "force_p0",
-      "flat",
+      "album-button"
     ]
-    action-name: "app.play_album";
-    width-request: 240;
-    halign: center;
-    tooltip-text: _("Play");
 
-    child: Gtk.Overlay {
-      [overlay]
-      Gtk.Image {
-        icon-name: "media-playback-start-symbolic";
-        icon-size: large;
-        styles [
-          "album-play-overlay",
-          "osd",
-        ]
-        accessibility {
-          label: _("Play icon");
-        }
+    [overlay]
+    Gtk.Button play_el {
+      icon-name: "media-playback-start-symbolic";
+      styles [
+        "osd",
+        "circular"
+      ]
+      tooltip-text: _("Play Album");
+      action-name: "app.play_album";
+      valign: end;
+      halign: start;
+    }
+
+    [overlay]
+    Gtk.Button star_el {
+      styles [
+        "osd",
+        "circular"
+      ]
+      child: Adw.Spinner {};
+      action-name: "app.toggle_star";
+      accessibility {
+        label: _("Toggle star");
       }
+      valign: end;
+      halign: end;
+    }
 
+    child: Gtk.Button cover_button_el {
+      styles [
+        "force_p0",
+        "flat"
+      ]
+      action-name: "app.show_album";
+      width-request: 240;
+      halign: center;
+      tooltip-text: _("Show Album");
       child: Gtk.Image cover_el {
         styles [
           "card"

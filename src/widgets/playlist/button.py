@@ -11,6 +11,7 @@ class PlaylistButton(Gtk.Box):
     __gtype_name__ = 'NocturnePlaylistButton'
 
     play_el = Gtk.Template.Child()
+    cover_button_el = Gtk.Template.Child()
     cover_el = Gtk.Template.Child()
     name_el = Gtk.Template.Child()
     name_label_el = Gtk.Template.Child()
@@ -23,6 +24,7 @@ class PlaylistButton(Gtk.Box):
         super().__init__()
 
         self.play_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        self.cover_button_el.set_action_target_value(GLib.Variant.new_string(self.id))
         self.name_el.set_action_target_value(GLib.Variant.new_string(self.id))
 
         integration.connect_to_model(self.id, 'name', self.update_name)
@@ -40,7 +42,7 @@ class PlaylistButton(Gtk.Box):
     def update_name(self, name:str):
         self.name_el.set_tooltip_text(name)
         self.name_label_el.set_label(name)
-        self.set_name(name)
+        self.cover_button_el.set_tooltip_text(name)
 
     def update_song_count(self, songCount:int):
         if songCount == 1:

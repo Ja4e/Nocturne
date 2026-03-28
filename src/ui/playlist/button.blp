@@ -13,36 +13,38 @@ template $NocturnePlaylistButton: Gtk.Box {
   spacing: 5;
   width-request: 240;
 
-  Gtk.Button play_el {
+  Gtk.Overlay {
     styles [
-      "force_p0",
-      "flat",
+      "album-button"
     ]
-    halign: center;
-    action-name: "app.play_playlist";
-    overflow: hidden;
-    tooltip-text: _("Play");
 
-    child: Gtk.Overlay {
-      [overlay]
-      Gtk.Image {
-        icon-name: "media-playback-start-symbolic";
-        icon-size: large;
-        styles [
-          "album-play-overlay",
-          "osd",
-        ]
-        accessibility {
-          label: _("Play icon");
-        }
-      }
+    [overlay]
+    Gtk.Button play_el {
+      icon-name: "media-playback-start-symbolic";
+      styles [
+        "osd",
+        "circular"
+      ]
+      tooltip-text: _("Play Playlist");
+      action-name: "app.play_playlist";
+      valign: end;
+      halign: start;
+    }
 
+    child: Gtk.Button cover_button_el {
+      styles [
+        "force_p0",
+        "flat"
+      ]
+      action-name: "app.show_playlist";
+      width-request: 240;
+      halign: center;
+      tooltip-text: _("Show Playlist");
       child: Gtk.Image cover_el {
         styles [
           "card"
         ]
         icon-size: large;
-        width-request: 240;
         height-request: 240;
         overflow: hidden;
         hexpand: true;

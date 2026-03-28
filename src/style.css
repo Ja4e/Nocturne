@@ -72,14 +72,22 @@ scale trough slider {
   opacity: 0;
 }
 
-image.album-play-overlay {
+overlay.album-button button.osd {
   opacity: 0;
   transition: opacity .2s;
-  border-radius: 9px;
+  margin: 10px;
 }
 
-image.album-play-overlay:hover {
+overlay.album-button image.card {
+  transition: filter .2s;
+}
+
+overlay.album-button:hover button.osd {
   opacity: 1;
+}
+
+overlay.album-button:hover image.card {
+  filter: brightness(75%);
 }
 
 .rounded-corner {

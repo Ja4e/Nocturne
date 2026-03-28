@@ -11,6 +11,8 @@ class AlbumButton(Gtk.Box):
     __gtype_name__ = 'NocturneAlbumButton'
 
     play_el = Gtk.Template.Child()
+    star_el = Gtk.Template.Child()
+    cover_button_el = Gtk.Template.Child()
     cover_el = Gtk.Template.Child()
     name_el = Gtk.Template.Child()
     artist_el = Gtk.Template.Child()
@@ -22,12 +24,15 @@ class AlbumButton(Gtk.Box):
         super().__init__()
 
         self.play_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        self.cover_button_el.set_action_target_value(GLib.Variant.new_string(self.id))
+        self.star_el.set_action_target_value(GLib.Variant.new_string(self.id))
         self.name_el.set_action_target_value(GLib.Variant.new_string(self.id))
 
         integration.connect_to_model(self.id, 'name', self.update_name)
         integration.connect_to_model(self.id, 'artist', self.update_artist)
         integration.connect_to_model(self.id, 'artistId', self.update_artist_id)
         integration.connect_to_model(self.id, 'gdkPaintable', self.update_cover)
+        integration.connect_to_model(self.id, 'starred', self.update_starred)
 
     def update_cover(self, paintable:Gdk.Paintable=None):
         if paintable:
@@ -40,6 +45,7 @@ class AlbumButton(Gtk.Box):
     def update_name(self, name:str):
         self.name_el.get_child().set_label(name)
         self.name_el.set_tooltip_text(name)
+        self.cover_button_el.set_tooltip_text(name)
 
     def update_artist(self, artist:str):
         self.artist_el.get_child().set_label(artist)
@@ -47,6 +53,16 @@ class AlbumButton(Gtk.Box):
 
     def update_artist_id(self, artistId:str):
         self.artist_el.set_action_target_value(GLib.Variant.new_string(artistId))
+
+    def update_starred(self, starred:bool):
+        if starred:
+            self.star_el.add_css_class('accent')
+            self.star_el.set_icon_name('starred-symbolic')
+            self.star_el.set_tooltip_text(_('Starred'))
+        else:
+            self.star_el.remove_css_class('accent')
+            self.star_el.set_icon_name('non-starred-symbolic')
+            self.star_el.set_tooltip_text(_('Star'))
 
     @Gtk.Template.Callback()
     def show_popover_image(self, *args):
