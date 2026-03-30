@@ -29,7 +29,6 @@ class LoginPage(Adw.NavigationPage):
         saved_user = settings.get_value('integration-user').unpack()
         saved_directory = settings.get_value('integration-library-dir').unpack()
         saved_ip = settings.get_value('integration-ip').unpack()
-        saved_password = secret.get_plain_password() or ""
 
         # Metadata
         metadata = self.integration.login_page_metadata
@@ -46,11 +45,11 @@ class LoginPage(Adw.NavigationPage):
 
         # User
         self.user_el.set_visible('user' in metadata.get('entries'))
-        self.user_el.set_text(saved_user or metadata.get("default-user", ""))
+        self.user_el.set_text(saved_user)
 
         # Password
         self.password_el.set_visible('password' in metadata.get('entries'))
-        self.password_el.set_text(saved_password or metadata.get("default-password", ""))
+        self.password_el.set_text('')
 
         # Directory
         self.directory_el.set_visible('library-dir' in metadata.get('entries'))
