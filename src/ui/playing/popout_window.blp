@@ -33,15 +33,11 @@ template $NocturnePopoutWindow: Adw.ApplicationWindow {
         name: "content";
         child: Adw.NavigationSplitView split_view {
           sidebar-width-fraction: 0.5;
-          max-sidebar-width: 480;
+          max-sidebar-width: 320;
 
           sidebar: Adw.NavigationPage {
             title: _("Player");
-            child: Gtk.ScrolledWindow {
-              propagate-natural-width: true;
-              propagate-natural-height: true;
-              child: $NocturnePlayingControlPage playing_page {};
-            };
+            child: $NocturnePlayingControlPage playing_page {};
           };
           content: Adw.NavigationPage {
             title: _("Song Details");

@@ -14,6 +14,7 @@ class PopoutWindow(Adw.ApplicationWindow):
     lyrics_page = Gtk.Template.Child()
     queue_page = Gtk.Template.Child()
     footer = Gtk.Template.Child()
+    split_view = Gtk.Template.Child()
     fullscreen_btn = None
 
     def __init__(self, application, player, queue_list_el):
@@ -71,6 +72,8 @@ class PopoutWindow(Adw.ApplicationWindow):
     def fullscreen_toggled(self, window, gparam):
         if button := self.fullscreen_btn:
             button.set_icon_name("view-unfullscreen-symbolic" if window.is_fullscreen() else "view-fullscreen-symbolic")
+
+        self.split_view.set_max_sidebar_width(640 if window.is_fullscreen() else 320)
 
     def toggle_fullscreen(self, button):
         if self.is_fullscreen():
