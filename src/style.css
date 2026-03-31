@@ -133,8 +133,7 @@ window.popout-window.fullscreen .fullscreen-bottom-bar button.color {
   -gtk-icon-size: 24px;
 }
 
-window.popout-window.player-blur,
-window.player-blur bottom-sheet#main-bottom-sheet sheet.background {
+window.player-blur:not(.popout-window) bottom-sheet#main-bottom-sheet sheet.background {
   backdrop-filter: blur(10px);
   background: color-mix(in srgb, var(--window-bg-color) 85%, transparent);
 }
