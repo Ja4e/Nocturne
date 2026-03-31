@@ -209,14 +209,20 @@ class PlayingControlPage(Adw.NavigationPage):
         css = f"""
         window.dynamic-accent-bg, window.popout-window {{
             --accent-color: oklab(from rgb({','.join([str(c) for c in palette[0]])}) var(--standalone-color-oklab));
-            --accent-fg-color: oklab(from rgb({','.join([str(c) for c in palette[0]])}) var(--standalone-color-oklab));
         }}
-        window.popout-window,
+
         window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
             background-image: linear-gradient(
                 to bottom right,
                 rgba({','.join([str(c) for c in palette[0]])},0.3),
                 rgba({','.join([str(c) for c in palette[1]])},0.3)
+            );
+        }}
+        window.popout-window {{
+            background-image: linear-gradient(
+                to bottom right,
+                rgba({','.join([str(c) for c in palette[0]])},0.6),
+                rgba({','.join([str(c) for c in palette[1]])},0.6)
             );
         }}
         window.popout-window .fullscreen-bottom-bar {{

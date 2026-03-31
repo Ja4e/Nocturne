@@ -43,7 +43,7 @@ template $NocturneLyricsDialog: Adw.Dialog {
             child: Gtk.Button {
               icon-name: "media-playback-start-symbolic";
               valign: center;
-              clicked => $play_clicked();
+              action-name: "app.player_play";
               tooltip-text: _("Play");
               styles [
                 "circular",
@@ -57,7 +57,7 @@ template $NocturneLyricsDialog: Adw.Dialog {
             child: Gtk.Button {
               icon-name: "media-playback-pause-symbolic";
               valign: center;
-              clicked => $pause_clicked();
+              action-name: "app.player_pause";
               tooltip-text: _("Pause");
               styles [
                 "circular",
@@ -150,6 +150,7 @@ template $NocturneLyricsDialog: Adw.Dialog {
               margin-end: 10;
               margin-top: 10;
               margin-bottom: 10;
+              selection-mode: none;
               styles [
                 "boxed-list"
               ]
