@@ -129,6 +129,7 @@ def delete_navidrome_server(window):
 
 def open_popout_window(window, fullscreened:bool=False):
     def run():
+        GLib.idle_add(window.main_bottom_sheet.set_open, False)
         window.get_application().popout_window = Widgets.PopoutWindow(
             application=window.get_application(),
             player=window.playing_page.player,
@@ -137,7 +138,6 @@ def open_popout_window(window, fullscreened:bool=False):
         )
         GLib.idle_add(window.get_application().popout_window.present)
         GLib.idle_add(window.sheet_status_stack.set_visible_child_name, "pop-out")
-        GLib.idle_add(window.main_bottom_sheet.set_open, False)
     threading.Thread(target=run).start()
 
 def toggle_fullscreen(window):

@@ -180,3 +180,12 @@ toast {
   margin-top: 0;
   margin-bottom: 0;
 }
+
+button.lyrics_go_back_overlay_button {
+  margin: 10px;
+}
+
+window.popout-window.fullscreen button.lyrics_go_back_overlay_button {
+  margin: 20px;
+  margin-bottom: 162px;
+}

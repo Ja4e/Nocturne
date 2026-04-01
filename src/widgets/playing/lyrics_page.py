@@ -145,3 +145,7 @@ class PlayingLyricsPage(Gtk.Stack):
             Gtk.FileDialog(
                 filters=file_filter_list
             ).open(self.get_root(), None, self.copy_lyrics_lrc, model)
+
+    @Gtk.Template.Callback()
+    def go_to_main(self, button):
+        self.set_visible_child_name('not-found-locally')

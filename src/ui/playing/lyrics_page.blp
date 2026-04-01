@@ -11,25 +11,40 @@ template $NocturnePlayingLyricsPage: Gtk.Stack {
 
   Gtk.StackPage {
     name: "plain";
-    child: Gtk.ScrolledWindow {
-      propagate-natural-width: false;
-      propagate-natural-height: true;
-      max-content-width: 500;
-      max-content-height: 400;
-      child: Adw.Clamp {
-        maximum-size: 800;
-        tightening-threshold: 600;
-        child: Gtk.Label plain_label_el {
-          wrap: true;
-          wrap-mode: word_char;
-          justify: center;
-          halign: center;
-          valign: center;
-          styles [
-            "title-4",
-            "p10",
-            "document"
-          ]
+    child: Gtk.Overlay {
+      [overlay]
+      Gtk.Button {
+        styles [
+          "circular",
+          "osd",
+          "lyrics_go_back_overlay_button"
+        ]
+        valign: end;
+        halign: end;
+        tooltip-text: _("Go Back");
+        icon-name: "step-back-symbolic";
+        clicked => $go_to_main();
+      }
+      child: Gtk.ScrolledWindow {
+        propagate-natural-width: false;
+        propagate-natural-height: true;
+        max-content-width: 500;
+        max-content-height: 400;
+        child: Adw.Clamp {
+          maximum-size: 800;
+          tightening-threshold: 600;
+          child: Gtk.Label plain_label_el {
+            wrap: true;
+            wrap-mode: word_char;
+            justify: center;
+            halign: center;
+            valign: center;
+            styles [
+              "title-4",
+              "p10",
+              "document"
+            ]
+          };
         };
       };
     };
@@ -37,25 +52,40 @@ template $NocturnePlayingLyricsPage: Gtk.Stack {
 
   Gtk.StackPage {
     name: "lrc";
-    child: Gtk.ScrolledWindow scrolledwindow {
-      propagate-natural-width: true;
-      propagate-natural-height: true;
-      max-content-width: 500;
-      max-content-height: 400;
-      child: Adw.ClampScrollable {
-        maximum-size: 800;
-        tightening-threshold: 600;
-        child: Gtk.ListView lrc_list_el {
-          model: Gtk.SingleSelection lrc_model_parent {
-            selection-changed => $on_lrc_selection();
+    child: Gtk.Overlay {
+      [overlay]
+      Gtk.Button {
+        styles [
+          "circular",
+          "osd",
+          "lyrics_go_back_overlay_button"
+        ]
+        valign: end;
+        halign: end;
+        tooltip-text: _("Go Back");
+        icon-name: "step-back-symbolic";
+        clicked => $go_to_main();
+      }
+      child: Gtk.ScrolledWindow scrolledwindow {
+        propagate-natural-width: true;
+        propagate-natural-height: true;
+        max-content-width: 500;
+        max-content-height: 400;
+        child: Adw.ClampScrollable {
+          maximum-size: 800;
+          tightening-threshold: 600;
+          child: Gtk.ListView lrc_list_el {
+            model: Gtk.SingleSelection lrc_model_parent {
+              selection-changed => $on_lrc_selection();
+            };
+            factory: Gtk.SignalListItemFactory {
+              setup => $lrc_setup();
+              bind => $lrc_bind();
+            };
+            styles [
+              "lrc_list"
+            ]
           };
-          factory: Gtk.SignalListItemFactory {
-            setup => $lrc_setup();
-            bind => $lrc_bind();
-          };
-          styles [
-            "lrc_list"
-          ]
         };
       };
     };
@@ -66,6 +96,15 @@ template $NocturnePlayingLyricsPage: Gtk.Stack {
     child: Adw.StatusPage {
       title: _("No Lyrics Found");
       icon-name: "sad-computer-symbolic";
+      child: Gtk.Button {
+        tooltip-text: _("Go Back");
+        halign: center;
+        child: Adw.ButtonContent {
+          icon-name: "step-back-symbolic";
+          label: _("Go Back");
+        };
+        clicked => $go_to_main();
+      };
     };
   }
 
@@ -74,6 +113,15 @@ template $NocturnePlayingLyricsPage: Gtk.Stack {
     child: Adw.StatusPage {
       title: _("Instrumental");
       icon-name: "music-note-symbolic";
+      child: Gtk.Button {
+        tooltip-text: _("Go Back");
+        halign: center;
+        child: Adw.ButtonContent {
+          icon-name: "step-back-symbolic";
+          label: _("Go Back");
+        };
+        clicked => $go_to_main();
+      };
     };
   }
 
