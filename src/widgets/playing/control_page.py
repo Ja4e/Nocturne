@@ -25,10 +25,7 @@ class PlayingControlPage(Adw.NavigationPage):
     negative_progress_el = Gtk.Template.Child()
     star_el = Gtk.Template.Child()
     show_sidebar_el = Gtk.Template.Child()
-    volume_button_el = Gtk.Template.Child()
-    volume_el = Gtk.Template.Child()
     state_stack_el = Gtk.Template.Child()
-    mode_button_el = Gtk.Template.Child()
     pause_next_change = False
 
     def __init__(self):
@@ -47,12 +44,6 @@ class PlayingControlPage(Adw.NavigationPage):
         integration.connect_to_model('currentSong', 'positionSeconds', self.update_position)
         integration.connect_to_model('currentSong', 'buttonState', self.state_stack_el.set_visible_child_name)
         integration.connect_to_model('currentSong', 'songId', lambda id: threading.Thread(target=self.song_changed, args=(id,)).start())
-        Gio.Settings(schema_id="com.jeffser.Nocturne").bind(
-            "volume",
-            self.volume_el.get_adjustment(),
-            "value",
-            Gio.SettingsBindFlags.DEFAULT
-        )
         GLib.idle_add(self.setup_sidebar_button_connection)
 
     def update_position(self, positionSeconds:int):
@@ -94,26 +85,6 @@ class PlayingControlPage(Adw.NavigationPage):
                 nanoseconds
             )
         GLib.timeout_add(100, lambda v=value: change_time(v) if v == scale_el.get_adjustment().get_value() else None)
-
-    @Gtk.Template.Callback()
-    def on_volume_changed(self, scale_el):
-        value = scale_el.get_value()
-        if value == 0:
-            self.volume_button_el.set_icon_name("speaker-0-symbolic")
-        elif value < 0.33:
-            self.volume_button_el.set_icon_name("speaker-1-symbolic")
-        elif value < 0.66:
-            self.volume_button_el.set_icon_name("speaker-2-symbolic")
-        else:
-            self.volume_button_el.set_icon_name("speaker-3-symbolic")
-
-    @Gtk.Template.Callback()
-    def mode_changed(self, button):
-        integration = get_current_integration()
-        self.mode_button_el.set_icon_name(button.get_icon_name())
-        self.mode_button_el.set_tooltip_text(button.get_tooltip_text())
-        self.mode_button_el.get_popover().popdown()
-        integration.loaded_models.get('currentSong').set_property('playbackMode', button.get_name())
 
     @Gtk.Template.Callback()
     def show_content_clicked(self, button):

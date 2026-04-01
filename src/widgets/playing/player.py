@@ -130,10 +130,7 @@ class PlayerAdapter(MprisAdapter):
         return False
 
     def is_repeating(self) -> bool:
-        integration = get_current_integration()
-        if integration:
-            return integration.loaded_models.get('currentSong').get_property('playbackMode') == 'repeat-one'
-        return False
+        return Gio.Settings(schema_id="com.jeffser.Nocturne").get_value('playback-mode').unpack() == 'repeat-one'
 
     def next(self):
         self.player.handle_song_change_request("next")
@@ -179,9 +176,7 @@ class PlayerAdapter(MprisAdapter):
         pass
 
     def set_repeating(self, value:bool):
-        integration = get_current_integration()
-        if integration:
-            integration.loaded_models.get('currentSong').set_property('playbackMode', "repeat-one" if value else "consecutive")
+        Gio.Settings(schema_id="com.jeffser.Nocturne").set_string('playback-mode', 'repeat-one' if value else 'consecutive')
 
     def set_shuffle(self, value:bool):
         # TODO not sure how I could implement this
@@ -290,7 +285,7 @@ class Player(EventAdapter):
         integration = get_current_integration()
         current_song_id = integration.loaded_models.get('currentSong').songId
 
-        mode = integration.loaded_models.get('currentSong').get_property('playbackMode')
+        mode = Gio.Settings(schema_id="com.jeffser.Nocturne").get_value('playback-mode').unpack()
 
         if action != "end" and mode == "repeat-one":
             mode = "consecutive"

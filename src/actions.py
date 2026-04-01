@@ -144,9 +144,9 @@ def toggle_fullscreen(window):
 
         popout_window = window.get_application().popout_window
         if popout_window.is_fullscreen():
-            popout_window.unfullscreen()
+            GLib.idle_add(popout_window.unfullscreen)
         else:
-            popout_window.fullscreen()
+            GLib.idle_add(popout_window.fullscreen)
 
 def close_popout_window(window):
     if popoutwindow := window.get_application().popout_window:

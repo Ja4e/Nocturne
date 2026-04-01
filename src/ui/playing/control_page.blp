@@ -225,81 +225,9 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
                 "toolbar"
               ]
 
-              Gtk.MenuButton mode_button_el {
-                icon-name: "media-playlist-consecutive-symbolic";
-                tooltip-text: _("Consecutive");
-                popover: Gtk.Popover {
-                  child: Gtk.Box {
-                    orientation: horizontal;
+              $NocturnePlaybackModeButton {}
 
-                    Gtk.Button {
-                      styles [
-                        "flat"
-                      ]
-                      icon-name: "media-playlist-consecutive-symbolic";
-                      tooltip-text: _("Consecutive");
-                      name: "consecutive";
-                      clicked => $mode_changed();
-                    }
-
-                    Gtk.Button {
-                      styles [
-                        "flat"
-                      ]
-                      icon-name: "media-playlist-repeat-symbolic";
-                      tooltip-text: _("Repeat All");
-                      name: "repeat-all";
-                      clicked => $mode_changed();
-                    }
-
-                    Gtk.Button {
-                      styles [
-                        "flat"
-                      ]
-                      icon-name: "media-playlist-repeat-song-symbolic";
-                      tooltip-text: _("Repeat One");
-                      name: "repeat-one";
-                      clicked => $mode_changed();
-                    }
-                  };
-                };
-              }
-
-              Gtk.MenuButton volume_button_el {
-                icon-name: "speaker-2-symbolic";
-                tooltip-text: _("Volume");
-                popover: Gtk.Popover {
-                  child: Gtk.Box {
-                    orientation: horizontal;
-
-                    Gtk.Image {
-                      icon-name: "speaker-0-symbolic";
-                      accessibility {
-                        label: _("Speaker Mute");
-                      }
-                    }
-
-                    Gtk.Scale volume_el {
-                      adjustment: Gtk.Adjustment {
-                        lower: 0;
-                        upper: 1;
-                        value: 0.25;
-                      };
-                      orientation: horizontal;
-                      value-changed => $on_volume_changed();
-                      width-request: 150;
-                    }
-
-                    Gtk.Image {
-                      icon-name: "speaker-3-symbolic";
-                      accessibility {
-                        label: _("Speaker Full Volume");
-                      }
-                    }
-
-                  };
-                };
-              }
+              $NocturneVolumeButton {}
 
               Gtk.Button star_el {
                 icon-name: "non-starred-symbolic";

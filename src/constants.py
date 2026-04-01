@@ -167,6 +167,21 @@ TRANSLATORS = [
     "Jeffry Samuel (Spanish) https://jeffser.com"
 ]
 
+PLAYBACK_MODES = {
+    'consecutive': {
+        'icon-name': 'media-playlist-consecutive-symbolic',
+        'display-name': _("Consecutive")
+    },
+    'repeat-all': {
+        'icon-name': 'media-playlist-repeat-symbolic',
+        'display-name': _("Repeat All")
+    },
+    'repeat-one': {
+        'icon-name': 'media-playlist-repeat-song-symbolic',
+        'display-name': _("Repeat One")
+    }
+}
+
 SIDEBAR_MENU = [
     { # Section
         'items': [

@@ -79,8 +79,9 @@ class LyricsDialog(Adw.Dialog):
         integration.connect_to_model(self.id, 'title', self.set_title)
         integration.connect_to_model(self.id, 'duration', self.update_duration)
 
-        self.playback_mode_backup = integration.loaded_models.get('currentSong').get_property('playbackMode')
-        integration.loaded_models.get('currentSong').set_property('playbackMode', 'repeat-one')
+        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        self.playback_mode_backup = settings.get_value('playback-mode').unpack()
+        settings.set_string('playback-mode', 'repeat-one')
         threading.Thread(target=self.retrieve_lyrics).start()
 
     def update_duration(self, duration):
@@ -176,7 +177,7 @@ class LyricsDialog(Adw.Dialog):
 
     @Gtk.Template.Callback()
     def cancel_clicked(self, button):
-        get_current_integration().loaded_models.get('currentSong').set_property('playbackMode', self.playback_mode_backup)
+        Gio.Settings(schema_id="com.jeffser.Nocturne").set_string('playback-mode', self.playback_mode_backup)
         self.close()
 
     @Gtk.Template.Callback()
@@ -194,7 +195,7 @@ class LyricsDialog(Adw.Dialog):
         })
         self.get_root().activate_action("app.save_lyrics", target_value)
 
-        get_current_integration().loaded_models.get('currentSong').set_property('playbackMode', self.playback_mode_backup)
+        Gio.Settings(schema_id="com.jeffser.Nocturne").set_string('playback-mode', self.playback_mode_backup)
         self.close()
 
     @Gtk.Template.Callback()

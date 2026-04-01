@@ -28,6 +28,9 @@
 	  <key name="volume" type="d">
 	    <default>0.25</default>
 	  </key>
+	  <key name="playback-mode" type="s">
+	    <default>'consecutive'</default>
+	  </key>
 	  <key name="default-view-mode" type="s">
 	    <default>'list'</default>
 	  </key>
