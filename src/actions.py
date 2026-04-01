@@ -127,26 +127,28 @@ def delete_navidrome_server(window):
     dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
     dialog.choose(window, None, response)
 
-def open_popout_window(window):
-    window.get_application().popout_window = Widgets.PopoutWindow(
-        application=window.get_application(),
-        player=window.playing_page.player,
-        queue_list_el=window.queue_page.song_list_el
-    )
-    window.get_application().popout_window.present()
-    window.sheet_status_stack.set_visible_child_name("pop-out")
-    window.main_bottom_sheet.set_open(False)
+def open_popout_window(window, fullscreened:bool=False):
+    def run():
+        window.get_application().popout_window = Widgets.PopoutWindow(
+            application=window.get_application(),
+            player=window.playing_page.player,
+            queue_list_el=window.queue_page.song_list_el,
+            fullscreened=fullscreened
+        )
+        GLib.idle_add(window.get_application().popout_window.present)
+        GLib.idle_add(window.sheet_status_stack.set_visible_child_name, "pop-out")
+        GLib.idle_add(window.main_bottom_sheet.set_open, False)
+    threading.Thread(target=run).start()
 
 def toggle_fullscreen(window):
     if len(window.queue_page.song_list_el.get_all_ids()) > 0:
-        if not window.get_application().popout_window:
-            open_popout_window(window)
-
-        popout_window = window.get_application().popout_window
-        if popout_window.is_fullscreen():
-            GLib.idle_add(popout_window.unfullscreen)
+        if popout_window := window.get_application().popout_window:
+            if popout_window.is_fullscreen():
+                GLib.idle_add(popout_window.unfullscreen)
+            else:
+                GLib.idle_add(popout_window.fullscreen)
         else:
-            GLib.idle_add(popout_window.fullscreen)
+            open_popout_window(window, True)
 
 def close_popout_window(window):
     if popoutwindow := window.get_application().popout_window:

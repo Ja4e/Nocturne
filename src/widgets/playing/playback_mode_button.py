@@ -28,5 +28,6 @@ class PlaybackModeButton(Gtk.MenuButton):
     def mode_changed(self, name:str):
         self.set_icon_name(PLAYBACK_MODES.get(name, {}).get('icon-name'))
         self.set_tooltip_text(PLAYBACK_MODES.get(name, {}).get('display-name'))
+        self.get_popover().popdown()
         if self.settings.get_value('playback-mode').unpack() != name:
             self.settings.set_string('playback-mode', name)

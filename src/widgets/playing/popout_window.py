@@ -29,9 +29,10 @@ class PopoutWindow(Adw.ApplicationWindow):
     cover_el = Gtk.Template.Child()
     sidebar_stack = Gtk.Template.Child()
 
-    def __init__(self, application, player, queue_list_el):
+    def __init__(self, application, player, queue_list_el, fullscreened):
         super().__init__(
-            application=application
+            application=application,
+            fullscreened=fullscreened
         )
 
         integration = get_current_integration()
