@@ -84,6 +84,8 @@ def logout(window):
     threading.Thread(target=window.queue_page.replace_queue, args=([],)).start()
     GLib.idle_add(window.main_stack.set_visible_child_name, 'welcome')
     GLib.idle_add(replace_root_page, window, 'home')
+    if window.playing_page.player.mpris_published:
+        window.playing_page.player.mpris.unpublish()
     dialogs = window.get_dialogs()
     if len(dialogs) > 0:
         dialogs[0].close()
