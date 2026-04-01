@@ -192,3 +192,8 @@ window.popout-window.big-mode button.lyrics_go_back_overlay_button {
 .p50 {
   padding:50px;
 }
+
+window.popout-window.big-mode picture.card,
+window.popout-window.big-mode .fullscreen-bottom-bar {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
