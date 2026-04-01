@@ -109,7 +109,14 @@ class AlbumPage(Adw.NavigationPage):
 
     def update_song_list(self, song_list:list):
         self.song_list_el.list_el.remove_all()
-        for song_dict in song_list:
-            self.song_list_el.list_el.append(SongRow(song_dict.get('id')))
+        song_ids = [s.get('id') for s in song_list]
+        for song_id in song_ids:
+            row = SongRow(song_id)
+            row.set_action_name('app.play_song_from_list')
+            row.set_action_target_value(GLib.Variant('a{sv}', {
+                'songId': GLib.Variant('s', song_id),
+                'songs': GLib.Variant('as', song_ids)
+            }))
+            self.song_list_el.list_el.append(row)
         self.song_list_el.main_stack.set_visible_child_name('content' if len(song_list) > 0 else 'no-content')
         self.song_list_el.list_el.invalidate_sort()
