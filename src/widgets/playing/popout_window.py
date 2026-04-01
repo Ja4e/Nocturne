@@ -1,6 +1,6 @@
 # popout_window.py
 
-from gi.repository import Gtk, Adw, GLib, Gst, Gio, GObject
+from gi.repository import Gtk, Adw, GLib, Gst, Gio, GObject, Pango
 from . import PlayingControlPage
 from ...integrations import get_current_integration
 from ...constants import get_display_time
@@ -44,11 +44,14 @@ class PopoutWindow(Adw.ApplicationWindow):
         GLib.idle_add(self.footer.setup)
 
         self.queue_page.replace_list_element(queue_list_el)
+        self.playing_page.header_bar.get_ancestor(Adw.ToolbarView).set_extend_content_to_top_edge(False)
         self.playing_page.header_bar.set_show_start_title_buttons(True)
         self.playing_page.header_bar.set_show_end_title_buttons(True)
 
         self.footer.cover_el.set_size_request(100, 100)
         self.footer.cover_el.set_pixel_size(100)
+        self.footer.title_el.set_wrap(True)
+        self.footer.title_el.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
         self.footer.title_el.set_lines(2)
         self.footer.title_el.get_ancestor(Gtk.Box).set_spacing(10)
         self.footer.progress_el.set_visible(False)
