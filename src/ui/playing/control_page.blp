@@ -122,15 +122,11 @@ template $NocturnePlayingControlPage: Adw.NavigationPage {
 
             Gtk.Scale progress_el {
               orientation: horizontal;
-              GestureClick {
-                pressed => $seek_start();
-                stopped => $seek_end();
-              }
+              change-value => $progress_bar_changed();
               adjustment: Gtk.Adjustment {
                 lower: 0;
                 upper: 1;
                 value: 0;
-                value-changed => $progress_bar_changed();
               };
               styles [
                 "p0"

@@ -59,7 +59,8 @@ class PlayingControlPage(Adw.NavigationPage):
                 label_negative = get_display_time(song.get_property('duration') - positionSeconds)
                 self.positive_progress_el.set_label(label_positive)
                 self.negative_progress_el.set_label('-{}'.format(label_negative))
-                self.progress_el.get_adjustment().set_value(positionSeconds)
+                if not self.is_seeking:
+                    self.progress_el.get_adjustment().set_value(positionSeconds)
 
     def breakpoint_toggled(self, active:bool):
         self.show_sidebar_el.set_visible(active)
@@ -75,22 +76,20 @@ class PlayingControlPage(Adw.NavigationPage):
         self.breakpoint_toggled(is_small and self.get_root().get_width() > 0)
 
     @Gtk.Template.Callback()
-    def seek_start(self, gesture, n_press, x, y):
+    def progress_bar_changed(self, scale_el, scroll_type, value):
+        #print(scale_el, scroll_type, value)
+        value = scale_el.get_adjustment().get_value()
         self.is_seeking = True
-
-    @Gtk.Template.Callback()
-    def seek_end(self, gesture):
-        self.is_seeking = False
-
-    @Gtk.Template.Callback()
-    def progress_bar_changed(self, adjustment):
-        if self.is_seeking:
-            nanoseconds = int(adjustment.get_value() * Gst.SECOND)
+        def change_time(val):
+            print(val)
+            self.is_seeking = False
+            nanoseconds = int(val * Gst.SECOND)
             self.player.gst.seek_simple(
                 Gst.Format.TIME,
                 Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
                 nanoseconds
             )
+        GLib.timeout_add(100, lambda v=value: change_time(v) if v == scale_el.get_adjustment().get_value() else None)
 
     @Gtk.Template.Callback()
     def on_volume_changed(self, scale_el):
