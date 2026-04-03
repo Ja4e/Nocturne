@@ -48,6 +48,7 @@ class NocturneWindow(Adw.ApplicationWindow):
     footer = Gtk.Template.Child()
     toast_overlay = Gtk.Template.Child()
     login_page = Gtk.Template.Child()
+    sidebar_playlist_section = None
 
     @Gtk.Template.Callback()
     def close_request(self, window):
@@ -65,7 +66,11 @@ class NocturneWindow(Adw.ApplicationWindow):
     def on_sidebar_activated(self, sidebar, index):
         page_tag = sidebar.get_selected_item().page_tag
         page_type = sidebar.get_selected_item().page_type
-        self.replace_root_page(page_tag, page_type)
+        if page_tag == "playlist":
+            self.activate_action("app.replace_root_page", GLib.Variant('s', 'playlists'))
+            self.activate_action("app.show_playlist", GLib.Variant('s', page_type))
+        else:
+            self.replace_root_page(page_tag, page_type)
 
     def replace_root_page(self, page_tag:str, page_type:str=None):
         page = self.main_navigationview.find_page(page_tag)
@@ -98,6 +103,28 @@ class NocturneWindow(Adw.ApplicationWindow):
                     page_tag=item.get('page-tag'),
                     page_type=item.get('page-type')
                 ))
+
+    def update_playlist_section_of_sidebar(self):
+        integration = get_current_integration()
+        playlist_section = self.main_sidebar.get_sections()[-1]
+        GLib.idle_add(playlist_section.remove_all)
+        GLib.idle_add(playlist_section.append,
+            SidebarItem(
+                title=_("All"),
+                icon_name="playlist-symbolic",
+                page_tag="playlists"
+            )
+        )
+        for playlistId in integration.getPlaylists()[:4]:
+            if model := integration.loaded_models.get(playlistId):
+                item = SidebarItem(
+                    page_tag="playlist",
+                    page_type=playlistId
+                )
+                GLib.idle_add(playlist_section.append, item)
+                integration.connect_to_model(playlistId, "name", item.set_title)
+                integration.connect_to_model(playlistId, "songCount", lambda n: item.set_subtitle(('{} Songs' if n > 1 else '{} Song').format(n)))
+                #integration.connect_to_model(playlistId, "gdkPaintable", item.set_icon_paintable)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

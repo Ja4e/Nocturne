@@ -232,7 +232,7 @@ SIDEBAR_MENU = [
             }
         ]
     },
-    {
+    { # Section
         'items': [
             { # Item
                 'title': _("Artists"),
@@ -248,13 +248,12 @@ SIDEBAR_MENU = [
                 'title': _("Radios"),
                 'icon-name': "sound-wave-symbolic",
                 'page-tag': 'radios'
-            },
-            { # Item
-                'title': _("Playlists"),
-                'icon-name': "playlist-symbolic",
-                'page-tag': 'playlists'
             }
         ]
+    },
+    { # Section
+        'title': _("Playlists"),
+        'items': []
     }
 ]
 
