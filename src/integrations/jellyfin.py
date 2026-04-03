@@ -286,6 +286,32 @@ class Jellyfin(Base):
             id_list.append(playlist.get("Id"))
         return id_list
 
+    def getSongList(self, list_type:str="random", size:int=10, offset:int=0) -> list:
+        song_list = []
+
+        params = {
+            "IncludeItemTypes": "Audio",
+            "Recursive": "true",
+            "Fields": "Id",
+            "Limit": size,
+            "StartIndex": offset
+        }
+        if list_type == "random":
+            params["SortBy"] = "Random"
+        elif list_type == "starred":
+            params["Filters"] = "IsFavorite"
+        elif list_type == "top":
+            params["SortBy"] = "PlayCount"
+            params["SortOrder"] = "Descending"
+
+        songs = self.make_request(
+            action="Users/{userId}/Items",
+            mode="GET",
+            params=params
+        ).get("Items", [])
+
+        return [song.get("Id") for song in songs]
+
     def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):
         def run():
             artist = self.make_request(

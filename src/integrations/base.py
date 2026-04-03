@@ -96,6 +96,7 @@ class Base(GObject.Object):
 
     def getAlbumList(self, list_type:str="recent", size:int=10, offset:int=0) -> list:
         # add non existing elements to self.loaded_models, returns lists of IDs, nothing more
+        # list_type = random, newest, frequent, recent, starred
         print('WARNING', 'getAlbumList', 'not implemented')
         return []
 
@@ -107,6 +108,12 @@ class Base(GObject.Object):
     def getPlaylists(self) -> list:
         # add non existing elements to self.loaded_models, returns lists of IDs, nothing more
         print('WARNING', 'getPlaylists', 'not implemented')
+        return []
+
+    def getSongList(self, list_type:str="random", size:int=10, offset:int=0) -> list:
+        # returns a list of IDs of songs
+        # list_type = random, starred, top
+        print('WARNING', 'getSongList', 'not implemented')
         return []
 
     def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):

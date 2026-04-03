@@ -132,11 +132,11 @@ class Local(Base):
         # list_type is not implemented yet
         album_list = []
         if list_type == "random":
-            album_list = [id for id in list(self.loaded_models) if id.startswith('ALBUM:')]
+            album_list = [model_id for model_id in list(self.loaded_models) if model_id.startswith('ALBUM:')]
             random.shuffle(album_list)
         elif list_type == "newest":
             albums = {} # id : creation_time
-            for model in [self.loaded_models.get(id) for id in list(self.loaded_models) if id.startswith('ALBUM:')]:
+            for model in [self.loaded_models.get(model_id) for model_id in list(self.loaded_models) if model_id.startswith('ALBUM:')]:
                 albums[model.id] = pathlib.Path(model.path).stat().st_ctime
             album_list = sorted(albums, key=lambda x: albums.get(x), reverse=True)
         elif list_type in ("frequent", "recent"):
@@ -163,16 +163,44 @@ class Local(Base):
             elif list_type == "recent":
                 album_list = sorted(album_views, key=lambda x: album_views.get(x).get('last_play'), reverse=True)
         elif list_type == "starred":
-            album_list = [id for id, model in self.loaded_models.items() if id.startswith('ALBUM:') and model.starred]
+            album_list = [model_id for model_id, model in self.loaded_models.items() if model_id.startswith('ALBUM:') and model.starred]
         else:
-            album_list = [id for id in list(self.loaded_models) if id.startswith('ALBUM:')]
-        return [id for id in album_list if id in self.loaded_models][offset:size]
+            album_list = [model_id for model_id in list(self.loaded_models) if model_id.startswith('ALBUM:')]
+        return [model_id for model_id in album_list if id in self.loaded_models][offset:size]
 
     def getArtists(self, size:int=10) -> list:
-        return [id for id in list(self.loaded_models) if id.startswith('ARTIST:')][:size]
+        return [model_id for model_id in list(self.loaded_models) if model_id.startswith('ARTIST:')][:size]
 
     def getPlaylists(self) -> list:
-        return [id for id in list(self.loaded_models) if id.startswith('PLAYLIST:')]
+        return [model_id for model_id in list(self.loaded_models) if model_id.startswith('PLAYLIST:')]
+
+    def getSongList(self, list_type:str="random", size:int=10, offset:int=0) -> list:
+        song_list = []
+        if list_type == "random":
+            song_list = [model_id for model_id in list(self.loaded_models) if model_id.startswith('SONG:')]
+            random.shuffle(song_list)
+        elif list_type == "starred":
+            STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
+            try:
+                with open(STARFILE, 'r') as f:
+                    star_dict = json.load(f)
+                if not isinstance(star_dict, dict):
+                    star_dict = {}
+            except Exception:
+                star_dict = {}
+            song_list = [songId for songId in star_dict if songId in self.loaded_models]
+        elif list_type == "top":
+            SCROBBLEFILE = os.path.join(LOCAL_DATA_DIR, 'scrobble.json')
+            try:
+                with open(SCROBBLEFILE, 'r') as f:
+                    scrobble_dict = json.load(f)
+                if not isinstance(scrobble_dict, dict):
+                    scrobble_dict = {}
+            except Exception:
+                scrobble_dict = {}
+            song_list = sorted(scrobble_dict, key=lambda x: scrobble_dict.get(x).get('plays'), reverse=True)
+
+        return song_list[offset:size]
 
     def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):
         threading.Thread(target=self.getCoverArt, args=(id,)).start()
@@ -363,9 +391,9 @@ class Local(Base):
         return {'type': 'not-found'}
 
     def search(self, query:str, artistCount:int=0, artistOffset:int=0, albumCount:int=0, albumOffset:int=0, songCount:int=0, songOffset:int=0) -> dict:
-        all_artists = [model for id, model in self.loaded_models.items() if id.startswith('ARTIST:')]
-        all_albums = [model for id, model in self.loaded_models.items() if id.startswith('ALBUM:')]
-        all_songs = [model for id, model in self.loaded_models.items() if id.startswith('SONG:')]
+        all_artists = [model for model_id, model in self.loaded_models.items() if model_id.startswith('ARTIST:')]
+        all_albums = [model for model_id, model in self.loaded_models.items() if model_id.startswith('ALBUM:')]
+        all_songs = [model for model_id, model in self.loaded_models.items() if model_id.startswith('SONG:')]
 
         return {
             'artist': [model.id for model in all_artists if re.search(query, model.name, re.IGNORECASE)][artistOffset:artistCount],
@@ -374,7 +402,7 @@ class Local(Base):
         }
 
     def getInternetRadioStations(self) -> list:
-        return [id for id in list(self.loaded_models) if id.startswith('RADIO:')]
+        return [model_id for model_id in list(self.loaded_models) if model_id.startswith('RADIO:')]
 
     def createInternetRadioStation(self, name:str, streamUrl:str) -> bool:
         RADIOFILE = os.path.join(LOCAL_DATA_DIR, 'radios.json')
@@ -532,7 +560,7 @@ class Local(Base):
         if not id:
             return
         if model := self.loaded_models.get(id):
-            if model.isExternalFile:
+            if model.get_property('isExternalFile') or model.get_property('isRadio'):
                 return
             SCROBBLEFILE = os.path.join(LOCAL_DATA_DIR, 'scrobble.json')
             try:
@@ -551,7 +579,7 @@ class Local(Base):
                 scrobble_dict[id] = {
                     'plays': 1,
                     'last_play': int(time.time()),
-                    'album': model.albumId
+                    'album': model.get_property('albumId')
                 }
 
             with open(SCROBBLEFILE, 'w') as f:
