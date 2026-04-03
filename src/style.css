@@ -180,11 +180,6 @@ toast {
   margin-bottom: 0;
 }
 
-button.lyrics_go_back_overlay_button {
-  margin: 10px;
-  background-color: transparent;
-}
-
 window.popout-window.big-mode button.lyrics_go_back_overlay_button {
   margin: 20px;
   margin-bottom: 162px;
