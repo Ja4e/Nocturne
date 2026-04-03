@@ -88,6 +88,7 @@ class AlbumPage(Adw.NavigationPage):
         self.name_el.set_label(name)
         self.name_el.set_visible(name)
         self.set_title(name or _('Album'))
+        self.set_name(name)
 
     def update_artist(self, artist:str):
         self.artist_el.set_label(artist)

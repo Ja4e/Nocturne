@@ -1,9 +1,9 @@
 using Gtk 4.0;
 using Adw 1;
 
-template $NocturneSongsAllPage: Adw.NavigationPage {
-  title: _("Songs");
-  tag: "songs-all";
+template $NocturneSongsStarredPage: Adw.NavigationPage {
+  title: _("Starred Songs");
+  tag: "songs-starred";
   child: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
@@ -22,12 +22,12 @@ template $NocturneSongsAllPage: Adw.NavigationPage {
         }
       }
 
-      title-widget: Gtk.SearchEntry search_entry {
+      title-widget: Gtk.SearchEntry {
         hexpand: true;
-        placeholder-text: _("Songs");
+        placeholder-text: _("Starred Songs");
         search-changed => $on_search();
         accessibility {
-          label: _("Search songs");
+          label: _("Search starred songs");
         }
       };
     }
@@ -40,10 +40,9 @@ template $NocturneSongsAllPage: Adw.NavigationPage {
       }
       Gtk.StackPage {
         name: "content";
-        child: Gtk.ScrolledWindow scrolledwindow {
+        child: Gtk.ScrolledWindow {
           propagate-natural-width: true;
           propagate-natural-height: true;
-          edge-reached => $scroll_edge_reached();
 
           child: Adw.Clamp {
             maximum-size: 2000;
@@ -60,11 +59,12 @@ template $NocturneSongsAllPage: Adw.NavigationPage {
 
                 Gtk.StackPage {
                   name: "list";
-                  child: $NocturneSongQueue list_el {
+                  child: Gtk.ListBox list_el {
                     styles [
                       "boxed-list",
                       "m10"
                     ]
+                    selection-mode: none;
                     valign: start;
                   };
                 }
@@ -76,31 +76,11 @@ template $NocturneSongsAllPage: Adw.NavigationPage {
                     halign: center;
                     child-spacing: 10;
                     line-spacing: 10;
-                    justify: fill;
+                    justify: spread;
                     justify-last-line: true;
                     styles [
                       "m10"
                     ]
-                  };
-                }
-              }
-
-              Gtk.Stack end_stack {
-                Gtk.StackPage {
-                  name: "loading";
-                  child: Adw.Spinner {};
-                }
-                Gtk.StackPage {
-                  name: "end";
-                  child: Gtk.Label {
-                    styles [
-                      "dimmed"
-                    ]
-                    label: _("Reached End of List");
-                    halign: center;
-                    wrap: true;
-                    wrap-mode: word_char;
-                    justify: center;
                   };
                 }
               }

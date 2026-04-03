@@ -36,6 +36,7 @@ class SongSmallRow(Gtk.Button):
     def update_title(self, title:str):
         self.title_el.set_label(title)
         self.set_tooltip_text(title)
+        self.set_name(title)
 
     def update_artists(self, artists:list):
         if len(artists) > 0:

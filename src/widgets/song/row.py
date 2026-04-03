@@ -81,6 +81,7 @@ class SongRow(Adw.ActionRow):
     def update_title(self, title:str):
         self.title_el.set_label(title)
         self.title_el.set_tooltip_text(title)
+        self.set_name(title)
 
     def update_duration(self, duration:int):
         if duration == -1:

@@ -18,7 +18,7 @@ class Local(Base):
         'title': _("Local Files"),
         'entries': ['library-dir'],
         'login-label': _("Continue"),
-        'default-page': 'songs'
+        'default-page': 'songs-all'
     }
     button_metadata = {
         'title': _("Local Files"),
@@ -174,33 +174,16 @@ class Local(Base):
     def getPlaylists(self) -> list:
         return [model_id for model_id in list(self.loaded_models) if model_id.startswith('PLAYLIST:')]
 
-    def getSongList(self, list_type:str="random", size:int=10, offset:int=0) -> list:
-        song_list = []
-        if list_type == "random":
-            song_list = [model_id for model_id in list(self.loaded_models) if model_id.startswith('SONG:')]
-            random.shuffle(song_list)
-        elif list_type == "starred":
-            STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
-            try:
-                with open(STARFILE, 'r') as f:
-                    star_dict = json.load(f)
-                if not isinstance(star_dict, dict):
-                    star_dict = {}
-            except Exception:
+    def getStarredSongs(self) -> list:
+        STARFILE = os.path.join(LOCAL_DATA_DIR, 'stars.json')
+        try:
+            with open(STARFILE, 'r') as f:
+                star_dict = json.load(f)
+            if not isinstance(star_dict, dict):
                 star_dict = {}
-            song_list = [songId for songId in star_dict if songId in self.loaded_models]
-        elif list_type == "top":
-            SCROBBLEFILE = os.path.join(LOCAL_DATA_DIR, 'scrobble.json')
-            try:
-                with open(SCROBBLEFILE, 'r') as f:
-                    scrobble_dict = json.load(f)
-                if not isinstance(scrobble_dict, dict):
-                    scrobble_dict = {}
-            except Exception:
-                scrobble_dict = {}
-            song_list = sorted(scrobble_dict, key=lambda x: scrobble_dict.get(x).get('plays'), reverse=True)
-
-        return song_list[offset:size]
+        except Exception:
+            star_dict = {}
+        return [song_id for song_id in star_dict if song_id.startswith("SONG:") and song_id in self.loaded_models]
 
     def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):
         threading.Thread(target=self.getCoverArt, args=(id,)).start()
@@ -224,9 +207,11 @@ class Local(Base):
                 star_dict = {}
 
             # Updating Song Model
-            song = get_song_info_from_file(self.loaded_models.get(id).get_property("path"), star_dict)
+            song = get_song_info_from_file(self.loaded_models.get(id).get_property("path"), star_dict=star_dict)
             if not song:
                 return
+            song["id"] = id
+            song["starred"] = song.get("id") in star_dict
             self.loaded_models.get(id).update_data(**song)
 
             # Making Album Model

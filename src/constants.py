@@ -159,8 +159,6 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
         song["artistId"] = "ARTIST:{}".format(song.get("artist")) if song.get('artist') else ""
         song["albumId"] = "ALBUM:{}".format(song.get("album")) if song.get('album') else ""
 
-    song["starred"] = star_dict.get(song.get('id'))
-
     return song
 
 TRANSLATORS = [
@@ -249,7 +247,12 @@ SIDEBAR_MENU = [
             { # Item
                 'title': _("All"),
                 'icon-name': "music-note-symbolic",
-                'page-tag': 'songs'
+                'page-tag': 'songs-all'
+            },
+            { # Item
+                'title': _("Starred"),
+                'icon-name': "starred-symbolic",
+                'page-tag': 'songs-starred'
             },
             { # Item
                 'title': _("Radios"),

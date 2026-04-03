@@ -110,10 +110,9 @@ class Base(GObject.Object):
         print('WARNING', 'getPlaylists', 'not implemented')
         return []
 
-    def getSongList(self, list_type:str="random", size:int=10, offset:int=0) -> list:
+    def getStarredSongs(self) -> list:
         # returns a list of IDs of songs
-        # list_type = random, starred, top
-        print('WARNING', 'getSongList', 'not implemented')
+        print('WARNING', 'getStarredSongs', 'not implemented')
         return []
 
     def verifyArtist(self, id:str, force_update:bool=False, use_threading:bool=True):

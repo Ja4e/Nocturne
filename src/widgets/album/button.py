@@ -46,6 +46,7 @@ class AlbumButton(Gtk.Box):
         self.name_el.get_child().set_label(name)
         self.name_el.set_tooltip_text(name)
         self.cover_button_el.set_tooltip_text(name)
+        self.set_name(name)
 
     def update_artist(self, artist:str):
         self.artist_el.get_child().set_label(artist)

@@ -1,4 +1,4 @@
-# songs.py
+# songs_all.py
 
 from gi.repository import Gtk, Adw, GLib, GObject, Gio
 from ...integrations import get_current_integration, models

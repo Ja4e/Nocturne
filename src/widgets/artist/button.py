@@ -36,6 +36,7 @@ class ArtistButton(Gtk.Button):
         self.avatar_el.set_tooltip_text(name)
         self.set_tooltip_text(name)
         self.name_el.set_label(name)
+        self.set_name(name)
 
     def update_album_count(self, albumCount:int):
         if albumCount == 1:

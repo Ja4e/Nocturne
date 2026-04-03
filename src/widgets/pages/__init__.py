@@ -4,6 +4,7 @@ from .home import HomePage
 from .login import LoginPage
 from .artists import ArtistsPage
 from .playlists import PlaylistsPage
+from .songs_starred import SongsStarredPage
 from .songs_all import SongsAllPage
 from .albums import AlbumsPage
 from .albums_all import AlbumsAllPage

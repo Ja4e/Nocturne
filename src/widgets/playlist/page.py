@@ -80,6 +80,7 @@ class PlaylistPage(Adw.NavigationPage):
         self.name_el.set_label(name)
         self.name_el.set_visible(name)
         self.set_title(name or _('Playlist'))
+        self.set_name(name)
 
     def update_song_list(self, song_list:list):
         self.song_list_el.list_el.remove_all()
