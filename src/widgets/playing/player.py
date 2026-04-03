@@ -108,9 +108,8 @@ class PlayerAdapter(MprisAdapter):
         pass
 
     def get_playstate(self) -> PlayState:
-        button_state = self.player.control_page.state_stack_el.get_visible_child_name()
-        return PlayState.PLAYING if button_state == 'pause' else PlayState.PAUSED
-        pass
+        success, state, pending = self.player.gst.get_state(0)
+        return PlayState.PLAYING if state == Gst.State.PLAYING else PlayState.PAUSED
 
     def get_previous_track(self) -> Track:
         pass
@@ -254,11 +253,12 @@ class Player(EventAdapter):
 
     def handle_new_state(self, state):
         if not self.control_page.is_seeking:
-            stack_page_name = 'play' if state in (Gst.State.NULL, Gst.State.READY, Gst.State.PAUSED) else 'pause'
+            is_playing = (state == Gst.State.PLAYING)
+            stack_page_name = 'pause' if is_playing else 'play'
             integration = get_current_integration()
             integration.loaded_models.get("currentSong").set_property("buttonState", stack_page_name)
             if root := self.control_page.get_root():
-                if stack_page_name == 'pause':
+                if is_playing:
                     root.add_css_class('playing')
                 else:
                     root.remove_css_class('playing')
@@ -303,7 +303,7 @@ class Player(EventAdapter):
 
         if len(id_list) > 0:
             if not current_song_id: # fallback in case nothing was playing
-                integration.loaded_models.get('currentSong').set_property(songId, id_list[0])
+                integration.loaded_models.get('currentSong').set_property('songId', id_list[0])
 
             elif mode in ('consecutive', 'repeat-all'):
                 try:
