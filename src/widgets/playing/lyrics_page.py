@@ -49,17 +49,15 @@ class PlayingLyricsPage(Gtk.Stack):
             if lyrics.get('type') == 'plain':
                 GLib.idle_add(self.plain_label_el.set_label, lyrics.get('content'))
             elif lyrics.get('type') == 'lrc':
-                row = LyricRow(
-                    ms=0,
-                    content=''
-                )
-                self.lrc_list_el.append(row)
+                GLib.idle_add(self.lrc_list_el.remove_all)
+                if lyrics.get('content')[0].get('content'):
+                    lyrics['content'].insert(0, {'content': '', 'ms': 0})
                 for line in lyrics.get('content'):
                     row = LyricRow(
                         ms=line.get('ms'),
                         content=line.get('content', '')
                     )
-                    self.lrc_list_el.append(row)
+                    GLib.idle_add(self.lrc_list_el.append, row)
 
         threading.Thread(target=update_lyrics).start()
 
@@ -80,25 +78,26 @@ class PlayingLyricsPage(Gtk.Stack):
     @Gtk.Template.Callback()
     def on_lrc_selection(self, list_el, position):
         row = list_el.get_selected_row()
-        if not self.code_is_selecting:
-            self.get_root().playing_page.player.gst.seek_simple(
-                Gst.Format.TIME,
-                Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
-                int(row.ms/1000 * Gst.SECOND)
-            )
-        def do_scroll():
-            vadj = self.scrolledwindow.get_vadjustment()
-            row_alloc = row.get_allocation()
-            viewport_height = self.scrolledwindow.get_height()
-            row_y = row_alloc.y
-            row_height = row_alloc.height
-            target = row_y - (viewport_height / 2) + (row_height / 2)
-            lower = vadj.get_lower()
-            upper = vadj.get_upper() - vadj.get_page_size()
-            target = max(lower, min(target, upper))
-            vadj.set_value(target)
+        if row:
+            if not self.code_is_selecting:
+                self.get_root().playing_page.player.gst.seek_simple(
+                    Gst.Format.TIME,
+                    Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
+                    int(row.ms/1000 * Gst.SECOND)
+                )
+            def do_scroll():
+                vadj = self.scrolledwindow.get_vadjustment()
+                row_alloc = row.get_allocation()
+                viewport_height = self.scrolledwindow.get_height()
+                row_y = row_alloc.y
+                row_height = row_alloc.height
+                target = row_y - (viewport_height / 2) + (row_height / 2)
+                lower = vadj.get_lower()
+                upper = vadj.get_upper() - vadj.get_page_size()
+                target = max(lower, min(target, upper))
+                vadj.set_value(target)
 
-        GLib.idle_add(do_scroll)
+            GLib.idle_add(do_scroll)
 
     @Gtk.Template.Callback()
     def lyric_download_requested(self, button):

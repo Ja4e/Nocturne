@@ -23,7 +23,7 @@
 }
 
 .lrc_list row > label {
-  transition: opacity .2s;
+  transition: opacity .2s, color .2s;
   opacity: 30%;
   font-size: 20px;
   margin: 5px;
@@ -33,6 +33,7 @@
 .lrc_list row:selected > label {
   opacity: 100%;
   font-size: 30px;
+  color: var(--accent-color);
 }
 
 .lrc_list row {
@@ -206,6 +207,3 @@ button.lyrics_go_back_overlay_button {
   margin: 10px;
 }
 
-.lrc_list row:selected {
-  color: var(--accent-color);
-}
