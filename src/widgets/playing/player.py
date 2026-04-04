@@ -243,7 +243,7 @@ class Player(EventAdapter):
         self.adapter = PlayerAdapter(self)
         self.mpris = Server("com.jeffser.Nocturne", adapter=self.adapter)
         super().__init__(root=self.mpris.root, player=self.mpris.player)
-        self.interface = MprisInterface('com.jeffser.Nocturne', self.adapter)
+        self.interface = MprisInterface("Nocturne", self.adapter)
         self.mpris_published = False
         try:
             self.mpris.publish()
