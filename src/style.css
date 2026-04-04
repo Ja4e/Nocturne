@@ -206,3 +206,6 @@ button.lyrics_go_back_overlay_button {
   margin: 10px;
 }
 
+.lrc_list row:selected {
+  color: var(--accent-color);
+}

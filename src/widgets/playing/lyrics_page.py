@@ -7,11 +7,23 @@ from ..lyrics.helpers import get_lyrics
 from ...constants import DATA_DIR
 import threading, os
 
-class LyricData(GObject.Object):
-    __gtype_name__ = 'NocturneLyricData'
+class LyricRow(Gtk.ListBoxRow):
+    __gtype_name__ = 'NocturneLyricRow'
 
-    content = GObject.Property(type=str)
     ms = GObject.Property(type=int)
+
+    def __init__(self, content, ms):
+        super().__init__(
+            ms=ms,
+            child=Gtk.Label(
+                wrap=True,
+                wrap_mode=Pango.WrapMode.WORD_CHAR,
+                justify=Gtk.Justification.CENTER,
+                halign=Gtk.Align.CENTER,
+                valign=Gtk.Align.CENTER,
+                label=content or "🎶"
+            )
+        )
 
 @Gtk.Template(resource_path='/com/jeffser/Nocturne/playing/lyrics_page.ui')
 class PlayingLyricsPage(Gtk.Stack):
@@ -19,7 +31,6 @@ class PlayingLyricsPage(Gtk.Stack):
 
     plain_label_el = Gtk.Template.Child()
     lrc_list_el = Gtk.Template.Child()
-    lrc_model_parent = Gtk.Template.Child()
     scrolledwindow = Gtk.Template.Child()
     code_is_selecting = False # used so that `on_lrc_selection` is only executed when manually selecting
 
@@ -38,73 +49,56 @@ class PlayingLyricsPage(Gtk.Stack):
             if lyrics.get('type') == 'plain':
                 GLib.idle_add(self.plain_label_el.set_label, lyrics.get('content'))
             elif lyrics.get('type') == 'lrc':
-                self.lrc_model_parent.set_model(Gio.ListStore(item_type=LyricData))
-                row = LyricData(
+                row = LyricRow(
                     ms=0,
                     content=''
                 )
-                GLib.idle_add(self.lrc_model_parent.get_model().append, row)
+                self.lrc_list_el.append(row)
                 for line in lyrics.get('content'):
-                    row = LyricData(
+                    row = LyricRow(
                         ms=line.get('ms'),
                         content=line.get('content', '')
                     )
-                    GLib.idle_add(self.lrc_model_parent.get_model().append, row)
+                    self.lrc_list_el.append(row)
 
         threading.Thread(target=update_lyrics).start()
 
     def position_changed(self, position_seconds:float):
         if self.get_visible_child_name() == 'lrc':
             ms = int(position_seconds * 1000)+100
-            best_match = 0
-            for i in range(self.lrc_model_parent.get_n_items()):
-                item = self.lrc_model_parent.get_item(i)
-                if item.ms <= ms:
-                    best_match = i
+            best_match = None
+            for row in list(self.lrc_list_el):
+                if row.ms <= ms:
+                    best_match = row
                 else:
                     break
-            if best_match != self.lrc_model_parent.get_selected():
+            if best_match and best_match != self.lrc_list_el.get_selected_row():
                 self.code_is_selecting = True
-                self.lrc_model_parent.set_selected(best_match)
+                self.lrc_list_el.select_row(best_match)
                 self.code_is_selecting = False
 
     @Gtk.Template.Callback()
-    def lrc_setup(self, factory, list_item):
-        label = Gtk.Label(
-            wrap=True,
-            wrap_mode=Pango.WrapMode.WORD_CHAR,
-            justify=Gtk.Justification.CENTER,
-            halign=Gtk.Align.CENTER,
-            valign=Gtk.Align.CENTER
-        )
-        list_item.set_child(label)
-
-    @Gtk.Template.Callback()
-    def lrc_bind(self, factory, list_item):
-        item_data = list_item.get_item()
-        label = list_item.get_child()
-        label.set_label(item_data.content or "🎶")
-
-    @Gtk.Template.Callback()
-    def on_lrc_selection(self, selection_model, position, n_items):
+    def on_lrc_selection(self, list_el, position):
+        row = list_el.get_selected_row()
         if not self.code_is_selecting:
             self.get_root().playing_page.player.gst.seek_simple(
                 Gst.Format.TIME,
                 Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
-                int(selection_model.get_selected_item().ms/1000 * Gst.SECOND)
+                int(row.ms/1000 * Gst.SECOND)
             )
+        def do_scroll():
+            vadj = self.scrolledwindow.get_vadjustment()
+            row_alloc = row.get_allocation()
+            viewport_height = self.scrolledwindow.get_height()
+            row_y = row_alloc.y
+            row_height = row_alloc.height
+            target = row_y - (viewport_height / 2) + (row_height / 2)
+            lower = vadj.get_lower()
+            upper = vadj.get_upper() - vadj.get_page_size()
+            target = max(lower, min(target, upper))
+            vadj.set_value(target)
 
-        view_height = self.scrolledwindow.get_vadjustment().get_page_size()
-        visible_count = 2
-        if first_row := self.lrc_list_el.get_first_child():
-            if first_row.get_height() > 0:
-                visible_count = round(view_height / first_row.get_height())
-
-        GLib.idle_add(self.lrc_list_el.scroll_to,
-            int(min(max(selection_model.get_selected() + visible_count / 2.25, 0), len(list(selection_model))-1)),
-            Gtk.ListScrollFlags.FOCUS,
-            None
-        )
+        GLib.idle_add(do_scroll)
 
     @Gtk.Template.Callback()
     def lyric_download_requested(self, button):

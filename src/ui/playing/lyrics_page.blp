@@ -71,20 +71,15 @@ template $NocturnePlayingLyricsPage: Gtk.Stack {
         propagate-natural-height: true;
         max-content-width: 500;
         max-content-height: 400;
-        child: Adw.ClampScrollable {
+        child: Adw.Clamp {
           maximum-size: 800;
           tightening-threshold: 600;
-          child: Gtk.ListView lrc_list_el {
-            model: Gtk.SingleSelection lrc_model_parent {
-              selection-changed => $on_lrc_selection();
-            };
-            factory: Gtk.SignalListItemFactory {
-              setup => $lrc_setup();
-              bind => $lrc_bind();
-            };
+          child: Gtk.ListBox lrc_list_el {
             styles [
               "lrc_list"
             ]
+            selection-mode: single;
+            row-selected => $on_lrc_selection();
           };
         };
       };
