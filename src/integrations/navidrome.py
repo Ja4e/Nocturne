@@ -9,7 +9,7 @@ from PIL import Image
 
 class Navidrome(Base):
     __gtype_name__ = 'NocturneIntegrationNavidrome'
-    _use_plain_password_auth = False
+    _use_apikey_auth = False
 
     login_page_metadata = {
         'icon-name': "music-note-symbolic",
@@ -27,15 +27,15 @@ class Navidrome(Base):
 
     def get_base_params(self) -> dict:
         params = {
-            'u': self.get_property('user'),
             'v': '1.16.1',
             'c': 'Nocturne',
             'f': 'json'
         }
-        if self._use_plain_password_auth:
-            params['p'] = secret.get_plain_password()
+        if self._use_apikey_auth:
+            params['apiKey'] = secret.get_plain_password()
         else:
             salt, token = secret.get_hashed_password()
+            params['u'] = self.get_property('user')
             params['t'] = token
             params['s'] = salt
         return params
@@ -56,7 +56,7 @@ class Navidrome(Base):
             if response.status_code == 200:
                 data = response.json().get('subsonic-response', {})
                 if data.get('status') == 'failed' and data.get('error', {}).get('code') == 41:
-                    self._use_plain_password_auth = True
+                    self._use_apikey_auth = True
                     response = self.send_request(action, params)
                     if response.status_code == 200:
                         return response.json().get('subsonic-response', {})
