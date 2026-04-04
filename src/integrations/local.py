@@ -211,7 +211,8 @@ class Local(Base):
             # Making Album Model
             if song.get('albumId'):
                 if song.get('albumId') in self.loaded_models:
-                    self.loaded_models.get(song.get('albumId')).song.append({'id': id})
+                    if {'id': id} not in self.loaded_models.get(song.get('albumId')).get_property('song'):
+                        self.loaded_models.get(song.get('albumId')).song.append({'id': id})
                 else:
                     album = {
                         'id': song.get('albumId'),
