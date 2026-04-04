@@ -51,7 +51,9 @@ class SongRow(Adw.ActionRow):
 
     def update_is_external(self, isExternalFile:bool):
         self.external_file_el.set_visible(isExternalFile)
-        self.star_el.set_visible(not isExternalFile)
+
+        integration = get_current_integration()
+        self.star_el.set_visible(not isExternalFile and not integration.loaded_models.get(self.id).get_property('isRadio'))
 
     def generate_context_menu(self) -> ContextContainer:
         integration = get_current_integration()
