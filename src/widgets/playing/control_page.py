@@ -34,12 +34,6 @@ class PlayingControlPage(Adw.NavigationPage):
         self.starred_connection = None
         self.last_song_id = None
         super().__init__()
-        Gio.Settings(schema_id="com.jeffser.Nocturne").bind(
-            "show-rating-in-player",
-            self.rating_container,
-            "visible",
-            Gio.SettingsBindFlags.DEFAULT
-        )
         self.is_seeking = False
 
     def setup(self, player=None):

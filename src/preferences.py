@@ -11,7 +11,6 @@ class NocturnePreferences(Adw.PreferencesDialog):
 
     context_button_el = Gtk.Template.Child()
     show_playlists_sidebar_el = Gtk.Template.Child()
-    show_ratings_el = Gtk.Template.Child()
     dynamic_bg_el = Gtk.Template.Child()
     blur_bg_el = Gtk.Template.Child()
     restore_el = Gtk.Template.Child()
@@ -41,12 +40,6 @@ class NocturnePreferences(Adw.PreferencesDialog):
         settings.bind(
             "show-playlists-in-sidebar",
             self.show_playlists_sidebar_el,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT
-        )
-        settings.bind(
-            "show-rating-in-player",
-            self.show_ratings_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )
