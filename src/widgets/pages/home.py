@@ -52,7 +52,6 @@ class HomePage(Adw.NavigationPage):
             page_tag="albums-all"
         )
         albums = integration.getAlbumList(size=max_albums) if max_albums > 0 else []
-        print(albums)
         threading.Thread(
             target=self.album_carousel.set_widgets,
             args=([AlbumButton(id) for id in albums],)

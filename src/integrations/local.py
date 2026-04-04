@@ -223,7 +223,6 @@ class Local(Base):
                         'starred': song.get('albumId') in star_dict
                     }
                     self.loaded_models[album.get('id')] = models.Album(**album)
-                    print(self.loaded_models[album.get('id')])
 
             # Making Artist Model
             for a_dict in song.get('artists', []):
