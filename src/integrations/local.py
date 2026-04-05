@@ -50,7 +50,7 @@ class Local(Base):
             for file_path in path_obj.rglob("*"):
                 if file_path.suffix.lower() in ('.mp3', '.flac', '.m4a', '.ogg', '.wav'):
                     song_id = 'SONG:{}'.format(file_path)
-                    self.loaded_models[song_id] = models.Song(id=song_id, path=file_path)
+                    self.loaded_models[song_id] = models.Song(id=song_id, path=file_path, coverArt=file_path)
                     threads.append(threading.Thread(target=self.verifySong, args=(song_id,)))
                     threads[-1].start()
             for t in threads:
@@ -81,14 +81,14 @@ class Local(Base):
                 path_str = ""
                 if len(playlist.get('songId', [])) > 0:
                     if model := self.loaded_models.get(playlist.get('songId')[0]):
-                        path_str = model.path
+                        path_str = model.get_property('path')
 
                 self.loaded_models[playlist_id] = models.Playlist(
                     id=playlist_id,
                     name=playlist.get('name'),
                     songCount=len(playlist.get('songId', [])),
                     entry=[{'id': id} for id in playlist.get('songId', [])],
-                    path = path_str
+                    coverArt = path_str
                 )
 
     # ----------- #
@@ -97,7 +97,7 @@ class Local(Base):
         model = self.loaded_models.get(song_id)
         if model.isRadio:
             return model.streamUrl
-        return 'file://{}'.format(model.path)
+        return 'file://{}'.format(model.get_property('path'))
 
     def getCoverArt(self, id:str=None) -> tuple:
         # returns bytes, Gdk.Paintable or None, None
@@ -108,10 +108,11 @@ class Local(Base):
                 if not isinstance(model, models.Playlist) and model.gdkPaintable:
                     return model.gdkPaintableBytes, model.gdkPaintable
 
-                if not model.path:
+                coverArtPath = model.get_property('coverArt')
+                if not coverArtPath:
                     return None, None
 
-                audio_file = File(model.path)
+                audio_file = File(coverArtPath)
                 if audio_file is None:
                     return None, None
 
@@ -148,7 +149,7 @@ class Local(Base):
         elif list_type == "newest":
             albums = {} # id : creation_time
             for model in [self.loaded_models.get(model_id) for model_id in list(self.loaded_models) if model_id.startswith('ALBUM:')]:
-                albums[model.id] = pathlib.Path(model.path).stat().st_ctime
+                albums[model.id] = pathlib.Path(model.get_property('path')).stat().st_ctime
             album_list = sorted(albums, key=lambda x: albums.get(x), reverse=True)
         elif list_type in ("frequent", "recent"):
             try:
@@ -225,7 +226,7 @@ class Local(Base):
                 else:
                     album = {
                         'id': album_id,
-                        'path': song.get('path'),
+                        'coverArt': song.get('path'),
                         'name': song.get('album') or _("No Album"),
                         'artist': song.get('artist'),
                         'artistId': song.get('artistId'),
@@ -240,7 +241,7 @@ class Local(Base):
                     if a_dict.get('id') not in self.loaded_models:
                         artist = {
                             'id': a_dict.get('id'),
-                            'path': song.get('path'),
+                            'coverArt': song.get('path'),
                             'name': a_dict.get('name'),
                             'album': [],
                             'albumCount': 0,
@@ -331,11 +332,11 @@ class Local(Base):
 
     def getLyrics(self, songId:str) -> dict:
         if model := self.loaded_models.get(songId):
-            audio = File(model.path)
+            audio = File(model.get_property('path'))
             if not audio:
                 return {'type': 'not-found'}
 
-            if model.path.split('.')[-1].lower == 'mp3':
+            if model.get_property('path').split('.')[-1].lower == 'mp3':
                 if synced_lyrics := audio.get("SYLT"):
                     if len(synced_lyrics) > 0 and synced_lyrics[0].lyrics:
                         lines = []
@@ -439,14 +440,14 @@ class Local(Base):
         path_str = ""
         if len(songId) > 0:
             if model := self.loaded_models.get(songId[0]):
-                path_str = model.path
+                path_str = model.get_property('path')
 
         self.loaded_models[playlistId] = models.Playlist(
             id=playlistId,
             name=name,
             songCount=len(songId),
             entry=[{'id': id} for id in songId],
-            path = path_str
+            coverArt = path_str
         )
 
         with open(os.path.join(LOCAL_DATA_DIR, 'playlists.json'), 'w') as f:
@@ -471,8 +472,8 @@ class Local(Base):
                 path_str = ""
                 if len(songId) > 0:
                     if model := self.loaded_models.get(songId[0]):
-                        path_str = model.path
-                model.set_property('path', path_str)
+                        path_str = model.get_property('path')
+                model.set_property('coverArt', path_str)
 
         with open(os.path.join(LOCAL_DATA_DIR, 'playlists.json'), 'w') as f:
             json.dump(playlist_dict, f, ensure_ascii=False)
@@ -531,3 +532,4 @@ class Local(Base):
             pass
 
         return server_information
+

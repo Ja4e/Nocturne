@@ -90,6 +90,7 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
     file_path = pathlib.Path(file_path)
     song = {
         'path': file_path,
+        'coverArt': file_path,
         'duration': audio.info.length if hasattr(audio, 'info') else 0,
         'title': "",
         'album': "",
