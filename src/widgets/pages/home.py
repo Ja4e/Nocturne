@@ -83,3 +83,9 @@ class HomePage(Adw.NavigationPage):
 
         n_elements = sum([len(s) for s in (songs, albums, artists, playlists)])
         self.main_stack.set_visible_child_name('content' if n_elements > 0 else 'no-content')
+
+    def reset(self):
+        threading.Thread(target=self.song_wrapbox.set_widgets, args=([],)).start()
+        threading.Thread(target=self.album_carousel.set_widgets, args=([],)).start()
+        threading.Thread(target=self.artist_carousel.set_widgets, args=([],)).start()
+        threading.Thread(target=self.playlist_carousel.set_widgets, args=([],)).start()
