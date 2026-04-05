@@ -17,12 +17,16 @@ class SongsStarredPage(Adw.NavigationPage):
         GLib.idle_add(self.main_stack.set_visible_child_name, 'loading')
         integration = get_current_integration()
         songs = integration.getStarredSongs()
-        for widget in list(self.list_el) + list(self.wrapbox_el):
-            GLib.idle_add(widget.get_parent().remove, widget)
+        GLib.idle_add(self.reset)
         for id in songs:
             GLib.idle_add(self.list_el.append, SongRow(id))
             GLib.idle_add(self.wrapbox_el.append, SongSmallRow(id))
         GLib.idle_add(self.update_visibility)
+
+    def reset(self):
+        self.list_el.remove_all()
+        for el in list(self.wrapbox_el):
+            self.wrapbox_el.remove(el)
 
     @Gtk.Template.Callback()
     def on_search(self, search_entry):
