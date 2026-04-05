@@ -19,6 +19,7 @@ class HomePage(Adw.NavigationPage):
     playlist_carousel = Gtk.Template.Child()
 
     def reload(self):
+        print('RELOAD HOME')
         # call in different thread
         integration = get_current_integration()
         settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
