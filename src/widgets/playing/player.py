@@ -233,6 +233,7 @@ class Player(EventAdapter):
         self.spectrum.set_property("threshold", -80)
         self.spectrum.set_property("post-messages", True)
         self.spectrum.set_property("message-magnitude", True)
+        self.spectrum.set_property("interval", 10000000)
         self.gst.set_property("audio-filter", self.spectrum)
 
         settings.bind(
