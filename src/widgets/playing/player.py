@@ -228,6 +228,12 @@ class Player(EventAdapter):
         settings.set_double("volume", volume)
         self.control_page = control_page
         self.gst = Gst.ElementFactory.make("playbin", "music-player")
+        self.spectrum = Gst.ElementFactory.make("spectrum", "spectrum-analyzer")
+        self.spectrum.set_property("bands", 32)
+        self.spectrum.set_property("threshold", -80)
+        self.spectrum.set_property("post-messages", True)
+        self.spectrum.set_property("message-magnitude", True)
+        self.gst.set_property("audio-filter", self.spectrum)
 
         settings.bind(
             "volume",
@@ -339,21 +345,28 @@ class Player(EventAdapter):
         root.queue_page.replace_queue(root.queue_page.generated_queue)
 
     def on_message(self, bus, message):
-        if message.type == Gst.MessageType.STATE_CHANGED:
-            old_state, new_state, pending_state = message.parse_state_changed()
-            self.handle_new_state(new_state)
-        elif message.type == Gst.MessageType.EOS:
-            self.handle_song_change_request("end")
-        elif message.type == Gst.MessageType.ERROR:
-            err, debug = message.parse_error()
-            print("Error: {}".format(err.message))
-        elif message.type == Gst.MessageType.TAG:
-            taglist = message.parse_tag()
-            for i in range(taglist.n_tags()):
-                name = taglist.nth_tag_name(i)
-                value = taglist.get_value_index(name, 0)
-                if name == 'title' and value:
-                    self.set_dynamic_title(value)
+        if message.src == self.spectrum:
+            struct = message.get_structure()
+            if struct and struct.get_name() == "spectrum":
+                if magnitudes := struct.get_list("magnitude"):
+                    integration = get_current_integration()
+                    integration.loaded_models.get('currentSong').set_property('magnitudes', magnitudes[1])
+        else:
+            if message.type == Gst.MessageType.STATE_CHANGED:
+                old_state, new_state, pending_state = message.parse_state_changed()
+                self.handle_new_state(new_state)
+            elif message.type == Gst.MessageType.EOS:
+                self.handle_song_change_request("end")
+            elif message.type == Gst.MessageType.ERROR:
+                err, debug = message.parse_error()
+                print("Error: {}".format(err.message))
+            elif message.type == Gst.MessageType.TAG:
+                taglist = message.parse_tag()
+                for i in range(taglist.n_tags()):
+                    name = taglist.nth_tag_name(i)
+                    value = taglist.get_value_index(name, 0)
+                    if name == 'title' and value:
+                        self.set_dynamic_title(value)
 
     def update_stream_progress(self):
         if self.control_page.is_seeking:
