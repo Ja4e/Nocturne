@@ -89,6 +89,26 @@
   </keywords>
 
   <releases>
+    <release version="0.8.0" date="2026-04-06">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.8.0</url>
+      <description translate="no">
+        <p>New</p>
+        <ul>
+          <li>Added audio visualizer</li>
+          <li>Changed max sheet size to 420</li>
+          <li>Added option to change default page for local instances</li>
+          <li>Add pagination to album pages</li>
+          <li>Added Russian translation</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Slight reduction in ram usage</li>
+          <li>Sidebar title now adapts correctly if title buttons are located on the left side</li>
+          <li>Fixed error on local server when songs have no album metadata</li>
+          <li>Miscellaneous fixes</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.7.1" date="2026-04-04">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.7.1</url>
       <description translate="no">
