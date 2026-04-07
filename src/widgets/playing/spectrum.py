@@ -99,4 +99,4 @@ class Spectrum(Gtk.DrawingArea):
     def playback_changed(self, playbackState:str):
         if playbackState == "play":
             self.target_magnitudes = [0] * SPECTRUM_BARS
-            self.loaded_magnitudes = {}
+
