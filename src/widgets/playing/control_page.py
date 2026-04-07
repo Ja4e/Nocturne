@@ -196,7 +196,6 @@ class PlayingControlPage(Adw.NavigationPage):
         GLib.idle_add(self.update_interface, model)
         threading.Thread(target=self.update_cover_art).start()
         if song_id != self.last_song_id:
-            integration.loaded_models.get('currentSong').set_property('positionSeconds', 0)
             self.start_current_song()
 
     def update_palette(self, raw_bytes:bytes):
