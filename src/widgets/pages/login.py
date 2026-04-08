@@ -36,6 +36,7 @@ class LoginPage(Adw.NavigationPage):
         metadata = self.integration.login_page_metadata
         self.status_page.set_icon_name(metadata.get('icon-name'))
         self.status_page.set_title(metadata.get('title') or _("Login"))
+        self.status_page.set_description(metadata.get('description') or '')
 
         # Server Status
         if 'status' in metadata.get('entries'):

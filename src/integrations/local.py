@@ -13,8 +13,9 @@ class Local(Base):
     __gtype_name__ = 'NocturneIntegrationLocal'
 
     login_page_metadata = {
-        'icon-name': "music-note-symbolic",
+        'icon-name': "folder-open-symbolic",
         'title': _("Local Files"),
+        'description': _("Let Nocturne load your local files directly, for big libraries it is recommended to use a dedicated server."),
         'entries': ['library-dir'],
         'login-label': _("Continue")
     }

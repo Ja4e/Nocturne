@@ -13,14 +13,15 @@ class Navidrome(Base):
     _use_apikey_auth = False
 
     login_page_metadata = {
-        'icon-name': "music-note-symbolic",
-        'title': _("Navidrome"),
+        'icon-name': "network-server-symbolic",
+        'title': "External Server",
+        'description': _("Connect to an OpenSubsonic server like Navidrome."),
         'entries': ['url', 'user', 'password', 'trust-server'],
         'default-url': "http://127.0.0.1:4533"
     }
     button_metadata = {
         'title': _("External Server"),
-        'subtitle': _("Use an existing Navidrome / Subsonic instance")
+        'subtitle': _("Use an existing OpenSubsonic / Navidrome instance")
     }
     url = GObject.Property(type=str)
     trust_server = GObject.Property(type=bool, default=False)
@@ -495,7 +496,8 @@ class NavidromeIntegrated(Navidrome):
 
     login_page_metadata = {
         'icon-name': "music-note-symbolic",
-        'title': _("Navidrome Managed"),
+        'title': _("Managed Server"),
+        'description': _("Connect to a Navidrome instance directly managed by Nocturne."),
         'entries': ['status', 'library-dir', 'user', 'password'],
         'link': 'http://127.0.0.1:4534',
         'link-label': _("Instance Website"),
@@ -506,7 +508,7 @@ class NavidromeIntegrated(Navidrome):
     }
     button_metadata = {
         'title': _("Managed Server"),
-        'subtitle': _("Create and use Navidrome instance")
+        'subtitle': _("Create and use a Navidrome instance")
     }
     library_dir = GObject.Property(type=str)
     trust_server = GObject.Property(type=bool, default=True)

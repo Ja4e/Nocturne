@@ -10,13 +10,14 @@ class Jellyfin(Base):
     __gtype_name__ = 'NocturneIntegrationJellyfin'
 
     login_page_metadata = {
-        'icon-name': "music-note-symbolic",
+        'icon-name': "network-server-symbolic",
         'title': "Jellyfin",
+        'description': _("Connect to a Jellyfin server."),
         'entries': ["url", "user", "password", "trust-server"],
         'default-url': "http://127.0.0.1:8096"
     }
     button_metadata = {
-        'title': _("Jellyfin (Experimental)"),
+        'title': _("Jellyfin"),
         'subtitle': _("Use an existing Jellyfin instance")
     }
     limitations = ('no-edit-radio',)
