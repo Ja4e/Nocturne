@@ -103,7 +103,7 @@ class Spectrum(Gtk.DrawingArea):
                 cr.close_path()
                 cr.fill_preserve()
         elif visualizer_type in ("bars", "particles"):
-            gap = 2
+            gap = 2 if visualizer_type == "bars" else 4
             bar_w = dx - gap
             radius = 6 if visualizer_type == "bars" else bar_w
             for i in range(n):
@@ -123,6 +123,7 @@ class Spectrum(Gtk.DrawingArea):
                     cr.arc(bar_x + r, bar_y + r, r, math.pi, 3*math.pi/2)
                     if fill_mode == "border":
                         cr.set_line_width(3.0)
+                        cr.close_path()
                         cr.stroke()
                     else:
                         cr.close_path()
