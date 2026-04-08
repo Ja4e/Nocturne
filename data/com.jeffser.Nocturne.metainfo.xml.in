@@ -89,6 +89,25 @@
   </keywords>
 
   <releases>
+    <release version="0.8.5" date="2026-04-07">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.8.5</url>
+      <description translate="no">
+        <p>New</p>
+        <ul>
+          <li>Replaced local music tag reader for a faster one</li>
+          <li>Made song switcher faster</li>
+          <li>Visualizer now uses less RAM</li>
+          <li>Added full configuration preferences for visualizer</li>
+          <li>Added support for ListenBrainz scrobbing</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Fixed song getting stuck at beggining</li>
+          <li>Fixed problems with external file playback</li>
+          <li>Fixed error when popout window is closed after main window</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.8.0" date="2026-04-06">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.8.0</url>
       <description translate="no">
