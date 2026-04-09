@@ -1,4 +1,4 @@
-=# Simplified Chinese translations for Nocturne.
+# Simplified Chinese translations for Nocturne.
 # Copyright (C) 2026 Ja4e
 # This file is distributed under the same license as the Nocturne package.
 # Jinyang Zhu <Jakie101@proton.me>, 2026.
