@@ -96,8 +96,8 @@ class Local(Base):
 
     def get_stream_url(self, song_id:str) -> str:
         model = self.loaded_models.get(song_id)
-        if model.isRadio:
-            return model.streamUrl
+        if model.get_property('isRadio'):
+            return model.get_property('streamUrl')
         return 'file://{}'.format(model.get_property('path'))
 
     def getCoverArt(self, id:str=None) -> tuple:
@@ -143,7 +143,7 @@ class Local(Base):
         elif list_type == "newest":
             albums = {} # id : creation_time
             for model in [self.loaded_models.get(model_id) for model_id in list(self.loaded_models) if model_id.startswith('ALBUM:')]:
-                albums[model.id] = pathlib.Path(model.get_property('path')).stat().st_ctime
+                albums[model.id] = pathlib.Path(model.get_property('coverArt')).stat().st_ctime
             album_list = sorted(albums, key=lambda x: albums.get(x), reverse=True)
         elif list_type in ("frequent", "recent"):
             try:
@@ -173,7 +173,7 @@ class Local(Base):
             album_list = [model_id for model_id, model in self.loaded_models.items() if model_id.startswith('ALBUM:') and model.starred]
         else:
             album_list = [model_id for model_id in list(self.loaded_models) if model_id.startswith('ALBUM:')]
-        return [model_id for model_id in album_list if model_id in self.loaded_models][offset:offset+size]
+        return [model_id for model_id in album_list if model_id in self.loaded_models][offset:size+offset]
 
     def getArtists(self, size:int=10) -> list:
         return [model_id for model_id in list(self.loaded_models) if model_id.startswith('ARTIST:')][:size]
@@ -340,9 +340,9 @@ class Local(Base):
         all_songs = [model for model_id, model in self.loaded_models.items() if model_id.startswith('SONG:')]
 
         return {
-            'artist': [model.id for model in all_artists if re.search(query, model.name, re.IGNORECASE)][artistOffset:artistCount],
-            'album': [model.id for model in all_albums if re.search(query, model.name, re.IGNORECASE) or re.search(query, model.artist, re.IGNORECASE)][albumOffset:albumCount],
-            'song': [model.id for model in all_songs if re.search(query, model.title, re.IGNORECASE) or re.search(query, model.album, re.IGNORECASE) or re.search(query, model.artist, re.IGNORECASE)][songOffset:songCount]
+            'artist': [model.id for model in all_artists if re.search(query, model.name, re.IGNORECASE)][artistOffset:artistCount+artistOffset],
+            'album': [model.id for model in all_albums if re.search(query, model.name, re.IGNORECASE) or re.search(query, model.artist, re.IGNORECASE)][albumOffset:albumCount+albumOffset],
+            'song': [model.id for model in all_songs if re.search(query, model.title, re.IGNORECASE) or re.search(query, model.album, re.IGNORECASE) or re.search(query, model.artist, re.IGNORECASE)][songOffset:songCount+songOffset]
         }
 
     def getInternetRadioStations(self) -> list:
