@@ -94,3 +94,4 @@ Language                | Contributors
 Spanish                 | [Jeffry Samuel](https://github.com/jeffser)
 German                  | [Martin Prokoph](https://github.com/Motschen)
 Russian                 | [Aleksandr Shamaraev](https://github.com/AlexanderShad)
+Simplified Chinese      | [Saul Gman](https://github.com/Ja4e)

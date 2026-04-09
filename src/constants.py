@@ -120,7 +120,8 @@ def get_song_info_from_file(file_path:str, star_dict:dict={}, is_external_file:b
 TRANSLATORS = [
     "Jeffry Samuel (Spanish) https://jeffser.com",
     "Martin Prokoph (German) https://github.com/Motschen",
-    "Aleksandr Shamaraev (Russian) https://github.com/AlexanderShad"
+    "Aleksandr Shamaraev (Russian) https://github.com/AlexanderShad",
+    "Saul Gman (Simplified Chinese) https://github.com/Ja4e"
 ]
 
 PLAYBACK_MODES = {
