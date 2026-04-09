@@ -1,6 +1,7 @@
 # login.py
 
 from gi.repository import Gtk, Adw, Gio, GLib
+from ..playing import Player
 from ...integrations import secret, set_current_integration, Navidrome, Local
 from ...constants import get_navidrome_path, check_if_navidrome_ready, get_navidrome_env, DEFAULT_MUSIC_DIR
 from ..containers import ContextContainer
@@ -161,11 +162,16 @@ class LoginPage(Adw.NavigationPage):
         root.playing_page.setup()
         root.footer.setup()
         root.lyrics_page.setup()
+        root.queue_page.setup()
+
+        application = root.get_application()
+        if not application.player:
+            application.player = Player(application)
 
         default_page = settings.get_value('default-page-tag').unpack() or 'home'
 
         root.activate_action("app.replace_root_page", GLib.Variant('s', default_page))
         threading.Thread(target=root.update_playlist_section_of_sidebar).start()
         if settings.get_value("restore-session").unpack():
-            threading.Thread(target=root.playing_page.player.restore_play_queue).start()
+            threading.Thread(target=application.player.restore_play_queue).start()
 

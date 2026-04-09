@@ -54,7 +54,7 @@ class NocturneWindow(Adw.ApplicationWindow):
     def close_request(self, window):
         if not self.get_hide_on_close():
             if integration := get_current_integration():
-                id_list = self.queue_page.song_list_el.get_all_ids()
+                id_list = [so.get_string() for so in integration.loaded_models.get('currentSong').get_property('queueModel')]
                 current_song = integration.loaded_models.get('currentSong')
                 integration.savePlayQueue(id_list, current_song.get_property('songId'), current_song.get_property('positionSeconds') * 1000)
                 integration.terminate_instance()
@@ -159,6 +159,7 @@ class NocturneWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.create_action(actions.generate_auto_play_queue, parameter_type="b")
         self.create_action(actions.set_equalizer_preset)
         self.create_action(actions.replace_root_page)
         self.create_action(actions.visit_url)

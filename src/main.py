@@ -42,6 +42,8 @@ class NocturneApplication(Adw.Application):
         self.version = version
         self.external_songs = []
         self.popout_window = None
+        self.player = None
+        self.queue_model = Gio.ListStore.new(item_type=Gtk.StringObject) # it stores song IDs
         super().__init__(application_id='com.jeffser.Nocturne',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS | Gio.ApplicationFlags.HANDLES_OPEN,
                          resource_base_path='/com/jeffser/Nocturne')

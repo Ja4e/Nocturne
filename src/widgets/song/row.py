@@ -188,12 +188,14 @@ class SongRow(Adw.ActionRow):
     @Gtk.Template.Callback()
     def on_drop(self, drop_target, row, x, y):
         if self != row and self.draggable:
-            row.get_ancestor(Gtk.ListBox).remove(row)
-            list_box_target = self.get_ancestor(Gtk.ListBox)
-            target_index = list(list_box_target).index(self)
+            index_source = list(row.get_ancestor(Gtk.ListBox)).index(row)
+            index_target = list(self.get_ancestor(Gtk.ListBox)).index(self)
             if y > self.get_height() / 2: # bottom
-                target_index += 1
-            list_box_target.insert(row, target_index)
+                index_target += 1
+            integration = get_current_integration()
+            queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
+            queue_model.splice(index_source, 1, [])
+            queue_model.splice(index_target, 0, [Gtk.StringObject.new(row.id)])
 
     @Gtk.Template.Callback()
     def on_drag_begin(self, drag_source, drag):

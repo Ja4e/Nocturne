@@ -1,6 +1,6 @@
 # models.py
 
-from gi.repository import GObject, Gdk, GLib
+from gi.repository import GObject, Gtk, Gdk, GLib, Gio
 
 class Album(GObject.Object):
     __gtype_name__ = 'NocturneModelAlbum'
@@ -136,4 +136,8 @@ class CurrentSong(GObject.Object):
     positionSeconds = GObject.Property(type=float, default=0.0)
     buttonState = GObject.Property(type=str, default="play") # play, pause (for use in state stacks)
     magnitudes = GObject.Property(type=GObject.TYPE_PYOBJECT) # dict
+    seeking = GObject.Property(type=bool, default=False)
+    queueModel = GObject.Property(type=Gio.ListStore, default=Gio.ListStore.new(item_type=Gtk.StringObject))
+    generatedQueue = GObject.Property(type=Gio.ListStore, default=Gio.ListStore.new(item_type=Gtk.StringObject))
+    generatingQueue = GObject.Property(type=bool, default=False)
 

@@ -69,7 +69,7 @@ class PlayerAdapter(MprisAdapter):
             artists=[urlparse(song.get_property('streamUrl')).netloc.capitalize()] if song.get_property('isRadio') and song.get_property('streamUrl') else [a.get('name') for a in song.get_property('artists')],
             as_text=[song.get_property('title')],
             length=song.get_property('duration')*1000000,
-            title=self.player.control_page.title_el.get_label() if song.get_property('isRadio') else song.get_property('title'), # So it uses dynamic radio titles
+            title=song.get_property('title'),
             track_id='/com/jeffser/Nocturne/track/{}'.format(song.get_property('id')),
             track_number=0
         )
@@ -222,11 +222,11 @@ class PlayerAdapter(MprisAdapter):
 class Player(EventAdapter):
     __gtype_name__ = 'NocturnePlayer'
 
-    def __init__(self, control_page):
+    def __init__(self, application):
         self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
         volume = max(self.settings.get_value("volume").unpack(), 0.2)
         self.settings.set_double("volume", volume)
-        self.control_page = control_page
+        self.application = application
         self.gst = Gst.ElementFactory.make("playbin", "music-player")
 
         self.bin = Gst.Bin.new("audio-filter-bin")
@@ -287,35 +287,25 @@ class Player(EventAdapter):
             print("Failed to publish MPRIS:", e)
         GLib.timeout_add(64, self.update_stream_progress)
 
+        self.last_song_id = None
+        self.pause_next_change = False
+        integration = get_current_integration()
+        integration.connect_to_model('currentSong', 'songId', lambda song_id: threading.Thread(target=self.song_changed, args=(song_id,)).start())
+
     # ---
 
     def handle_new_state(self, state):
-        if not self.control_page.is_seeking:
+        integration = get_current_integration()
+        if not integration.loaded_models.get('currentSong').get_property('seeking'):
             is_playing = (state == Gst.State.PLAYING)
             stack_page_name = 'pause' if is_playing else 'play'
-            integration = get_current_integration()
             integration.loaded_models.get("currentSong").set_property("buttonState", stack_page_name)
-            if root := self.control_page.get_root():
+            if root := self.application.get_active_window():
                 if is_playing:
                     root.add_css_class('playing')
                 else:
                     root.remove_css_class('playing')
             self.emit_changes(self.mpris.player, changes=['Metadata', 'PlaybackStatus'])
-
-    def set_dynamic_title(self, title:str):
-        # called by on_player_message (useful for radios)
-        if not title or title == "null" or title == self.control_page.title_el.get_label():
-            return
-        integration = get_current_integration()
-        current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
-        model = integration.loaded_models.get(current_song_id)
-        if model and model.get_property('isRadio'):
-            self.control_page.title_el.set_label(title or model.get_property('title'))
-            self.control_page.title_el.set_tooltip_text(title or model.get_property('title'))
-            root = self.control_page.get_root()
-            if root:
-                root.footer.title_el.set_label(title or model.get_property('title'))
-            self.emit_changes(self.mpris.player, changes=['Metadata'])
 
     def handle_song_change_request(self, action:str):
         # action can be next, previous or end (song ended)
@@ -337,7 +327,7 @@ class Player(EventAdapter):
             self.gst.set_state(Gst.State.PLAYING)
             return
 
-        id_list = self.control_page.get_root().queue_page.song_list_el.get_all_ids()
+        id_list = [so.get_string() for so in integration.loaded_models.get('currentSong').get_property('queueModel')]
 
         integration.loaded_models.get('currentSong').set_property('magnitudes', {})
         if len(id_list) > 0:
@@ -369,10 +359,18 @@ class Player(EventAdapter):
             integration.loaded_models.get('currentSong').set_property('songId', None)
 
     def auto_play(self):
-        root = self.control_page.get_root()
-        if len(root.queue_page.generated_queue) == 0:
-            root.queue_page.generate_auto_play_queue()
-        root.queue_page.replace_queue(root.queue_page.generated_queue)
+        if integration := get_current_integration():
+            generated_queue = integration.loaded_models.get('currentSong').get_property('generatedQueue')
+            if generated_queue.get_property('n-items') == 0:
+                self.application.get_active_window().activate_action(
+                    "app.generate_auto_play_queue",
+                    GLib.Variant('b', True)
+                )
+            else:
+                self.application.get_active_window().activate_action(
+                    "app.play_songs",
+                    GLib.Variant("as", [so.get_string() for so in list(generated_queue)])
+                )
 
     def on_message(self, bus, message):
         if message.src == self.spectrum:
@@ -399,19 +397,11 @@ class Player(EventAdapter):
             elif message.type == Gst.MessageType.ERROR:
                 err, debug = message.parse_error()
                 print("Error: {}".format(err.message))
-            elif message.type == Gst.MessageType.TAG:
-                taglist = message.parse_tag()
-                for i in range(taglist.n_tags()):
-                    name = taglist.nth_tag_name(i)
-                    value = taglist.get_value_index(name, 0)
-                    if name == 'title' and value:
-                        self.set_dynamic_title(value)
 
     def update_stream_progress(self):
-        if self.control_page.is_seeking:
-            return True # don't update if seeking but keep the loop alive
-        integration = get_current_integration()
-        if integration:
+        if integration := get_current_integration():
+            if integration.loaded_models.get('currentSong').get_property('seeking'):
+                return True
             success, position = self.gst.query_position(Gst.Format.TIME)
             current_song = integration.loaded_models.get('currentSong')
             if success:
@@ -422,7 +412,7 @@ class Player(EventAdapter):
 
     def restore_play_queue(self):
         integration = get_current_integration()
-        songs = self.control_page.get_root().get_application().external_songs
+        songs = self.application.external_songs
         if songs:
             for song in songs:
                 integration.loaded_models[song.id] = song
@@ -431,8 +421,30 @@ class Player(EventAdapter):
         else:
             current_id, song_list = integration.getPlayQueue()
         if len(song_list) > 0:
-            if len(self.control_page.get_root().get_application().external_songs) == 0:
-               self.control_page.pause_next_change = True
-            self.control_page.get_root().queue_page.replace_queue(song_list, current_id)
-        self.control_page.get_root().get_application().external_songs = []
+            if len(self.application.external_songs) == 0:
+               self.pause_next_change = True
+            generated_queue = integration.loaded_models.get('currentSong').get_property('generatedQueue')
+            self.application.get_active_window().activate_action(
+                "app.play_songs",
+                GLib.Variant("as", [so.get_string() for so in list(generated_queue)])
+            )
+        self.application.external_songs = []
+
+    def song_changed(self, song_id:str):
+        if song_id:
+            integration = get_current_integration()
+            if song_id != self.last_song_id:
+                self.gst.set_state(Gst.State.READY)
+                stream_url = integration.get_stream_url(song_id)
+                self.gst.set_property('uri', stream_url)
+                if self.pause_next_change:
+                    self.gst.set_state(Gst.State.PAUSED)
+                    self.pause_next_change = False
+                else:
+                    self.gst.set_state(Gst.State.PLAYING)
+                threading.Thread(target=integration.scrobble, args=(song_id,)).start()
+                self.last_song_id = song_id
+        else:
+            self.gst.set_state(Gst.State.NULL)
+
 

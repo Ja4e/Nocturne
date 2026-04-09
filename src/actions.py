@@ -55,7 +55,94 @@ def __show_custom_toast(window, model_id:str, title_property:str, subtitle:str, 
     )
     GLib.idle_add(window.get_application().props.active_window.toast_overlay.add_toast, toast)
 
+def __replace_queue(window, songs:list, current_id:str=None):
+    integration = get_current_integration()
+    queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
+    queue_model.remove_all()
+    if len(songs) > 0:
+        if current_id is None:
+            current_id = songs[0]
+        for song_id in songs:
+            integration.verifySong(song_id, use_threading=False)
+            GLib.idle_add(queue_model.append, Gtk.StringObject.new(song_id))
+    GLib.idle_add(integration.loaded_models.get('currentSong').set_property, 'songId', current_id)
+    if Gio.Settings(schema_id="com.jeffser.Nocturne").get_value('auto-play').unpack():
+        threading.Thread(target=generate_auto_play_queue, args=(window, False)).start()
+
+def __play_next(window, songs:list):
+    integration = get_current_integration()
+    current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
+    queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
+    if queue_model.get_property('n-items') == 0 or not current_song_id:
+        __replace_queue(window, songs)
+    else:
+        current_song_index = -1
+        for i, so in enumerate(list(queue_model)): # so=string object
+            song_id = so.get_string()
+            if song_id in songs and song_id != current_song_id:
+                queue_model.remove(i)
+            elif song_id == current_song_id:
+                current_song_index = i + 1
+        songs.reverse()
+        for song_id in [s for s in songs if s != current_song_id]:
+            integration.verifySong(song_id, use_threading=False)
+            GLib.idle_add(queue_model.insert,
+                current_song_index,
+                Gtk.StringObject.new(song_id)
+            )
+
+def __play_later(window, songs:list):
+    integration = get_current_integration()
+    current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
+    queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
+    if queue_model.get_property('n-items') == 0 or not current_song_id:
+        __replace_queue(window, songs)
+    else:
+        for i, so in enumerate(list(queue_model)): # so=string object
+            song_id = so.get_string()
+            if song_id in songs and song_id != current_song_id:
+                queue_model.remove(i)
+        for song_id in [s for s in songs if s != current_song_id]:
+            integration.verifySong(song_id, use_threading=False)
+            GLib.idle_add(queue_model.append, Gtk.StringObject.new(song_id))
+
 # -- MISC --
+
+def generate_auto_play_queue(window, replace_on_finish:bool):
+    def run():
+        integration = get_current_integration()
+        integration.loaded_models.get('currentSong').set_property('generatingQueue', True)
+        queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
+        generated_queue_model = integration.loaded_models.get('currentSong').get_property('generatedQueue')
+        generated_queue_model.remove_all()
+
+        song_list = []
+        if queue_model.get_property('n-items') > 0:
+            artists = []
+            for so in list(queue_model):
+                if model := integration.loaded_models.get(so.get_string()):
+                    artists.append(model.artistId)
+            if len(artists) > 0:
+                main_artist = max(set(artists), key=artists.count)
+                song_list = integration.getSimilarSongs(main_artist)
+
+        # Remove repeated songs, if it ends up being less than 5 then just generate a random queue
+        song_list = [s for s in song_list if s not in [so.get_string() for so in list(queue_model)]]
+        if len(song_list) < 5:
+            song_list = integration.getRandomSongs()
+
+        generated_queue_model.splice(
+            0,
+            0,
+            [Gtk.StringObject.new(s) for s in song_list]
+        )
+
+        integration.loaded_models.get('currentSong').set_property('generatingQueue', False)
+
+        if replace_on_finish:
+            __replace_queue(window, [so.get_string() for so in list(generated_queue_model)])
+
+    threading.Thread(target=run).start()
 
 def set_equalizer_preset(window, preset_name:str):
     preset = {
@@ -104,11 +191,11 @@ def logout(window):
     settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
     settings.set_string('integration-user', '')
     settings.set_string('selected-instance-type', '')
-    threading.Thread(target=window.queue_page.replace_queue, args=([],)).start()
+    threading.Thread(target=__replace_queue, args=(window,[])).start()
     GLib.idle_add(window.main_stack.set_visible_child_name, 'welcome')
     GLib.idle_add(replace_root_page, window, 'home')
-    if window.playing_page.player.mpris_published:
-        window.playing_page.player.mpris.unpublish()
+    if window.get_application().player.mpris_published:
+        window.get_application().player.mpris.unpublish()
     dialogs = window.get_dialogs()
     if len(dialogs) > 0:
         dialogs[0].close()
@@ -155,22 +242,22 @@ def delete_navidrome_server(window):
 
 def open_popout_window(window, fullscreened:bool=False):
     def run():
-        GLib.idle_add(window.main_bottom_sheet.set_open, False)
         window.get_application().popout_window = Widgets.PopoutWindow(
             application=window.get_application(),
-            player=window.playing_page.player,
-            queue_list_el=window.queue_page.song_list_el,
             fullscreened=fullscreened
         )
         GLib.idle_add(window.get_application().popout_window.present)
-        GLib.idle_add(window.sheet_status_stack.set_visible_child_name, "pop-out")
         GLib.idle_add(window.get_application().lookup_action("toggle_fullscreen").set_enabled, True)
 
     window.get_application().lookup_action("toggle_fullscreen").set_enabled(False)
-    threading.Thread(target=run).start()
+    window.main_bottom_sheet.set_open(False)
+    window.sheet_status_stack.set_visible_child_name("pop-out")
+    if not window.get_application().popout_window:
+        threading.Thread(target=run).start()
 
 def toggle_fullscreen(window):
-    if len(window.queue_page.song_list_el.get_all_ids()) > 0:
+    integration = get_current_integration()
+    if integration.loaded_models.get('currentSong').get_property('queueModel').get_property('n-items') > 0:
         if popout_window := window.get_application().popout_window:
             if popout_window.is_fullscreen():
                 GLib.idle_add(popout_window.unfullscreen)
@@ -187,10 +274,9 @@ def close_popout_window(window):
             except Exception as e: # might fail if already closed
                 print(e)
                 pass
-
-            GLib.idle_add(window.queue_page.replace_list_element, popoutwindow.queue_page.song_list_el)
             window.sheet_status_stack.set_visible_child_name("content")
-            if len(window.queue_page.song_list_el.get_all_ids()) > 0:
+            integration = get_current_integration()
+            if integration.loaded_models.get('currentSong').get_property('queueModel').get_property('n-items') > 0:
                 window.main_bottom_sheet.set_open(True)
             window.get_application().popout_window = None
 
@@ -198,25 +284,25 @@ def close_popout_window(window):
 # -- PLAYER --
 
 def player_play(window):
-    window.playing_page.player.gst.set_state(Gst.State.PLAYING)
+    window.get_application().player.gst.set_state(Gst.State.PLAYING)
 
 def player_pause(window):
-    window.playing_page.player.gst.set_state(Gst.State.PAUSED)
+    window.get_application().player.gst.set_state(Gst.State.PAUSED)
 
 def player_next(window):
-    window.playing_page.player.handle_song_change_request("next")
+    window.get_application().player.handle_song_change_request("next")
 
 def player_previous(window):
-    window.playing_page.player.handle_song_change_request("previous")
+    window.get_application().player.handle_song_change_request("previous")
 
 # -- RADIO --
 
 def play_radio(window, model_id:str):
-    if model_id in window.queue_page.song_list_el.get_all_ids():
-        integration = get_current_integration()
+    integration = get_current_integration()
+    if model_id in [so.get_string() for so in integration.loaded_models.get('currentSong').get_property('queueModel')]:
         integration.loaded_models.get('currentSong').set_property('songId', model_id)
     else:
-        threading.Thread(target=window.queue_page.replace_queue, args=([model_id],)).start()
+        threading.Thread(target=__replace_queue, args=(window,[model_id],)).start()
 
 def update_radio(window, id:str=""):
     integration = get_current_integration()
@@ -320,11 +406,11 @@ def delete_radio(window, model_id:str):
 # -- SONG --
 
 def play_song(window, model_id:str):
-    if model_id in window.queue_page.song_list_el.get_all_ids():
-        integration = get_current_integration()
+    integration = get_current_integration()
+    if model_id in [so.get_string() for so in integration.loaded_models.get('currentSong').get_property('queueModel')]:
         integration.loaded_models.get('currentSong').set_property('songId', model_id)
     else:
-        threading.Thread(target=window.queue_page.replace_queue, args=([model_id],)).start()
+        threading.Thread(target=__replace_queue, args=(window,[model_id],)).start()
 
 def play_song_from_list(window, data:dict):
     song_id = data.get('songId')
@@ -332,14 +418,14 @@ def play_song_from_list(window, data:dict):
 
     if song_id:
         threading.Thread(
-            target=window.queue_page.replace_queue,
-            args=(songs, song_id)
+            target=__replace_queue,
+            args=(window, songs, song_id)
         ).start()
 
 def play_song_next(window, model_id:str):
     threading.Thread(
-        target=window.queue_page.play_next,
-        args=([model_id],)
+        target=__play_next,
+        args=(window, [model_id])
     ).start()
     threading.Thread(
         target=__show_custom_toast,
@@ -348,8 +434,8 @@ def play_song_next(window, model_id:str):
 
 def play_song_later(window, model_id:str):
     threading.Thread(
-        target=window.queue_page.play_later,
-        args=([model_id],)
+        target=__play_later,
+        args=(window, [model_id])
     ).start()
     threading.Thread(
         target=__show_custom_toast,
@@ -358,14 +444,14 @@ def play_song_later(window, model_id:str):
 
 def play_songs(window, song_list:list):
     threading.Thread(
-        target=window.queue_page.replace_queue,
-        args=(song_list,)
+        target=__replace_queue,
+        args=(window, song_list)
     ).start()
 
 def play_songs_next(window, song_list:list):
     threading.Thread(
-        target=window.queue_page.play_next,
-        args=(song_list,)
+        target=__play_next,
+        args=(window, song_list)
     ).start()
     if len(song_list)> 1:
         threading.Thread(
@@ -380,8 +466,8 @@ def play_songs_next(window, song_list:list):
 
 def play_songs_later(window, song_list:list):
     threading.Thread(
-        target=window.queue_page.play_later,
-        args=(song_list,)
+        target=__play_later,
+        args=(window, song_list,)
     ).start()
     if len(song_list) > 1:
         threading.Thread(
@@ -426,8 +512,8 @@ def save_lyrics(window, lyric_dict:dict):
 def play_random_queue(window):
     integration = get_current_integration()
     threading.Thread(
-        target=window.queue_page.replace_queue,
-        args=(integration.getRandomSongs(),)
+        target=__replace_queue,
+        args=(window, integration.getRandomSongs(),)
     ).start()
 
 # -- ALBUM --
@@ -448,8 +534,8 @@ def play_album(window, model_id:str):
     if album:
         integration.verifyAlbum(album.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
-            target=window.queue_page.replace_queue,
-            args=([s.get('id') for s in album.get_property('song')],)
+            target=__replace_queue,
+            args=(window, [s.get('id') for s in album.get_property('song')])
         ).start()
 
 def play_album_next(window, model_id:str):
@@ -459,8 +545,8 @@ def play_album_next(window, model_id:str):
     if album:
         integration.verifyAlbum(album.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
-            target=window.queue_page.play_next,
-            args=([s.get('id') for s in album.get_property('song')],)
+            target=__play_next,
+            args=(window, [s.get('id') for s in album.get_property('song')])
         ).start()
     threading.Thread(
         target=__show_custom_toast,
@@ -474,8 +560,8 @@ def play_album_later(window, model_id:str):
     if album:
         integration.verifyAlbum(album.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
-            target=window.queue_page.play_later,
-            args=([s.get('id') for s in album.get_property('song')],)
+            target=__play_later,
+            args=(window, [s.get('id') for s in album.get_property('song')])
         ).start()
     threading.Thread(
         target=__show_custom_toast,
@@ -491,8 +577,8 @@ def play_album_shuffle(window, model_id:str):
         song_list = [s.get('id') for s in album.get_property('song')]
         random.shuffle(song_list)
         threading.Thread(
-            target=window.queue_page.replace_queue,
-            args=(song_list,)
+            target=__replace_queue,
+            args=(window, song_list)
         ).start()
 
 # -- PLAYLIST --
@@ -507,8 +593,8 @@ def play_playlist(window, model_id:str):
     if playlist:
         integration.verifyPlaylist(playlist.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
-            target=window.queue_page.replace_queue,
-            args=([s.get('id') for s in playlist.get_property('entry')],)
+            target=__replace_queue,
+            args=(window, [s.get('id') for s in playlist.get_property('entry')],)
         ).start()
 
 def play_playlist_next(window, model_id:str):
@@ -518,8 +604,8 @@ def play_playlist_next(window, model_id:str):
     if playlist:
         integration.verifyPlaylist(playlist.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
-            target=window.queue_page.play_next,
-            args=([s.get('id') for s in playlist.get_property('entry')],)
+            target=__play_next,
+            args=(window, [s.get('id') for s in playlist.get_property('entry')],)
         ).start()
     threading.Thread(
         target=__show_custom_toast,
@@ -533,8 +619,8 @@ def play_playlist_later(window, model_id:str):
     if playlist:
         integration.verifyPlaylist(playlist.get_property('id'), force_update=True, use_threading=False)
         threading.Thread(
-            target=window.queue_page.play_later,
-            args=([s.get('id') for s in playlist.get_property('entry')],)
+            target=__play_later,
+            args=(window, [s.get('id') for s in playlist.get_property('entry')])
         ).start()
     threading.Thread(
         target=__show_custom_toast,
@@ -550,8 +636,8 @@ def play_playlist_shuffle(window, model_id:str):
         song_list = [s.get('id') for s in playlist.get_property('entry')]
         random.shuffle(song_list)
         threading.Thread(
-            target=window.queue_page.replace_queue,
-            args=(song_list,)
+            target=__replace_queue,
+            args=(window, song_list)
         ).start()
 
 def update_playlist(window, model_id:str=None):

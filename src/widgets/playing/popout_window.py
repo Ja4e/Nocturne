@@ -32,7 +32,7 @@ class PopoutWindow(Adw.ApplicationWindow):
     sidebar_stack = Gtk.Template.Child()
     toggle_fullscreen_el = Gtk.Template.Child()
 
-    def __init__(self, application, player, queue_list_el, fullscreened):
+    def __init__(self, application, fullscreened):
         super().__init__(
             application=application,
             fullscreened=fullscreened
@@ -43,11 +43,11 @@ class PopoutWindow(Adw.ApplicationWindow):
         self.playing_page.last_song_id = current_song_id
         self.playing_page.pop_status_stack.set_visible_child_name("popin")
 
-        GLib.idle_add(self.playing_page.setup, player)
+        GLib.idle_add(self.playing_page.setup)
         GLib.idle_add(self.lyrics_page.setup)
         GLib.idle_add(self.footer.setup)
+        GLib.idle_add(self.queue_page.setup)
 
-        self.queue_page.replace_list_element(queue_list_el)
         self.playing_page.header_bar.get_ancestor(Adw.ToolbarView).set_extend_content_to_top_edge(False)
         self.playing_page.header_bar.set_show_start_title_buttons(True)
         self.playing_page.header_bar.set_show_end_title_buttons(True)

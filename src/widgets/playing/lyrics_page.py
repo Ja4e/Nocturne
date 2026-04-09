@@ -41,7 +41,7 @@ class PlayingLyricsPage(Gtk.Stack):
         integration.connect_to_model('currentSong', 'positionSeconds', self.position_changed)
 
     def song_changed(self, song_id:str, lrclib_download:bool=False):
-        GLib.idle_add(self.set_visible_child_name, 'loading')
+        self.set_visible_child_name('loading')
         def update_lyrics():
             lyrics = get_lyrics(song_id, lrclib_download)
             GLib.idle_add(self.set_visible_child_name, lyrics.get('type'))
@@ -80,7 +80,7 @@ class PlayingLyricsPage(Gtk.Stack):
         row = list_el.get_selected_row()
         if row:
             if not self.code_is_selecting:
-                self.get_root().playing_page.player.gst.seek_simple(
+                self.get_root().get_application().player.gst.seek_simple(
                     Gst.Format.TIME,
                     Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
                     int(row.ms/1000 * Gst.SECOND)

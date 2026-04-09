@@ -70,19 +70,27 @@ class SongQueue(Gtk.Box):
             GLib.idle_add(verify_visibility)
         else:
             integration = get_current_integration()
-            all_ids = self.get_all_ids()
+            queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
+            all_ids = [so.get_string() for so in list(queue_model)]
             selected_rows = self.get_selected_rows()
+            print(len(selected_rows))
             selected_ids = [r.id for r in selected_rows]
-            current_id = integration.loaded_models.get('currentSong').get_property('songId')
+            current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
 
-            if current_id in selected_ids: # handle changing song
+            if current_song_id in selected_ids: # handle changing song
                 if len(selected_rows) == len(all_ids):
                     new_id = None
                 else:
                     new_id = [s for s in all_ids if s not in selected_ids][0]
                 integration.loaded_models.get('currentSong').set_property('songId', new_id)
-            for row in selected_rows:
-                GLib.idle_add(self.list_el.remove, row)
+
+            indexes_to_be_removed = []
+            for i, song_id in enumerate(all_ids):
+                if song_id in selected_ids:
+                    indexes_to_be_removed.append(i)
+            for index in reversed(indexes_to_be_removed):
+                queue_model.remove(index)
+
         self.close_selector()
 
     @Gtk.Template.Callback()

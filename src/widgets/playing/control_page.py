@@ -28,19 +28,13 @@ class PlayingControlPage(Adw.NavigationPage):
     show_sidebar_el = Gtk.Template.Child()
     state_stack_el = Gtk.Template.Child()
     rating_container = Gtk.Template.Child()
-    pause_next_change = False
 
     def __init__(self):
         # Used to disconnect star_el when song changes
         self.starred_connection = None
-        self.last_song_id = None
         super().__init__()
-        self.is_seeking = False
 
-    def setup(self, player=None):
-        self.player = player
-        if not self.player:
-            self.player = Player(self)
+    def setup(self):
         integration = get_current_integration()
         integration.connect_to_model('currentSong', 'positionSeconds', self.update_position)
         integration.connect_to_model('currentSong', 'buttonState', self.state_stack_el.set_visible_child_name)
@@ -58,7 +52,7 @@ class PlayingControlPage(Adw.NavigationPage):
                 label_negative = get_display_time(song.get_property('duration') - positionSeconds)
                 self.positive_progress_el.set_label(label_positive)
                 self.negative_progress_el.set_label('-{}'.format(label_negative))
-                if not self.is_seeking:
+                if not integration.loaded_models.get('currentSong').get_property('seeking'):
                     self.progress_el.get_adjustment().set_value(positionSeconds)
 
     def breakpoint_toggled(self, active:bool):
@@ -77,16 +71,17 @@ class PlayingControlPage(Adw.NavigationPage):
     @Gtk.Template.Callback()
     def progress_bar_changed(self, scale_el, scroll_type, value):
         value = scale_el.get_adjustment().get_value()
-        self.is_seeking = True
+        integration = get_current_integration()
+        integration.loaded_models.get('currentSong').set_property('seeking', True)
         def change_time(val):
-            self.is_seeking = False
+            integration.loaded_models.get('currentSong').set_property('seeking', False)
             nanoseconds = int(val * Gst.SECOND)
-            self.player.gst.seek_simple(
+            self.get_root().get_application().player.gst.seek_simple(
                 Gst.Format.TIME,
                 Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
                 nanoseconds
             )
-        GLib.timeout_add(100, lambda v=value: change_time(v) if v == scale_el.get_adjustment().get_value() else None)
+        GLib.timeout_add(500, lambda v=value: change_time(v) if v == scale_el.get_adjustment().get_value() else None)
 
     @Gtk.Template.Callback()
     def show_content_clicked(self, button):
@@ -123,7 +118,6 @@ class PlayingControlPage(Adw.NavigationPage):
                         popout_window.close()
 
     def update_interface(self, model):
-        # to be called from song_changed as idle_add
         if not model:
             return
 
@@ -179,24 +173,19 @@ class PlayingControlPage(Adw.NavigationPage):
         GLib.idle_add(self.star_el.set_visible, not model.get_property('isRadio') and not model.get_property('isExternalFile'))
 
         # Star Connection
-        if self.last_song_id and self.starred_connection:
-            integration.loaded_models.get(self.last_song_id).disconnect(self.starred_connection)
+        global_player = self.get_root().get_application().player
+        if global_player.last_song_id and self.starred_connection:
+            integration.loaded_models.get(global_player.last_song_id).disconnect(self.starred_connection)
 
         GLib.idle_add(self.star_el.set_action_target_value, GLib.Variant.new_string(model.id))
         self.starred_connection = integration.connect_to_model(model.id, 'starred', self.update_starred)
-        self.last_song_id = model.id
 
     def song_changed(self, song_id:str):
         integration = get_current_integration()
-        if not song_id:
-            self.player.gst.set_state(Gst.State.NULL)
         model = integration.loaded_models.get(song_id)
         GLib.idle_add(self.change_bottom_sheet_state, bool(model))
         threading.Thread(target=self.update_interface, args=(model,)).start()
         threading.Thread(target=self.update_cover_art).start()
-        if song_id != self.last_song_id:
-            self.start_current_song()
-            threading.Thread(target=integration.scrobble, args=(song_id,)).start()
 
     def update_palette(self, raw_bytes:bytes):
         img_io = io.BytesIO(raw_bytes)
@@ -268,18 +257,4 @@ class PlayingControlPage(Adw.NavigationPage):
             self.star_el.add_css_class('dim-label')
             self.star_el.set_icon_name('heart-outline-thick-symbolic')
             self.star_el.set_tooltip_text(_('Not Favorite'))
-
-    def start_current_song(self):
-        integration = get_current_integration()
-        self.player.gst.set_state(Gst.State.READY)
-        songId = integration.loaded_models.get('currentSong').get_property('songId')
-        if songId:
-            stream_url = integration.get_stream_url(songId)
-            self.player.gst.set_property('uri', stream_url)
-            if self.pause_next_change:
-                self.player.gst.set_state(Gst.State.PAUSED)
-                self.pause_next_change = False
-            else:
-                self.player.gst.set_state(Gst.State.PLAYING)
-
 

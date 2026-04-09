@@ -27,7 +27,7 @@ class LyricEditRow(Adw.EntryRow):
         integration = get_current_integration()
         GLib.idle_add(button.get_ancestor(Gtk.Popover).popdown)
         nanoseconds = int(self.ms/1000 * Gst.SECOND)
-        self.get_root().playing_page.player.gst.seek_simple(
+        self.get_root().get_application().player.gst.seek_simple(
             Gst.Format.TIME,
             Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
             nanoseconds
@@ -142,7 +142,7 @@ class LyricsDialog(Adw.Dialog):
     def progress_bar_changed(self, adjustment):
         if self.is_seeking:
             nanoseconds = int(adjustment.get_value() * Gst.SECOND)
-            self.get_root().playing_page.player.gst.seek_simple(
+            self.get_root().get_application().player.gst.seek_simple(
                 Gst.Format.TIME,
                 Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
                 nanoseconds
@@ -164,7 +164,7 @@ class LyricsDialog(Adw.Dialog):
     def position_spin_changed(self, spinbutton):
         if spinbutton.get_sensitive() and self.get_root():
             nanoseconds = int(spinbutton.get_value() * Gst.SECOND)
-            self.get_root().playing_page.player.gst.seek_simple(
+            self.get_root().get_application().player.gst.seek_simple(
                 Gst.Format.TIME,
                 Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
                 nanoseconds
