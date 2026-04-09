@@ -240,7 +240,7 @@ class Player(EventAdapter):
                 "eq-band-{}".format(i),
                 band,
                 "gain",
-                GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE
+                Gio.SettingsBindFlags.DEFAULT
             )
 
         self.spectrum = Gst.ElementFactory.make("spectrum", "spectrum-analyzer")
@@ -289,8 +289,9 @@ class Player(EventAdapter):
 
         self.last_song_id = None
         self.pause_next_change = False
+        self.last_gst_state_type = -1
         integration = get_current_integration()
-        integration.connect_to_model('currentSong', 'songId', lambda song_id: threading.Thread(target=self.song_changed, args=(song_id,)).start())
+        integration.connect_to_model('currentSong', 'songId', self.song_changed)#lambda song_id: threading.Thread(target=self.song_changed, args=(song_id,)).start())
 
     # ---
 
@@ -372,26 +373,31 @@ class Player(EventAdapter):
                     GLib.Variant("as", [so.get_string() for so in list(generated_queue)])
                 )
 
+    def handle_spectrum_message(self, struct):
+        serialized = struct.serialize_full(Gst.SerializeFlags.NONE)
+        channels_str = serialized.split('< < ')[1].split(' > >;')[0].replace('(float)', '').split(' >, < ')
+        channels = []
+        for c in channels_str:
+            channels.append([float(m.strip()) for m in c.split(', ')[:int(self.spectrum.get_property('bands')/2)]])
+        integration = get_current_integration()
+        timestamp = struct.get_uint64('stream-time')[1] / 1000000000
+        magnitudes = [(60-abs(m)) / 60 * self.settings.get_value("volume").unpack() for m in channels[0] + list(reversed(channels[1]))]
+        if timestamp and magnitudes:
+            if not integration.loaded_models.get('currentSong').get_property('magnitudes'):
+                integration.loaded_models.get('currentSong').set_property('magnitudes', {})
+            integration.loaded_models.get('currentSong').magnitudes[timestamp] = magnitudes
+
     def on_message(self, bus, message):
         if message.src == self.spectrum:
             struct = message.get_structure()
             if struct and struct.get_name() == "spectrum" and self.settings.get_value('show-visualizer').unpack():
-                serialized = struct.serialize_full(Gst.SerializeFlags.NONE)
-                channels_str = serialized.split('< < ')[1].split(' > >;')[0].replace('(float)', '').split(' >, < ')
-                channels = []
-                for c in channels_str:
-                    channels.append([float(m.strip()) for m in c.split(', ')[:int(self.spectrum.get_property('bands')/2)]])
-                integration = get_current_integration()
-                timestamp = struct.get_uint64('stream-time')[1] / 1000000000
-                magnitudes = [(60-abs(m)) / 60 * self.settings.get_value("volume").unpack() for m in channels[0] + list(reversed(channels[1]))]
-                if timestamp and magnitudes:
-                    if not integration.loaded_models.get('currentSong').get_property('magnitudes'):
-                        integration.loaded_models.get('currentSong').set_property('magnitudes', {})
-                    integration.loaded_models.get('currentSong').magnitudes[timestamp] = magnitudes
+                threading.Thread(target=self.handle_spectrum_message, args=(struct,)).start()
         else:
             if message.type == Gst.MessageType.STATE_CHANGED:
                 old_state, new_state, pending_state = message.parse_state_changed()
-                self.handle_new_state(new_state)
+                if new_state != self.last_gst_state_type:
+                    self.handle_new_state(new_state)
+                    self.last_gst_state_type = new_state
             elif message.type == Gst.MessageType.EOS:
                 self.handle_song_change_request("end")
             elif message.type == Gst.MessageType.ERROR:
@@ -430,17 +436,21 @@ class Player(EventAdapter):
         self.application.external_songs = []
 
     def song_changed(self, song_id:str):
+        integration = get_current_integration()
+
+        def async_load():
+            stream_url = integration.get_stream_url(song_id)
+            self.gst.set_state(Gst.State.READY)
+            self.gst.set_property('uri', stream_url)
+            if self.pause_next_change:
+                self.gst.set_state(Gst.State.PAUSED)
+                self.pause_next_change = False
+            else:
+                self.gst.set_state(Gst.State.PLAYING)
+
         if song_id:
-            integration = get_current_integration()
             if song_id != self.last_song_id:
-                self.gst.set_state(Gst.State.READY)
-                stream_url = integration.get_stream_url(song_id)
-                self.gst.set_property('uri', stream_url)
-                if self.pause_next_change:
-                    self.gst.set_state(Gst.State.PAUSED)
-                    self.pause_next_change = False
-                else:
-                    self.gst.set_state(Gst.State.PLAYING)
+                threading.Thread(target=async_load).start()
                 threading.Thread(target=integration.scrobble, args=(song_id,)).start()
                 self.last_song_id = song_id
         else:

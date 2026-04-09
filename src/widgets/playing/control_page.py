@@ -185,7 +185,7 @@ class PlayingControlPage(Adw.NavigationPage):
         model = integration.loaded_models.get(song_id)
         self.change_bottom_sheet_state(model)
         self.update_interface(model)
-        self.update_cover_art()
+        threading.Thread(target=self.update_cover_art).start()
 
     def update_palette(self, raw_bytes:bytes):
         img_io = io.BytesIO(raw_bytes)
@@ -235,14 +235,14 @@ class PlayingControlPage(Adw.NavigationPage):
             if gbytes and Gio.Settings(schema_id="com.jeffser.Nocturne").get_value("use-dynamic-background").unpack():
                 threading.Thread(target=self.update_palette, args=(bytes(gbytes.get_data()),)).start()
             else:
-                self.get_root().remove_css_class('dynamic-accent-bg')
+                GLib.idle_add(self.get_root().remove_css_class, 'dynamic-accent-bg')
             if paintable:
-                self.cover_el.set_paintable(paintable)
-                self.cover_el.set_visible(True)
+                GLib.idle_add(self.cover_el.set_paintable, paintable)
+                GLib.idle_add(self.cover_el.set_visible, True)
                 paintable.save_to_png(MPRIS_COVER_PATH)
             else:
-                self.cover_el.set_paintable(None)
-                self.cover_el.set_visible(False)
+                GLib.idle_add(self.cover_el.set_paintable, None)
+                GLib.idle_add(self.cover_el.set_visible, False)
                 if os.path.isfile(MPRIS_COVER_PATH):
                     os.remove(MPRIS_COVER_PATH)
 
