@@ -105,6 +105,7 @@
           <li>Pages are now reset when login out</li>
           <li>Better performance and stability</li>
           <li>Song switcher is now faster</li>
+          <li>Fixed search in local instances</li>
         </ul>
       </description>
     </release>
