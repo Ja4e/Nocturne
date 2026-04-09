@@ -1,14 +1,14 @@
 =# Simplified Chinese translations for Nocturne.
 # Copyright (C) 2026 Ja4e
 # This file is distributed under the same license as the Nocturne package.
-# Martin Prokoph <Jakie101@proton.me>, 2026.
+# Jinyang Zhu <Jakie101@proton.me>, 2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-01 11:16-0600\n"
-"PO-Revision-Date: 2026-04-02 14:11+0100\n"
+"POT-Creation-Date: 2026-04-08 10:16-0600\n"
+"PO-Revision-Date: 2026-04-09 16:11+0100\n"
 "Last-Translator: Jinyang Zhu <Jakie101@proton.me>\n"
 "Language-Team: Simplified Chinese <LL@li.org>\n"
 "Language: zh-cn \n"
