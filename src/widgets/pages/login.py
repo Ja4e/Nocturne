@@ -17,9 +17,9 @@ class LoginPage(Adw.NavigationPage):
     url_el = Gtk.Template.Child()
     url_options_el = Gtk.Template.Child()
     trust_server_el = Gtk.Template.Child()
+    directory_el = Gtk.Template.Child()
     user_el = Gtk.Template.Child()
     password_el = Gtk.Template.Child()
-    directory_el = Gtk.Template.Child()
 
     login_button_el = Gtk.Template.Child()
 
@@ -75,6 +75,7 @@ class LoginPage(Adw.NavigationPage):
 
         # Login Button
         self.login_button_el.set_label(metadata.get('login-label') or _("Login"))
+        self.login_button_el.set_sensitive(True)
 
         # Extra Menu
         self.extra_menu_el.set_visible('extra-menu' in metadata)
@@ -119,8 +120,7 @@ class LoginPage(Adw.NavigationPage):
 
     @Gtk.Template.Callback()
     def login_button_clicked(self, button=None, skip_password:bool=False):
-        if button:
-            button.set_sensitive(False)
+        self.login_button_el.set_sensitive(False)
         if self.url_el.get_visible():
             self.integration.set_property('url', self.url_el.get_text())
         if self.url_options_el.get_visible():

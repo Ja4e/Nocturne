@@ -69,9 +69,6 @@ template $NocturneLoginPage: Adw.NavigationPage {
               valign: center;
               popover: Gtk.Popover {
                 child: Gtk.ListBox {
-                  styles [
-                    "boxed-list"
-                  ]
                   selection-mode: none;
                   Adw.SwitchRow trust_server_el {
                     title: _("Trust Server Certificates");
@@ -79,14 +76,6 @@ template $NocturneLoginPage: Adw.NavigationPage {
                 };
               };
             }
-          }
-
-          Adw.EntryRow user_el {
-            title: _("Username");
-          }
-
-          Adw.PasswordEntryRow password_el {
-            title: _("Password");
           }
 
           Adw.ActionRow directory_el {
@@ -99,6 +88,15 @@ template $NocturneLoginPage: Adw.NavigationPage {
               icon-name: "folder-open-symbolic";
               valign: center;
             }
+          }
+
+          Adw.EntryRow user_el {
+            title: _("Username");
+          }
+
+          Adw.PasswordEntryRow password_el {
+            title: _("Password");
+            entry-activated => $login_button_clicked();
           }
         }
 
