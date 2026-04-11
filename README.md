@@ -18,10 +18,10 @@
 - Exploration by songs, artists, albums, radios and playlists
 - Playlist management
 - Compatibility with Jellyfin, OpenSubsonic and local files
-- Integrated audio equalizer and audio visualizer
+- Audio equalizer and audio visualizer
 - Mpris integration
 - Integrated Navidrome instance management
-- - Automatic lyrics fetching
+- Automatic lyrics fetching
 - Cool interface
 
 ## Screenies
