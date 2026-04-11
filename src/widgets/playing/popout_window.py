@@ -67,14 +67,19 @@ class PopoutWindow(Adw.ApplicationWindow):
         self.fs_spectrum_el.setup()
 
         self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
-        self.settings.connect('changed::popout-use-dynamic-background', self.dynamic_background_toggled)
-        self.dynamic_background_toggled(self.settings, 'popout-use-dynamic-background')
+        css_settings = {
+            'popout-use-dynamic-background': 'dynamic-accent-bg',
+            'use-dynamic-accent': 'dynamic-accent'
+        }
+        for key, class_name in css_settings.items():
+            self.settings.connect('changed::{}'.format(key), self.css_toggled, class_name)
+            self.css_toggled(self.settings, key, class_name)
 
-    def dynamic_background_toggled(self, settings, key):
+    def css_toggled(self, settings, key, css_class):
         if settings.get_value(key).unpack():
-            self.add_css_class('dynamic-accent-bg')
+            self.add_css_class(css_class)
         else:
-            self.remove_css_class('dynamic-accent-bg')
+            self.remove_css_class(css_class)
 
     @Gtk.Template.Callback()
     def close_request(self, window):
