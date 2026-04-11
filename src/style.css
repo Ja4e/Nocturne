@@ -116,6 +116,11 @@ overlay.album-button:hover image.card {
   );
 }
 
+window.popout-window,
+window:not(.popout-window) bottom-sheet#main-bottom-sheet sheet > stack {
+  transition: background-image 0.2s ease-in-out;
+}
+
 window.popout-window .sidebar-pane {
   background: transparent;
 }
@@ -138,14 +143,14 @@ window.popout-window.big-mode .fullscreen-bottom-bar button.color {
   -gtk-icon-size: 24px;
 }
 
+window:not(.popout-window) bottom-sheet#main-bottom-sheet sheet.background {
+  transition: background 0.2s ease-in-out,
+  backdrop-filter 0.2s ease-in-out;
+}
+
 window.player-blur:not(.popout-window) bottom-sheet#main-bottom-sheet sheet.background {
   backdrop-filter: blur(10px);
   background: color-mix(in srgb, var(--window-bg-color) 85%, transparent);
-}
-
-window.popout-window,
-window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {
-  transition: background .2s;
 }
 
 window.popout-window.big-mode navigation-split-view > .sidebar-pane {

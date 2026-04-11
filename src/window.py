@@ -220,22 +220,29 @@ class NocturneWindow(Adw.ApplicationWindow):
         self.create_action(actions.play_shuffle_artist)
         self.create_action(actions.play_radio_artist)
 
-        settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
-        self.set_property('default-width', settings.get_value('default-width').unpack())
-        self.set_property('default-height', settings.get_value('default-height').unpack())
-        self.set_property('hide-on-close', settings.get_value('hide-on-close').unpack())
-        settings.bind(
+        self.settings = Gio.Settings(schema_id="com.jeffser.Nocturne")
+        self.set_property('default-width', self.settings.get_value('default-width').unpack())
+        self.set_property('default-height', self.settings.get_value('default-height').unpack())
+        self.set_property('hide-on-close', self.settings.get_value('hide-on-close').unpack())
+        self.settings.bind(
             "hide-on-close",
             self,
             "hide-on-close",
             Gio.SettingsBindFlags.DEFAULT
         )
-        if settings.get_value('player-blur-bg').unpack():
-            self.add_css_class('player-blur')
+        self.settings.connect('changed::use-dynamic-background', self.css_toggled, 'dynamic-accent-bg')
+        self.css_toggled(self.settings, 'use-dynamic-background', 'dynamic-accent-bg')
+        self.settings.connect('changed::player-blur-bg', self.css_toggled, 'player-blur')
+        self.css_toggled(self.settings, 'player-blur-bg', 'player-blur')
 
         GLib.idle_add(self.setup_sidebar)
-
         list(list(self.sidebar_headerbar)[0])[0].get_center_widget().get_child().set_ellipsize(Pango.EllipsizeMode.NONE)
+
+    def css_toggled(self, settings, key, css_class):
+        if settings.get_value(key).unpack():
+            self.add_css_class(css_class)
+        else:
+            self.remove_css_class(css_class)
 
     @Gtk.Template.Callback()
     def on_drop(self, drop_target, file, x, y):

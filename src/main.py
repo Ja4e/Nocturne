@@ -25,7 +25,7 @@ gi.require_version('Adw', '1')
 gi.require_version('Secret', '1')
 gi.require_version('Gst', '1.0')
 
-from gi.repository import Gtk, Gio, Adw, GLib
+from gi.repository import Gtk, Gdk, Gio, Adw, GLib
 from .window import NocturneWindow
 from .preferences import NocturnePreferences
 from .constants import get_song_info_from_file, TRANSLATORS, set_version
@@ -43,7 +43,13 @@ class NocturneApplication(Adw.Application):
         self.external_songs = []
         self.popout_window = None
         self.player = None
-        self.queue_model = Gio.ListStore.new(item_type=Gtk.StringObject) # it stores song IDs
+        self.css_provider = Gtk.CssProvider()
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(),
+            self.css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
         super().__init__(application_id='com.jeffser.Nocturne',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS | Gio.ApplicationFlags.HANDLES_OPEN,
                          resource_base_path='/com/jeffser/Nocturne')

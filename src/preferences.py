@@ -200,30 +200,6 @@ class NocturnePreferences(Adw.PreferencesDialog):
         ))
 
     @Gtk.Template.Callback()
-    def on_dynamic_bg_toggled(self, row, gparam):
-        if self.get_root():
-            if row.get_active():
-                if integration := get_current_integration():
-                    if song_id := integration.loaded_models.get('currentSong').get_property('songId'):
-                        if song_model := integration.loaded_models.get(song_id):
-                            if raw_bytes := song_model.get_property('gdkPaintableBytes'):
-                                thread = threading.Thread(
-                                    target=self.get_root().playing_page.update_palette,
-                                    args=(bytes(raw_bytes.get_data()),)
-                                )
-                                GLib.idle_add(thread.start)
-            else:
-                self.get_root().remove_css_class('dynamic-accent-bg')
-                            
-    @Gtk.Template.Callback()
-    def on_blur_bg_toggled(self, row, gparam):
-        if self.get_root():
-            if row.get_active():
-                self.get_root().add_css_class('player-blur')
-            else:
-                self.get_root().remove_css_class('player-blur')
-
-    @Gtk.Template.Callback()
     def default_page_changed(self, combo_row, ud):
         page_tag = self.default_page_dict.get(combo_row.get_selected_item().get_string(), 'home')
         Gio.Settings(schema_id="com.jeffser.Nocturne").set_string('default-page-tag', page_tag)

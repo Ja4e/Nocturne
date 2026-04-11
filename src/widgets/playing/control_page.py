@@ -191,10 +191,11 @@ class PlayingControlPage(Adw.NavigationPage):
         img_io = io.BytesIO(raw_bytes)
         palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
         css = f"""
-        window.dynamic-accent-bg, window.popout-window {{
+        window.dynamic-accent-bg {{
             --accent-color: oklab(from rgb({','.join([str(c) for c in palette[0]])}) var(--standalone-color-oklab));
         }}
 
+        window.popout-window.dynamic-accent-bg,
         window.dynamic-accent-bg bottom-sheet#main-bottom-sheet sheet > stack {{
             background-image: linear-gradient(
                 to bottom,
@@ -202,40 +203,21 @@ class PlayingControlPage(Adw.NavigationPage):
                 rgba({','.join([str(c) for c in palette[1]])},0.4)
             );
         }}
-        window.popout-window {{
-            background-image: linear-gradient(
-                to bottom,
-                rgba({','.join([str(c) for c in palette[0]])},0.4),
-                rgba({','.join([str(c) for c in palette[1]])},0.4)
-            );
-        }}
-        .dynamic-accent-bg {{
-            transition: background-image 0.5s ease-in-out;
-        }}
         """
 
         if stack := self.get_ancestor(Gtk.Stack):
             GLib.idle_add(stack.get_parent().set_overflow, Gtk.Overflow.HIDDEN)
             if stack2 := stack.get_parent().get_parent():
                 GLib.idle_add(stack2.get_parent().set_overflow, Gtk.Overflow.HIDDEN)
-        GLib.idle_add(self.get_root().add_css_class, 'dynamic-accent-bg')
-        provider = Gtk.CssProvider()
-        provider.load_from_string(css)
-        GLib.idle_add(Gtk.StyleContext.add_provider_for_display,
-            Gdk.Display.get_default(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
+        self.get_root().get_application().css_provider.load_from_string(css)
 
     def update_cover_art(self):
         integration = get_current_integration()
         song_id = integration.loaded_models.get('currentSong').get_property('songId')
         if song_id:
             gbytes, paintable = integration.getCoverArt(song_id)
-            if gbytes and Gio.Settings(schema_id="com.jeffser.Nocturne").get_value("use-dynamic-background").unpack():
+            if gbytes:
                 threading.Thread(target=self.update_palette, args=(bytes(gbytes.get_data()),)).start()
-            else:
-                GLib.idle_add(self.get_root().remove_css_class, 'dynamic-accent-bg')
             if paintable:
                 GLib.idle_add(self.cover_el.set_paintable, paintable)
                 GLib.idle_add(self.cover_el.set_visible, True)
