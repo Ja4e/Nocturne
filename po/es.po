@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-11 14:32-0600\n"
+"POT-Creation-Date: 2026-04-11 15:00-0600\n"
 "PO-Revision-Date: 2026-03-25 15:34-0600\n"
 "Last-Translator: Jeffry Samuel <jeffrysamuer@gmail.com>\n"
 "Language-Team: Spanish <es@tp.org.es>\n"
@@ -878,6 +878,34 @@ msgstr "Cerrar Ventana Desplegable"
 #: src/ui/playing/control_page.blp:321
 msgid "Show Sidebar"
 msgstr "Mostrar Barra Lateral"
+
+#: src/ui/playing/equalizer_page.blp:15
+msgid "Presets"
+msgstr "Preajustes"
+
+#: src/ui/playing/equalizer_page.blp:20
+msgid "Flat"
+msgstr "Plano"
+
+#: src/ui/playing/equalizer_page.blp:27
+msgid "Vocal Clarity"
+msgstr "Claridad Vocal"
+
+#: src/ui/playing/equalizer_page.blp:32
+msgid "Smooth Jazz"
+msgstr "Jazz Suave"
+
+#: src/ui/playing/equalizer_page.blp:37
+msgid "Rock"
+msgstr "Rock"
+
+#: src/ui/playing/equalizer_page.blp:42
+msgid "Classic"
+msgstr "Clásico"
+
+#: src/ui/playing/equalizer_page.blp:47
+msgid "Acoustic"
+msgstr "Acústico"
 
 #: src/ui/playing/footer.blp:12
 msgid "Current song progress indicator"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-11 14:32-0600\n"
+"POT-Creation-Date: 2026-04-11 15:00-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -868,6 +868,34 @@ msgstr ""
 
 #: src/ui/playing/control_page.blp:321
 msgid "Show Sidebar"
+msgstr ""
+
+#: src/ui/playing/equalizer_page.blp:15
+msgid "Presets"
+msgstr ""
+
+#: src/ui/playing/equalizer_page.blp:20
+msgid "Flat"
+msgstr ""
+
+#: src/ui/playing/equalizer_page.blp:27
+msgid "Vocal Clarity"
+msgstr ""
+
+#: src/ui/playing/equalizer_page.blp:32
+msgid "Smooth Jazz"
+msgstr ""
+
+#: src/ui/playing/equalizer_page.blp:37
+msgid "Rock"
+msgstr ""
+
+#: src/ui/playing/equalizer_page.blp:42
+msgid "Classic"
+msgstr ""
+
+#: src/ui/playing/equalizer_page.blp:47
+msgid "Acoustic"
 msgstr ""
 
 #: src/ui/playing/footer.blp:12
