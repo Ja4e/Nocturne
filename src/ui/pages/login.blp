@@ -21,7 +21,7 @@ template $NocturneLoginPage: Adw.NavigationPage {
     content: Adw.StatusPage status_page {
       title: _("Login");
       child: Gtk.Box {
-        spacing: 10;
+        spacing: 20;
         orientation: vertical;
         halign: center;
         width-request: 320;
@@ -39,7 +39,13 @@ template $NocturneLoginPage: Adw.NavigationPage {
             tooltip-text: _("Restart Instance");
             activatable: true;
             activated => $server_restart_requested();
+
             [prefix]
+            Gtk.Image {
+              icon-name: "update-symbolic";
+            }
+
+            [suffix]
             Gtk.MenuButton extra_menu_el {
               icon-name: "preferences-system-symbolic";
               tooltip-text: _("Manage Navidrome Server");
@@ -48,11 +54,6 @@ template $NocturneLoginPage: Adw.NavigationPage {
               styles [
                 "flat"
               ]
-            }
-
-            [suffix]
-            Gtk.Image {
-              icon-name: "update-symbolic";
             }
           }
 
