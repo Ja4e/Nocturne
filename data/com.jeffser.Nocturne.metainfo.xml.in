@@ -12,10 +12,12 @@
     <ul>
       <li>Exploration by songs, artists, albums, radios and playlists</li>
       <li>Playlist management</li>
+      <li>Compatibility with Jellyfin, OpenSubsonic and local files</li>
+      <li>Audio equalizer and audio visualizer</li>
       <li>Mpris integration</li>
       <li>Integrated Navidrome instance management</li>
-      <li>Cool interface</li>
       <li>Automatic lyrics fetching</li>
+      <li>Cool interface</li>
     </ul>
   </description>
 
@@ -52,7 +54,6 @@
   <launchable type="desktop-id">com.jeffser.Nocturne.desktop</launchable>
   <content_rating type="oars-1.1" />
 
-  <!-- Applications should set a brand color in both light and dark variants like so -->
   <branding>
     <color type="primary" scheme_preference="light">#8bf3f5</color>
     <color type="primary" scheme_preference="dark">#08828a</color>

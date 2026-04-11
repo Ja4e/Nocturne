@@ -11,16 +11,18 @@
 > Please be aware that [GNOME Code of Conduct](https://conduct.gnome.org) applies to Nocturne before interacting with this repository.
 
 > [!WARNING]
-> AI generated issues and PRs will be denied, repeated offense will result in a ban from the repository.
+> AI generated issues and PRs will be denied, repeated offence will result in a ban from the repository.
 
 ## Features
 
 - Exploration by songs, artists, albums, radios and playlists
 - Playlist management
+- Compatibility with Jellyfin, OpenSubsonic and local files
+- Integrated audio equalizer and audio visualizer
 - Mpris integration
 - Integrated Navidrome instance management
+- - Automatic lyrics fetching
 - Cool interface
-- Automatic lyrics fetching
 
 ## Screenies
 
