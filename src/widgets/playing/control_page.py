@@ -191,7 +191,7 @@ class PlayingControlPage(Adw.NavigationPage):
         img_io = io.BytesIO(raw_bytes)
         palette = ColorThief(img_io).get_palette(quality=10, color_count=2)
         css = f"""
-        window.dynamic-accent-bg {{
+        window.dynamic-accent {{
             --accent-color: oklab(from rgb({','.join([str(c) for c in palette[0]])}) var(--standalone-color-oklab));
         }}
 

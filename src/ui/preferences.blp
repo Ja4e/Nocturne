@@ -2,7 +2,7 @@ using Gtk 4.0;
 using Adw 1;
 
 template $NocturnePreferencesDialog: Adw.PreferencesDialog {
-
+  search-enabled: true;
   Adw.PreferencesPage {
     title: _("General");
     icon-name: "preferences-system-symbolic";
@@ -110,6 +110,9 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
       }
       Adw.SwitchRow popout_dynamic_bg_el {
         title: _("Use in Popout Window");
+      }
+      Adw.SwitchRow dynamic_accent_el {
+        title: _("Use as Accent Color");
       }
     }
 
@@ -231,7 +234,7 @@ template $NocturnePreferencesDialog: Adw.PreferencesDialog {
       sensitive: bind visualizer_el.active;
 
       Adw.SwitchRow visualizer_auto_color_el {
-        title: _("Automatically Set Color");
+        title: _("Use Dynamic Color");
       }
       Adw.SwitchRow visualizer_invert_auto_color_el {
         title: _("Invert Color");

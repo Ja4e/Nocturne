@@ -230,11 +230,15 @@ class NocturneWindow(Adw.ApplicationWindow):
             "hide-on-close",
             Gio.SettingsBindFlags.DEFAULT
         )
-        self.settings.connect('changed::use-dynamic-background', self.css_toggled, 'dynamic-accent-bg')
-        self.css_toggled(self.settings, 'use-dynamic-background', 'dynamic-accent-bg')
-        self.settings.connect('changed::player-blur-bg', self.css_toggled, 'player-blur')
-        self.css_toggled(self.settings, 'player-blur-bg', 'player-blur')
 
+        css_settings = {
+            'use-dynamic-background': 'dynamic-accent-bg',
+            'use-dynamic-accent': 'dynamic-accent',
+            'player-blur-bg': 'player-blur'
+        }
+        for key, class_name in css_settings.items():
+            self.settings.connect('changed::{}'.format(key), self.css_toggled, class_name)
+            self.css_toggled(self.settings, key, class_name)
         GLib.idle_add(self.setup_sidebar)
         list(list(self.sidebar_headerbar)[0])[0].get_center_widget().get_child().set_ellipsize(Pango.EllipsizeMode.NONE)
 

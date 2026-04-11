@@ -33,6 +33,7 @@ class NocturnePreferences(Adw.PreferencesDialog):
     ## Dynamic Background
     dynamic_bg_el = Gtk.Template.Child()
     popout_dynamic_bg_el = Gtk.Template.Child()
+    dynamic_accent_el = Gtk.Template.Child()
 
     ## Homepage
     hp_songs_el = Gtk.Template.Child()
@@ -142,6 +143,12 @@ class NocturnePreferences(Adw.PreferencesDialog):
         settings.bind(
             "popout-use-dynamic-background",
             self.popout_dynamic_bg_el,
+            "active",
+            Gio.SettingsBindFlags.DEFAULT
+        )
+        settings.bind(
+            "use-dynamic-accent",
+            self.dynamic_accent_el,
             "active",
             Gio.SettingsBindFlags.DEFAULT
         )

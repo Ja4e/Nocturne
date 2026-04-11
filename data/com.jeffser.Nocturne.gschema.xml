@@ -46,6 +46,9 @@
 	  <key name="use-dynamic-background" type="b">
 	    <default>true</default>
 	  </key>
+	  <key name="use-dynamic-accent" type="b">
+	    <default>true</default>
+	  </key>
 	  <key name="popout-use-dynamic-background" type="b">
 	    <default>true</default>
 	  </key>
