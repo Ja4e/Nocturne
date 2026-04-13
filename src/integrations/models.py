@@ -129,6 +129,12 @@ class Song(GObject.Object):
                 else:
                     self.set_property(prop.get_name(), prop.get_default_value())
 
+class SongDownload(GObject.Object):
+    __gtype_name__ = 'NocturneSongDownload'
+
+    songId = GObject.Property(type=str)
+    progress = GObject.Property(type=float, default=0.0) # 0-1
+
 class CurrentSong(GObject.Object):
     __gtype_name__ = 'NocturneModelCurrentSong'
 
@@ -140,4 +146,5 @@ class CurrentSong(GObject.Object):
     queueModel = GObject.Property(type=Gio.ListStore, default=Gio.ListStore.new(item_type=Gtk.StringObject))
     generatedQueue = GObject.Property(type=Gio.ListStore, default=Gio.ListStore.new(item_type=Gtk.StringObject))
     generatingQueue = GObject.Property(type=bool, default=False)
+    downloadQueueModel = GObject.Property(type=Gio.ListStore, default=Gio.ListStore.new(item_type=SongDownload))
 

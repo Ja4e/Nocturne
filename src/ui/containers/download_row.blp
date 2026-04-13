@@ -1,0 +1,46 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $NocturneDownloadRow: Gtk.ListBoxRow {
+  styles [
+    "p10"
+  ]
+  activatable: false;
+  child: Gtk.Box {
+    orientation: horizontal;
+    spacing: 5;
+
+    Gtk.Box {
+      orientation: vertical;
+      spacing: 5;
+      Gtk.Label title_label {
+        styles [
+          "heading"
+        ]
+        label: "";
+        hexpand: true;
+        halign: start;
+        xalign: 0;
+      }
+      Gtk.ProgressBar progressbar {
+        hexpand: true;
+      }
+    }
+
+    Gtk.Stack {
+      transition-type: crossfade;
+      Gtk.StackPage {
+        name: "cancel";
+        child: Gtk.Button {
+          styles [
+            "flat",
+            "circular"
+          ]
+          valign: center;
+          tooltip-text: _("Cancel");
+          icon-name: "cross-large-circle-filled-symbolic";
+        };
+      }
+    }
+  };
+}

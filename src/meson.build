@@ -50,6 +50,7 @@ blueprints = files(
   'ui/containers/wrapbox.blp',
   'ui/containers/page_dialog.blp',
   'ui/containers/downloads_queue_button.blp',
+  'ui/containers/download_row.blp',
 
   'ui/lyrics/dialog.blp',
   'ui/lyrics/edit_row.blp',

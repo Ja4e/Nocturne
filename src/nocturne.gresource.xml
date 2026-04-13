@@ -60,6 +60,7 @@
     <file alias="icons/scalable/status/heart-outline-thick-symbolic.svg">icons/heart-outline-thick-symbolic.svg</file>
     <file alias="icons/scalable/status/network-server-symbolic.svg">icons/network-server-symbolic.svg</file>
     <file alias="icons/scalable/status/paintbrush-symbolic.svg">icons/paintbrush-symbolic.svg</file>
+    <file alias="icons/scalable/status/cross-large-circle-filled-symbolic.svg">icons/cross-large-circle-filled-symbolic.svg</file>
 
     <file alias="window.ui">ui/window.ui</file>
     <file alias="shortcuts-dialog.ui">ui/shortcuts-dialog.ui</file>
@@ -108,6 +109,7 @@
     <file alias="containers/wrapbox.ui">ui/containers/wrapbox.ui</file>
     <file alias="containers/page_dialog.ui">ui/containers/page_dialog.ui</file>
     <file alias="containers/downloads_queue_button.ui">ui/containers/downloads_queue_button.ui</file>
+    <file alias="containers/download_row.ui">ui/containers/download_row.ui</file>
 
     <file alias="lyrics/dialog.ui">ui/lyrics/dialog.ui</file>
     <file alias="lyrics/edit_row.ui">ui/lyrics/edit_row.ui</file>
