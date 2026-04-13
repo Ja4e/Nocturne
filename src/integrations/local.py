@@ -4,7 +4,7 @@ from gi.repository import Gtk, GLib, GObject, Gdk, Gio, GdkPixbuf
 from . import secret, models
 from .base import Base
 from datetime import datetime, timezone
-import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid, pwd, getpass, time
+import requests, random, threading, favicon, io, pathlib, re, json, os, time, uuid, pwd, getpass, time, shutil
 from PIL import Image
 from tinytag import TinyTag
 from ..constants import DOWNLOADS_DIR, get_song_info_from_file
@@ -470,6 +470,12 @@ class Local(Base):
                 artist_scrobbles[song_id] = data.get('plays', 1)
         return sorted(artist_scrobbles, key=artist_scrobbles.get, reverse=True)[:count]
 
+    def downloadSong(self, model_id:str, file_title:str, progress_callback:callable):
+        if model := self.loaded_models.get(model_id):
+            source_path = model.get_property('path')
+            shutil.copy2(source_path, DOWNLOADS_DIR)
+            progress_callback(1)
+
     def scrobble(self, model_id:str):
         if not model_id:
             return
@@ -531,7 +537,6 @@ class Offline(Local):
 
     def getServerInformation(self) -> dict:
         server_information = {
-            'link': 'file://{}'.format(self.get_property('libraryDir')),
             'title': _("Offline Mode")
         }
         try:
