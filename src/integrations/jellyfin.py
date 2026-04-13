@@ -337,7 +337,7 @@ class Jellyfin(Base):
             else:
                 run()
 
-        threading.Thread(target=self.getCoverArt, args=(id,)).start()
+        threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
     def verifyAlbum(self, model_id:str, force_update:bool=False, use_threading:bool=True):
         def run():
@@ -870,3 +870,4 @@ class Jellyfin(Base):
             pass
 
         return server_information
+
