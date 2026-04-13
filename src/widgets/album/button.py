@@ -75,8 +75,12 @@ class AlbumButton(Gtk.Box):
         else:
             rect.x, rect.y = args[1], args[2]
 
+        context = CONTEXT_ALBUM.copy()
+        if 'no-downloads' in get_current_integration().limitations:
+            del context['download']
+
         popover = Gtk.Popover(
-            child=ContextContainer(CONTEXT_ALBUM, self.id),
+            child=ContextContainer(context, self.id),
             pointing_to=rect,
             has_arrow=False
         )
@@ -91,8 +95,12 @@ class AlbumButton(Gtk.Box):
         else:
             rect.x, rect.y = args[1], args[2]
 
+        context = CONTEXT_ALBUM.copy()
+        if 'no-downloads' in get_current_integration().limitations:
+            del context['download']
+
         popover = Gtk.Popover(
-            child=ContextContainer(CONTEXT_ALBUM, self.id),
+            child=ContextContainer(context, self.id),
             pointing_to=rect,
             has_arrow=False
         )

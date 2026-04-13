@@ -33,6 +33,8 @@ class AlbumPage(Adw.NavigationPage):
         self.star_el.set_action_target_value(GLib.Variant.new_string(self.id))
         context = CONTEXT_ALBUM.copy()
         del context['show-artist']
+        if 'no-downloads' in integration.limitations:
+            del context['download']
         context_buttons = get_context_buttons_list(context, self.id)
         for btn in context_buttons:
             if btn.get_name() != 'show-artist':

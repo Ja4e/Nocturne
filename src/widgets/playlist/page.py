@@ -30,10 +30,12 @@ class PlaylistPage(Adw.NavigationPage):
         )
         self.song_list_el.set_header(_("Songs"), "music-note-symbolic")
 
-        context_dict = CONTEXT_PLAYLIST.copy()
-        del context_dict['edit']
-        del context_dict['delete']
-        context_buttons = get_context_buttons_list(context_dict, self.id)
+        context = CONTEXT_PLAYLIST.copy()
+        del context['edit']
+        del context['delete']
+        if 'no-downloads' in get_current_integration().limitations:
+            del context['download']
+        context_buttons = get_context_buttons_list(context, self.id)
         for btn in context_buttons:
             self.context_wrap_el.append(btn)
 

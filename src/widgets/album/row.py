@@ -49,7 +49,11 @@ class AlbumRow(Adw.ActionRow):
 
     @Gtk.Template.Callback()
     def on_context_button_active(self, button, gparam):
-        button.get_popover().set_child(ContextContainer(CONTEXT_ALBUM, self.id))
+        context = CONTEXT_ALBUM.copy()
+        if 'no-downloads' in get_current_integration().limitations:
+            del context['download']
+
+        button.get_popover().set_child(ContextContainer(context, self.id))
 
     @Gtk.Template.Callback()
     def show_popover(self, *args):
@@ -59,8 +63,12 @@ class AlbumRow(Adw.ActionRow):
         else:
             rect.x, rect.y = args[1], args[2]
 
+        context = CONTEXT_ALBUM.copy()
+        if 'no-downloads' in get_current_integration().limitations:
+            del context['download']
+
         popover = Gtk.Popover(
-            child=ContextContainer(CONTEXT_ALBUM, self.id),
+            child=ContextContainer(context, self.id),
             pointing_to=rect,
             has_arrow=False
         )
