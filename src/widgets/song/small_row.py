@@ -53,8 +53,8 @@ class SongSmallRow(Gtk.Button):
 
     def generate_context_menu(self) -> ContextContainer:
         context_dict = CONTEXT_SONG.copy()
-        del context_dict["edit"]
-        del context_dict["delete"]
+        del context_dict["edit-radio"]
+        del context_dict["delete-radio"]
         del context_dict["remove"]
         del context_dict["select"]
         if 'no-downloads' in get_current_integration().limitations:

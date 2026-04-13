@@ -347,7 +347,7 @@ CONTEXT_SONG = {
         "icon-name": "list-low-priority-symbolic",
         "action-name": "app.play_song_later"
     },
-    "edit": {
+    "edit-radio": {
         "name": _("Edit"),
         "icon-name": "document-edit-symbolic",
         "action-name": "app.update_radio"
@@ -377,7 +377,7 @@ CONTEXT_SONG = {
         "icon-name": "music-artist-symbolic",
         "action-name": "app.show_artist_from_song"
     },
-    "delete": {
+    "delete-radio": {
         "name": _("Delete"),
         "css": ["error"],
         "icon-name": "user-trash-symbolic",
@@ -409,3 +409,4 @@ CONTEXT_MANAGED_NAVIDROME_SERVER = {
         "action-name": "app.delete_navidrome_server"
     }
 }
+

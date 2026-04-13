@@ -65,13 +65,14 @@ class SongRow(Adw.ActionRow):
             context_dict["play-later"]["sensitive"] = integration.loaded_models.get('currentSong').get_property('songId') != self.id
 
         if not model or not (model.get_property('isRadio') and not self.draggable):
-            del context_dict["edit"]
-            del context_dict["delete"]
+            del context_dict["edit-radio"]
+            del context_dict["delete-radio"]
 
         if "edit" in context_dict and 'no-edit-radio' in integration.limitations:
-            del context_dict["edit"]
+            del context_dict["edit-radio"]
 
-        if 'no-downloads' in integration.limitations:
+        print(model, model.get_property('isRadio'), integration.limitations)
+        if 'no-downloads' in integration.limitations or not model or model.get_property('isRadio'):
             del context_dict["download"]
 
         if not model or model.get_property('isRadio') or model.get_property('isExternalFile'):
