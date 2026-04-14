@@ -440,7 +440,7 @@ class Navidrome(Base):
             'rating': rating
         })
         if response.get('status') == 'ok':
-            self.loaded_models.get(id).set_property('userRating', rating)
+            self.loaded_models.get(model_id).set_property('userRating', rating)
             return True
         return False
 
@@ -579,4 +579,5 @@ class NavidromeIntegrated(Navidrome):
             self.process.terminate()
             self.process = None
         self.set_property('serverRunning', False)
+
 
