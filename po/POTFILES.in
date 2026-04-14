@@ -23,6 +23,8 @@ src/ui/artist/button.blp
 src/ui/artist/page.blp
 src/ui/artist/row.blp
 src/ui/containers/carousel.blp
+src/ui/containers/download_row.blp
+src/ui/containers/downloads_queue_button.blp
 src/ui/containers/page_dialog.blp
 src/ui/containers/wrapbox.blp
 src/ui/lyrics/dialog.blp
@@ -67,6 +69,8 @@ src/widgets/artist/page.py
 src/widgets/artist/row.py
 src/widgets/containers/carousel.py
 src/widgets/containers/context.py
+src/widgets/containers/download_row.py
+src/widgets/containers/downloads_queue_button.py
 src/widgets/containers/__init__.py
 src/widgets/containers/page_dialog.py
 src/widgets/containers/wrapbox.py
