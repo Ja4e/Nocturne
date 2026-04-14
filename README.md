@@ -22,6 +22,7 @@
 - Mpris integration
 - Integrated Navidrome instance management
 - Automatic lyrics fetching
+- Downloads and offline mode
 - Cool interface
 
 ## Screenies
