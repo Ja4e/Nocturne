@@ -91,6 +91,21 @@
   </keywords>
 
   <releases>
+    <release version="0.9.6" date="2026-04-13">
+      <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.9.6</url>
+      <description translate="no">
+        <p>New</p>
+        <ul>
+          <li>New background generation algorithm</li>
+          <li>Added downloads and offline mode</li>
+          <li>Redesign of equalizer</li>
+        </ul>
+        <p>Fixes</p>
+        <ul>
+          <li>Fixes to logout / login process</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.9.5" date="2026-04-11">
       <url type="details">https://github.com/Jeffser/Nocturne/releases/tag/0.9.5</url>
       <description translate="no">
