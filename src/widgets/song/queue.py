@@ -93,7 +93,6 @@ class SongQueue(Gtk.Box):
             queue_model = integration.loaded_models.get('currentSong').get_property('queueModel')
             all_ids = [so.get_string() for so in list(queue_model)]
             selected_rows = self.get_selected_rows()
-            print(len(selected_rows))
             selected_ids = [r.id for r in selected_rows]
             current_song_id = integration.loaded_models.get('currentSong').get_property('songId')
 
