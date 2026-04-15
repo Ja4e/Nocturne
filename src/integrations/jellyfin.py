@@ -792,9 +792,9 @@ class Jellyfin(Base):
                 rating_dict = {}
         except Exception:
             rating_dict = {}
-        rating_dict[id] = rating
+        rating_dict[model_id] = rating
 
-        self.loaded_models.get(id).set_property('userRating', rating)
+        self.loaded_models.get(model_id).set_property('userRating', rating)
         with open(RATINGSFILE, 'w') as f:
             json.dump(ratings, f, ensure_ascii=False)
         return True
@@ -870,4 +870,5 @@ class Jellyfin(Base):
             pass
 
         return server_information
+
 
