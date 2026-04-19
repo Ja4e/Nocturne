@@ -47,6 +47,9 @@ class PlaylistPage(Adw.NavigationPage):
         integration.connect_to_model(self.id, 'gdkPaintableBytes', self.update_background)
 
         self.song_list_el.playlist_id = self.id
+        self.song_ids = []
+        self.current_offset = 0
+        self.loading = False
 
     def update_cover(self, paintable:Gdk.Paintable=None):
         if paintable:
@@ -84,20 +87,32 @@ class PlaylistPage(Adw.NavigationPage):
         self.set_title(name or _('Playlist'))
         self.set_name(name)
 
-    def update_song_list(self, song_list:list):
-        def run():
-            GLib.idle_add(self.song_list_el.list_el.remove_all)
-            GLib.idle_add(self.song_list_el.main_stack.set_visible_child_name, 'content' if len(song_list) > 0 else 'no-content')
-            song_ids = [s.get('id') for s in song_list]
-            for song_id in song_ids:
-                row = SongRow(song_id, removable=True)
+    def load_song_rows(self):
+        # Pagination of Playlist in order to load hundreds
+        if self.current_offset < len(self.song_ids) and not self.loading:
+            self.loading = True
+            for songId in self.song_ids[self.current_offset:self.current_offset+50]:
+                row = SongRow(songId, removable=True)
                 row.set_action_name('app.play_song_from_list')
                 row.set_action_target_value(GLib.Variant('a{sv}', {
-                    'songId': GLib.Variant('s', song_id),
-                    'songs': GLib.Variant('as', song_ids)
+                    'songId': GLib.Variant('s', songId),
+                    'songs': GLib.Variant('as', self.song_ids)
                 }))
                 GLib.idle_add(self.song_list_el.list_el.append, row)
-        threading.Thread(target=run).start()
+            self.current_offset += 50
+            GLib.idle_add(setattr, self, 'loading', False)
+
+    def update_song_list(self, song_list:list):
+        self.song_list_el.list_el.remove_all()
+        self.song_list_el.main_stack.set_visible_child_name('content' if len(song_list) > 0 else 'no-content')
+        self.song_ids = [s.get('id') for s in song_list]
+        self.current_offset = 50
+        threading.Thread(target=self.load_song_rows).start()
+
+    @Gtk.Template.Callback()
+    def scroll_edge_reached(self, scrolledwindow, pos):
+        if pos == Gtk.PositionType.BOTTOM:
+            threading.Thread(target=self.load_song_rows).start()
 
     def update_song_count(self, songCount:int):
         if songCount == 1:
