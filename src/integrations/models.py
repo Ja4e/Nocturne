@@ -26,7 +26,8 @@ class Album(GObject.Object):
     def update_data(self, **kwargs):
         for prop in self.list_properties():
             if prop.get_name() in kwargs:
-                self.set_property(prop.get_name(), kwargs.get(prop.get_name()))
+                if self.get_property(prop.get_name()) != kwargs.get(prop.get_name()):
+                    self.set_property(prop.get_name(), kwargs.get(prop.get_name()))
             elif self.get_property(prop.get_name()) is None:
                 if prop.value_type.name == 'PyObject': #LIST
                     self.set_property(prop.get_name(), [])
@@ -55,7 +56,8 @@ class Artist(GObject.Object):
     def update_data(self, **kwargs):
         for prop in self.list_properties():
             if prop.get_name() in kwargs:
-                self.set_property(prop.get_name(), kwargs.get(prop.get_name()))
+                if self.get_property(prop.get_name()) != kwargs.get(prop.get_name()):
+                    self.set_property(prop.get_name(), kwargs.get(prop.get_name()))
             elif self.get_property(prop.get_name()) is None:
                 if prop.value_type.name == 'PyObject': #LIST
                     self.set_property(prop.get_name(), [])
@@ -82,7 +84,8 @@ class Playlist(GObject.Object):
     def update_data(self, **kwargs):
         for prop in self.list_properties():
             if prop.get_name() in kwargs:
-                self.set_property(prop.get_name(), kwargs.get(prop.get_name()))
+                if self.get_property(prop.get_name()) != kwargs.get(prop.get_name()):
+                    self.set_property(prop.get_name(), kwargs.get(prop.get_name()))
             elif self.get_property(prop.get_name()) is None:
                 if prop.value_type.name == 'PyObject': #LIST
                     self.set_property(prop.get_name(), [])
@@ -123,7 +126,8 @@ class Song(GObject.Object):
     def update_data(self, **kwargs):
         for prop in self.list_properties():
             if prop.get_name() in kwargs:
-                self.set_property(prop.get_name(), kwargs.get(prop.get_name()))
+                if self.get_property(prop.get_name()) != kwargs.get(prop.get_name()):
+                    self.set_property(prop.get_name(), kwargs.get(prop.get_name()))
             elif self.get_property(prop.get_name()) is None:
                 if prop.value_type.name == 'PyObject': #LIST
                     self.set_property(prop.get_name(), [])

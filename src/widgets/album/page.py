@@ -121,6 +121,7 @@ class AlbumPage(Adw.NavigationPage):
             self.star_el.set_tooltip_text(_('Not Favorite'))
 
     def update_song_list(self, song_list:list):
+        print('update_song_list', len(song_list), len(list(self.song_list_el.list_el)))
         def run():
             GLib.idle_add(self.song_list_el.list_el.remove_all)
             GLib.idle_add(self.song_list_el.main_stack.set_visible_child_name, 'content' if len(song_list) > 0 else 'no-content')
@@ -134,7 +135,8 @@ class AlbumPage(Adw.NavigationPage):
                 }))
                 GLib.idle_add(self.song_list_el.list_el.append, row)
             GLib.idle_add(self.song_list_el.list_el.invalidate_sort)
-        threading.Thread(target=run).start()
+        if len(list(self.song_list_el.list_el)) != song_list:
+            threading.Thread(target=run).start()
 
 
     @Gtk.Template.Callback()
