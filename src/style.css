@@ -184,6 +184,14 @@ toast {
   }
 }
 
+window.fullscreen headerbar {
+  opacity: 0;
+  transition: opacity .2s;
+}
+window.fullscreen headerbar:hover {
+  opacity: 1;
+}
+
 .small_song_button > box {
   margin: 5px;
   margin-top: 0;
