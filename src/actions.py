@@ -78,7 +78,7 @@ def __play_next(window, songs:list):
     if queue_model.get_property('n-items') == 0 or not current_song_id:
         __replace_queue(window, songs)
     else:
-        current_song_index = -1
+        current_song_index = 0
         for i, so in enumerate(list(queue_model)): # so=string object
             song_id = so.get_string()
             if song_id in songs and song_id != current_song_id:
@@ -86,10 +86,10 @@ def __play_next(window, songs:list):
             elif song_id == current_song_id:
                 current_song_index = i + 1
         songs.reverse()
-        GLib.idle_add(queue.model.splice,
+        GLib.idle_add(queue_model.splice,
+            current_song_index,
             0,
-            0,
-            [Gtk.StringObject.new(SongId for SongId in songs if SongId != current_song_id)]
+            [Gtk.StringObject.new(SongId) for SongId in songs if SongId != current_song_id]
         )
 
 def __play_later(window, songs:list):
@@ -103,10 +103,10 @@ def __play_later(window, songs:list):
             song_id = so.get_string()
             if song_id in songs and song_id != current_song_id:
                 queue_model.remove(i)
-        GLib.idle_add(queue.model.splice,
+        GLib.idle_add(queue_model.splice,
+            queue_model.get_property('n-items'),
             0,
-            0,
-            [Gtk.StringObject.new(SongId for SongId in songs if SongId != current_song_id)]
+            [Gtk.StringObject.new(SongId) for SongId in songs if SongId != current_song_id]
         )
 
 # -- MISC --
