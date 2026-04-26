@@ -229,6 +229,7 @@ class Player(EventAdapter):
         self.application = application
         self.gst = Gst.ElementFactory.make("playbin", "music-player")
         self.gst.connect("about-to-finish", lambda playbin: self.handle_song_change_request("end"))
+        self.gst.connect("source-setup", self.on_source_setup)
 
         self.bin = Gst.Bin.new("audio-filter-bin")
 
@@ -308,6 +309,11 @@ class Player(EventAdapter):
         self.last_gst_state_type = -1
         integration = get_current_integration()
         integration.connect_to_model('currentSong', 'songId', self.song_changed)#lambda song_id: threading.Thread(target=self.song_changed, args=(song_id,)).start())
+
+    def on_source_setup(self, playbin, source):
+        if GObject.type_is_a(source, Gst.ElementFactory.find("souphttpsrc").get_element_type()):
+            if integration := get_current_integration():
+                source.set_property("ssl-strict", not integration.get_property('trustServer'))
 
     # ---
 
