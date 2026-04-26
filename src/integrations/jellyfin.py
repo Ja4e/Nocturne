@@ -466,7 +466,9 @@ class Jellyfin(Base):
                 duration=duration,
                 artists=[{"id": art.get("Id"), "name": art.get("Name")} for art in song.get("ArtistItems", [])],
                 starred=song.get("UserData", {}).get("IsFavorite", False),
-                track=song.get("IndexNumber") or 0
+                track=song.get("IndexNumber") or 0,
+                albumGain=song.get("AlbumNormalizationGain", song.get("NormalizationGain", 0.0)),
+                trackGain=song.get("NormalizationGain", 0.0)
             )
 
         if model_id not in self.loaded_models or force_update:

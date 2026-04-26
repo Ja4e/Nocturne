@@ -232,6 +232,7 @@ class Player(EventAdapter):
 
         self.bin = Gst.Bin.new("audio-filter-bin")
 
+        # Equalizer
         self.equalizer = Gst.ElementFactory.make("equalizer-nbands", "equalizer")
         self.bin.add(self.equalizer)
         self.equalizer.set_property("num-bands", 6)
@@ -244,6 +245,14 @@ class Player(EventAdapter):
                 Gio.SettingsBindFlags.DEFAULT
             )
 
+        # ReplayGain
+        self.rg_volume = Gst.ElementFactory.make("rgvolume", "replaygain")
+        self.rg_limiter = Gst.ElementFactory.make("rglimiter", "limiter")
+        self.bin.add(self.rg_volume)
+        self.bin.add(self.rg_limiter)
+        self.rg_volume.set_property("album-mode", True)
+
+        # Spectrum
         self.spectrum = Gst.ElementFactory.make("spectrum", "spectrum-analyzer")
         self.bin.add(self.spectrum)
         self.settings.bind(
@@ -258,7 +267,11 @@ class Player(EventAdapter):
         self.spectrum.set_property("multi-channel", True)
         self.spectrum.set_property("interval", 50000000)
 
-        self.equalizer.link(self.spectrum)
+        # Links
+        self.equalizer.link(self.rg_volume)
+        self.rg_volume.link(self.rg_limiter)
+        self.rg_limiter.link(self.spectrum)
+
         sink_pad = Gst.GhostPad.new("sink", self.equalizer.get_static_pad("sink"))
         src_pad = Gst.GhostPad.new("src", self.spectrum.get_static_pad("src"))
         self.bin.add_pad(sink_pad)
@@ -473,6 +486,18 @@ class Player(EventAdapter):
                     artists = model.get_property('artists')
                     if len(artists) > 0:
                         integration.loaded_models.get('currentSong').set_property('displaySongArtist', artists[0].get('name'))
+
+                new_gain = model.get_property('trackGain')
+                album_mode = False
+                if last_model := integration.loaded_models.get(self.last_song_id):
+                    if last_model.get_property('albumId') == model.get_property('albumId'):
+                        new_gain = model.get_property('albumGain')
+                        album_mode = True
+
+                self.last_song_id = songId
+                self.rg_volume.set_property("fallback-gain", new_gain)
+                self.rg_volume.set_property("album-mode", album_mode)
+
         if song_id:
             if song_id != self.last_song_id:
                 stream_url = integration.get_stream_url(song_id)
@@ -485,7 +510,6 @@ class Player(EventAdapter):
                     self.gst.set_state(Gst.State.PLAYING)
                 threading.Thread(target=integration.scrobble, args=(song_id,)).start()
                 threading.Thread(target=update_default_metadata, args=(song_id,)).start()
-                self.last_song_id = song_id
         else:
             self.gst.set_state(Gst.State.NULL)
 

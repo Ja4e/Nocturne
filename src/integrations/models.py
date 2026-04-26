@@ -104,6 +104,8 @@ class Song(GObject.Object):
     artist = GObject.Property(type=str)
     duration = GObject.Property(type=int)
     albumId = GObject.Property(type=str)
+    albumGain = GObject.Property(type=float)
+    trackGain = GObject.Property(type=float)
     artistId = GObject.Property(type=str)
     artists = GObject.Property(type=GObject.TYPE_PYOBJECT) # list
     starred = GObject.Property(type=bool, default=False)

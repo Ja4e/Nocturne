@@ -74,7 +74,10 @@ class Navidrome(Base):
 
     def get_stream_url(self, song_id:str) -> str:
         # streams are handled by gst not requests
+        if song_id not in self.loaded_models:
+            self.verifySong(song_id, use_threading=False)
         model = self.loaded_models.get(song_id)
+
         if model.get_property('isRadio'):
             return model.get_property('streamUrl')
         elif model.get_property('isExternalFile'):
@@ -256,7 +259,8 @@ class Navidrome(Base):
         def update():
             response = self.make_request('getSong', {'id': model_id})
             song_dict = response.get('song', {})
-            self.loaded_models[model_id].update_data(**song_dict)
+            gains = song_dict.get('replayGain')
+            self.loaded_models[model_id].update_data(**song_dict, albumGain=gains.get('albumGain', 0.0), trackGain=gains.get('trackGain', 0.0))
             threading.Thread(target=self.getCoverArt, args=(model_id,)).start()
 
         if model_id not in self.loaded_models:
